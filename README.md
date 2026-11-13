@@ -80,6 +80,19 @@ A modern, tactile Progressive Web App (PWA) designed and engineered specifically
 
 ---
 
+## ✨ Charles Unslop & Polish Craft (No AI Tells)
+
+Applied the **Charles Unslop** & **Charles Polish** design frameworks to remove generic AI patterns and deliver production-grade industrial tactile UI:
+- **Zero Emoji Tells**: Replaced amateur emoji symbols (🌾, 🏗️, ⚙️, 📦, 🚜, 🧵, 🧪, 📅, ⚖️, 🚛, 📞, 🏢, 🔒) with bespoke, single-stroke SVG line icons color-coordinated in brand cognac (`#8D5028`) and espresso (`#2E180E`).
+- **The Moment — Freight Consignment Note (भारतीय बिल्टी / Bilty Ledger Card)**: Formatted load cards into authentic, ruled highway transport bilty slips with LR numbers, clear route hubs, and direct tactile Forest Action Green call actions.
+- **Calm State Indicators**: Replaced erratic `animate-ping` pulsing dots with calm, confident status markers ("A badge is a label, not an ambulance").
+- **Precision Typography & Numbers**: Tabular figures (`font-mono tabular-nums`) on weights, dates, phone numbers, and load IDs; eliminated screaming all-caps in favor of clean sentence case labels.
+- **Accessible Focus States**: Explicit `:focus-visible` outline rules (`2px solid #8D5028`) supporting keyboard and switch navigation without cluttering touch taps.
+- **Motion Accessibility**: Comprehensive `@media (prefers-reduced-motion: reduce)` ensuring fluid fallback for users with vestibular sensitivities.
+- **Clean Field vs. Button Hierarchy**: Crisp white input surfaces with 1px tactile borders contrasting against solid espresso action buttons.
+
+---
+
 ## 📱 Smartphone & Mobile OS Optimizations
 
 - **iOS & Android Safe Area Insets**:
