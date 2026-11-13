@@ -20,6 +20,34 @@ A modern, tactile Progressive Web App (PWA) designed and engineered specifically
 |:---:|:---:|
 | ![KABANI Official Logo](assets/kabani-logo.jpg) | ![KABANI Device Mockup](assets/kabani-mockup.jpg) |
 
+---
+
+## 💎 Glassmorphism Edition Prototype
+
+An ultra-luxury, high-performance **Glassmorphism Edition** test prototype has been built and deployed alongside the classic edition:
+- 🌐 **Live Glassmorphism URL**: [https://ssccgl3377.github.io/shyam-freight-carriers/glass.html](https://ssccgl3377.github.io/shyam-freight-carriers/glass.html)
+- 🧪 **Automated Glassmorphism Test Suite**: `test-glass.spec.js` (5/5 passed)
+
+| 1. Authentication & Ambient Orbs | 2. Role Selection HUD | 3. Driver Load Board (Frosted Bilty) |
+|:---:|:---:|:---:|
+| ![Glass Auth](assets/glass_auth.png) | ![Glass Roles](assets/glass_roles.png) | ![Glass Driver Board](assets/glass_driver_board.png) |
+
+### Key Glassmorphic Design Engineering:
+- **Atmospheric Liquid Mesh Backdrop**: Deep obsidian canvas (`#0C0604`) with floating dynamic blurred glow orbs (Amber `#D98236`, Emerald `#22C55E`, Gold `#F59E0B`) orbiting in 3D depth against a fine highway perspective grid.
+- **Multi-Tier Frosted Glass Materials**:
+  - Heavy Frosted Glass Panels (`backdrop-filter: blur(28px) saturate(200%)`).
+  - Specular inner rim lighting (`inset 0 1px 1px rgba(255,255,255,0.28)`).
+  - Chromatic / prismatic edge refraction borders.
+- **Luminous Action Buttons**:
+  - Emerald Green 1-tap call button with live sonar soundwave rings.
+  - Cognac leather glass badges and dark smoked glass filter chips.
+- **Full Operational Parity**:
+  - Strict password authentication (signup required, case-sensitive check).
+  - Both English (0 Devanagari) and Hindi (transliterated) localization.
+  - Transporter load posting & driver bilty stream with instant phone dialer.
+
+---
+
 ### Color Logic & Aesthetics
 - **Kraft Sand Canvas (`#FBF8F3` / `#F5ECE1`)**: Warm tactile foundation reminiscent of physical transport bilty (consignment notes) and desk stationery.
 - **Deep Espresso (`#2E180E`)**: Solid headings, structural borders, and physical letterpress button depths.
