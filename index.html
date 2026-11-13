@@ -1804,6 +1804,30 @@
         currentUser: JSON.parse(localStorage.getItem('kabani_user')) || null,
         currentView: 'auth',
         authTab: 'login',
+        registeredUsers: (() => {
+          try {
+            const cached = localStorage.getItem('kabani_registered_users');
+            if (cached) return JSON.parse(cached);
+          } catch(e) {}
+          return [
+            {
+              name: "Rajesh Kumar (Kabani Freight)",
+              mobile: "9829011223",
+              email: "rajesh.kabani@freight.com",
+              password: "Password@123",
+              role: "transporter",
+              registeredAt: "2026-11-13T00:00:00.000Z"
+            },
+            {
+              name: "Ramesh Singh (Truck Owner)",
+              mobile: "9876543210",
+              email: "driver.ramesh@kabani.com",
+              password: "Driver@123",
+              role: "driver",
+              registeredAt: "2026-11-13T00:00:00.000Z"
+            }
+          ];
+        })(),
         loads: (() => {
           try {
             const cached = localStorage.getItem('kabani_loads_v1');
@@ -1839,6 +1863,23 @@
         setupInfiniteScroll();
         setupScrollRevealObserver();
         registerServiceWorker();
+
+        // Sync with local backend server (Desktop storage) if online
+        try {
+          fetch('/api/users')
+            .then(r => r.ok ? r.json() : [])
+            .then(srvUsers => {
+              if (Array.isArray(srvUsers) && srvUsers.length > 0) {
+                srvUsers.forEach(su => {
+                  if (!state.registeredUsers.some(u => u.mobile === su.mobile)) {
+                    state.registeredUsers.push(su);
+                  }
+                });
+                localStorage.setItem('kabani_registered_users', JSON.stringify(state.registeredUsers));
+              }
+            })
+            .catch(() => {});
+        } catch(e) {}
       };
 
       // Huashu Scroll Reveal Observer
@@ -2156,12 +2197,25 @@
           return;
         }
 
-        const user = {
-          name: state.lang === 'hi' ? "राजेश कुमार" : "Rajesh Kumar",
-          mobile: mobile,
-          role: "transporter"
-        };
-        loginSuccess(user);
+        // Strict Requirement: User MUST be registered first
+        const registeredUser = state.registeredUsers.find(u => u.mobile === mobile);
+        if (!registeredUser) {
+          showAuthError(state.lang === 'hi'
+            ? `मोबाइल नंबर +91 ${mobile} से कोई खाता पंजीकृत नहीं है। कृपया पहले 'नया खाता बनाएं' (Sign Up) पर क्लिक करके साइन अप करें।`
+            : `No registered account found with mobile +91 ${mobile}. You must Sign Up first before logging in.`);
+          return;
+        }
+
+        // Strict Requirement: Exact same case-sensitive password
+        if (registeredUser.password !== password) {
+          showAuthError(state.lang === 'hi'
+            ? "गलत पासवर्ड। पासवर्ड केस-सेंसिटिव (अक्षर के आकार के प्रति संवेदनशील) है, कृपया ध्यान से दर्ज करें।"
+            : "Incorrect password. Passwords are strictly case-sensitive. Please re-enter carefully.");
+          document.getElementById('login-password').focus();
+          return;
+        }
+
+        loginSuccess(registeredUser);
       };
 
       const handleSignup = (e) => {
@@ -2195,27 +2249,65 @@
           return;
         }
 
-        const user = { name, mobile, email, role };
-        loginSuccess(user);
+        // Check if mobile already exists
+        const existing = state.registeredUsers.find(u => u.mobile === mobile);
+        if (existing) {
+          showAuthError(state.lang === 'hi'
+            ? "इस मोबाइल नंबर से खाता पहले से मौजूद है। कृपया 'लॉग इन' टैब में जाकर अपना सही पासवर्ड दर्ज करके लॉगिन करें।"
+            : "An account with this mobile number already exists. Please switch to the Login tab.");
+          return;
+        }
+
+        const newUser = {
+          name,
+          mobile,
+          email,
+          password, // exact case-sensitive password saved
+          role,
+          registeredAt: new Date().toISOString()
+        };
+
+        state.registeredUsers.push(newUser);
+        localStorage.setItem('kabani_registered_users', JSON.stringify(state.registeredUsers));
+
+        // Sync to Desktop backend storage folder asynchronously
+        try {
+          fetch('/api/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newUser)
+          }).catch(() => {});
+        } catch(e) {}
+
+        showToast(state.lang === 'hi'
+          ? "🎉 खाता सफलतापूर्वक बन गया! लॉगिन हो रहा है..."
+          : "🎉 Account created successfully! Logging you in...", 'green');
+
+        loginSuccess(newUser);
       };
 
       const quickDemoLogin = (role) => {
         triggerHaptic();
-        let user;
-        if (role === 'transporter') {
-          user = {
+        const targetMobile = (role === 'transporter') ? "9829011223" : "9876543210";
+        let user = state.registeredUsers.find(u => u.mobile === targetMobile);
+        if (!user) {
+          user = (role === 'transporter') ? {
             name: state.lang === 'hi' ? "राजेश कुमार (कबानी ट्रांसपोर्ट)" : "Rajesh Kumar (Kabani Freight)",
             mobile: "9829011223",
             email: "rajesh.kabani@freight.com",
-            role: "transporter"
-          };
-        } else {
-          user = {
+            password: "Password@123",
+            role: "transporter",
+            registeredAt: new Date().toISOString()
+          } : {
             name: state.lang === 'hi' ? "रामेश सिंह (गाड़ी मालिक)" : "Ramesh Singh (Truck Owner)",
             mobile: "9876543210",
-            email: "ramesh.driver@gmail.com",
-            role: "driver"
+            email: "driver.ramesh@kabani.com",
+            password: "Driver@123",
+            role: "driver",
+            registeredAt: new Date().toISOString()
           };
+          state.registeredUsers.push(user);
+          localStorage.setItem('kabani_registered_users', JSON.stringify(state.registeredUsers));
         }
         loginSuccess(user);
       };
@@ -2240,6 +2332,7 @@
         state.currentUser = null;
         localStorage.removeItem('kabani_user');
         hideUserHeader();
+        switchAuthTab('login');
         navigate('auth');
         showToast(state.lang === 'hi' ? "आप सफलतापूर्वक लॉगआउट हो गए हैं" : "Successfully logged out", 'espresso');
       };

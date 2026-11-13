@@ -5,9 +5,12 @@ const APP_URL = 'http://127.0.0.1:3000/';
 test.describe('KABANI - Reliable Truck Network - Feature & Functional Tests', () => {
 
   test.beforeEach(async ({ page }) => {
-    // Clear localStorage and navigate reliably
+    // Clear localStorage and reset backend test users reliably
     await page.goto(APP_URL, { waitUntil: 'domcontentloaded', timeout: 15000 });
-    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(async () => {
+      localStorage.clear();
+      try { await fetch('/api/reset-users', { method: 'POST' }); } catch(e) {}
+    });
     await page.reload({ waitUntil: 'domcontentloaded', timeout: 15000 });
   });
 
@@ -44,7 +47,52 @@ test.describe('KABANI - Reliable Truck Network - Feature & Functional Tests', ()
     await expect(alertBox).toBeVisible();
     await expect(alertBox).toContainText(/6 characters/i);
 
-    // 2.3 Test Forgot Password Modal via registered Email
+    // 2.3 Strict Requirement: Cannot login without proper prior sign-up
+    await page.fill('#login-mobile', '9123456780');
+    await page.fill('#login-password', 'UnregisteredPass123');
+    await page.click('#form-login button[type="submit"]');
+    await expect(alertBox).toBeVisible();
+    await expect(alertBox).toContainText(/Sign Up first|No registered account/i);
+
+    // 2.4 Strict Requirement: Sign up with mobile and case-sensitive password
+    await page.click('#tab-btn-signup');
+    await page.fill('#signup-name', 'Suresh Kumar');
+    await page.fill('#signup-mobile', '9123456780');
+    await page.fill('#signup-email', 'suresh@transport.in');
+    await page.fill('#signup-password', 'ExactCasePass@99');
+    await page.click('#form-signup button[type="submit"]');
+    
+    // Landed on Role Select after successful registration
+    const roleView = page.locator('#view-role-select');
+    await expect(roleView).toBeVisible();
+    await expect(page.locator('#user-header-pill')).toBeVisible();
+    await expect(page.locator('#user-pill-name')).toContainText('Suresh');
+
+    // Logout to test subsequent login behavior
+    await page.click('#btn-logout');
+    await expect(page.locator('#view-auth')).toBeVisible();
+    await page.click('#tab-btn-login');
+
+    // 2.5 Strict Requirement: Cannot login if password casing differs (Case-Sensitivity test)
+    await page.fill('#login-mobile', '9123456780');
+    await page.fill('#login-password', 'exactcasepass@99'); // wrong lowercase casing
+    await page.click('#form-login button[type="submit"]');
+    await expect(alertBox).toBeVisible();
+    await expect(alertBox).toContainText(/case-sensitive|Incorrect password/i);
+    await expect(roleView).toBeHidden();
+
+    // 2.6 Strict Requirement: Can login with exact same mobile and exact same case-sensitive password
+    await page.fill('#login-password', 'ExactCasePass@99'); // exact casing
+    await page.click('#form-login button[type="submit"]');
+    await expect(roleView).toBeVisible();
+    await expect(page.locator('#user-pill-name')).toContainText('Suresh');
+
+    // Logout again for forgot password and demo tests
+    await page.click('#btn-logout');
+    await expect(page.locator('#view-auth')).toBeVisible();
+    await page.click('#tab-btn-login');
+
+    // 2.7 Test Forgot Password Modal via registered Email
     await page.click('button:has-text("Forgot Password?")');
     const modal = page.locator('#modal-forgot-password');
     await expect(modal).toBeVisible();
@@ -63,11 +111,8 @@ test.describe('KABANI - Reliable Truck Network - Feature & Functional Tests', ()
     await page.click('button:has-text("Back to Login")');
     await expect(modal).toBeHidden();
 
-    // 2.4 Test Demo Login (Transporter)
+    // 2.8 Test Demo Login (Transporter)
     await page.click('#btn-demo-transporter');
-    
-    // Verify navigated to Role Selection
-    const roleView = page.locator('#view-role-select');
     await expect(roleView).toBeVisible();
     await expect(page.locator('#user-header-pill')).toBeVisible();
   });
