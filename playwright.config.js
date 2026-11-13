@@ -3,7 +3,7 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: '.',
-  testMatch: 'test-features.spec.js',
+  testMatch: '*.spec.js',
   timeout: 30000,
   retries: 0,
   workers: 1,

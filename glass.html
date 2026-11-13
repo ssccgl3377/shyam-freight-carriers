@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0C0604">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>KABANI Glassmorphism | Reliable Truck Network | Verified Transport Network</title>
+  <link rel="icon" type="image/jpeg" href="assets/kabani-logo.jpg">
+
+  <!-- Fonts: Outfit (modern display) & Inter (precision UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['Outfit', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            glass: {
+              void: '#0C0604',
+              obsidian: '#120A06',
+              amber: '#D98236',
+              cognac: '#8D5028',
+              emerald: '#22C55E',
+              emeraldDeep: '#16A34A',
+              gold: '#F59E0B'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      background-color: #0C0604;
+      color: #F8FAFC;
+      font-family: 'Inter', sans-serif;
+      overflow-x: clip;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Ambient Dynamic Floating Orbs */
+    .orb-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(80px);
+      opacity: 0.55;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+
+    .orb-1 {
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(217, 130, 54, 0.45) 0%, rgba(141, 80, 40, 0.15) 60%, transparent 80%);
+      top: -120px;
+      left: -100px;
+      animation: orbFloat1 22s ease-in-out infinite alternate;
+    }
+
+    .orb-2 {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.32) 0%, rgba(22, 163, 74, 0.1) 60%, transparent 80%);
+      bottom: -150px;
+      right: -120px;
+      animation: orbFloat2 26s ease-in-out infinite alternate;
+    }
+
+    .orb-3 {
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.28) 0%, rgba(180, 83, 9, 0.08) 60%, transparent 80%);
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: orbFloat3 30s ease-in-out infinite alternate;
+    }
+
+    @keyframes orbFloat1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(90px, 70px) scale(1.18); }
+    }
+    @keyframes orbFloat2 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-80px, -60px) scale(1.15); }
+    }
+    @keyframes orbFloat3 {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      100% { transform: translate(-35%, -65%) scale(1.22); }
+    }
+
+    /* Subtle Highway Grid Overlay */
+    .highway-grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity: 0.7;
+    }
+
+    /* Glassmorphism Tier 1: Heavy Frosted Glass Panels */
+    .glass-panel {
+      background: rgba(22, 12, 7, 0.65);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.28),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
+        0 24px 48px -12px rgba(0, 0, 0, 0.75);
+    }
+
+    /* Glassmorphism Tier 2: Refined Card Glass */
+    .glass-card {
+      background: rgba(30, 16, 10, 0.58);
+      backdrop-filter: blur(22px) saturate(180%);
+      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+        0 14px 36px -8px rgba(0, 0, 0, 0.65);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(217, 130, 54, 0.45);
+      background: rgba(38, 20, 12, 0.68);
+      box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.35),
+        0 20px 48px -10px rgba(0, 0, 0, 0.85);
+      transform: translateY(-2px);
+    }
+
+    /* Glassmorphism Tier 3: Inset Specular Wells */
+    .glass-well {
+      background: rgba(14, 7, 4, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.65);
+    }
+
+    /* Glass Inputs */
+    .glass-input {
+      background: rgba(16, 8, 4, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #F8FAFC;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.55);
+      transition: all 0.2s ease;
+    }
+
+    .glass-input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .glass-input:focus {
+      outline: none;
+      border-color: #D98236;
+      box-shadow: 
+        0 0 0 3px rgba(217, 130, 54, 0.25),
+        inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Glowing Emerald Action Button (Forest Green) */
+    .glass-btn-emerald {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.92) 0%, rgba(21, 128, 61, 0.98) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.6),
+        0 14px 32px rgba(34, 197, 94, 0.45);
+      backdrop-filter: blur(12px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-btn-emerald:hover {
+      box-shadow: 
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.8),
+        0 18px 42px rgba(34, 197, 94, 0.65);
+      transform: translateY(-2px);
+    }
+
+    .glass-btn-emerald:active {
+      transform: translateY(1px);
+    }
+
+    /* Luminous Cognac Button */
+    .glass-btn-cognac {
+      background: linear-gradient(135deg, rgba(217, 130, 54, 0.88) 0%, rgba(141, 80, 40, 0.96) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.5),
+        0 12px 28px rgba(141, 80, 40, 0.45);
+      backdrop-filter: blur(12px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-btn-cognac:hover {
+      box-shadow: 
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.7),
+        0 16px 36px rgba(217, 130, 54, 0.55);
+      transform: translateY(-2px);
+    }
+
+    .glass-btn-cognac:active {
+      transform: translateY(1px);
+    }
+
+    /* Luminous Dark Button */
+    .glass-btn-dark {
+      background: rgba(30, 16, 10, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+        0 8px 24px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-btn-dark:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(45, 24, 15, 0.85);
+      transform: translateY(-1px);
+    }
+
+    /* Prismatic Border Highlight */
+    .prismatic-border {
+      position: relative;
+    }
+    .prismatic-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(217, 130, 54, 0.25) 50%, rgba(34, 197, 94, 0.3) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* Sonar Ripple Rings */
+    @keyframes sonarWave1 {
+      0% { transform: scale(1); opacity: 0.7; }
+      100% { transform: scale(1.65); opacity: 0; }
+    }
+    @keyframes sonarWave2 {
+      0% { transform: scale(1); opacity: 0.5; }
+      100% { transform: scale(2.05); opacity: 0; }
+    }
+    .sonar-ring-1 { animation: sonarWave1 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+    .sonar-ring-2 { animation: sonarWave2 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s infinite; }
+
+    /* Animated Highway Line */
+    @keyframes roadDash {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 24px; }
+    }
+    .road-lane-anim {
+      background-image: repeating-linear-gradient(to bottom, #D98236 0px, #D98236 6px, transparent 6px, transparent 12px);
+      background-size: 2px 24px;
+      animation: roadDash 1s linear infinite;
+    }
+
+    /* Traveling Route Pulse */
+    @keyframes travelDot {
+      0% { top: 0%; opacity: 0.2; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 100%; opacity: 0.2; }
+    }
+    .route-pulse-dot {
+      animation: travelDot 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+
+    /* Highway Cruising Mini-Truck on Progress Track */
+    #highway-scroll-indicator {
+      transition: left 0.1s linear;
+      will-change: left;
+    }
+
+    /* Custom Scrollbar for Glass */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(12, 6, 4, 0.8);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(217, 130, 54, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(217, 130, 54, 0.7);
+    }
+
+    /* Radio Card Active State */
+    .material-radio-card input:checked ~ .card-check-glow {
+      opacity: 1;
+      border-color: #D98236;
+    }
+
+    /* View Visibility Transitions */
+    .view-hidden { display: none !important; }
+    .view-visible { display: block !important; animation: fadeInGlass 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    @keyframes fadeInGlass {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Accessibility: Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      .orb-1, .orb-2, .orb-3,
+      .sonar-ring-1, .sonar-ring-2,
+      .road-lane-anim, .route-pulse-dot {
+        animation: none !important;
+      }
+      * {
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body class="relative min-h-screen selection:bg-glass-amber selection:text-white pb-24 sm:pb-12">
+
+  <!-- Background Ambient Orbs (Liquid Mesh Glow) -->
+  <div class="orb-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Perspective Highway Grid Overlay -->
+  <div class="highway-grid"></div>
+
+  <!-- Top Highway Scroll Progress Track with Cruising Truck -->
+  <div class="fixed top-0 left-0 right-0 h-1 bg-white/5 z-50 overflow-visible">
+    <div id="scroll-progress-bar" class="h-full bg-gradient-to-r from-glass-cognac via-glass-amber to-glass-emerald transition-all duration-75 relative" style="width: 0%;">
+      <!-- Mini-truck cruising on highway -->
+      <div id="highway-scroll-indicator" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-7 h-7 rounded-full glass-panel flex items-center justify-center shadow-lg border border-glass-amber/50">
+        <svg class="w-3.5 h-3.5 text-glass-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Luxury Frosted Glass Header -->
+  <header class="sticky top-0 z-40 w-full glass-panel border-b border-white/10 px-2 sm:px-6 py-2 transition-all">
+    <div class="max-w-5xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
+      
+      <!-- Brand Logo & Dual Taglines -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 cursor-pointer shrink min-w-0" onclick="app.navigateHome()">
+        <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl overflow-hidden glass-card p-0.5 border border-white/20 shrink-0 shadow-lg">
+          <img src="assets/kabani-logo.jpg" alt="KABANI Official Logo" class="w-full h-full object-contain filter drop-shadow">
+        </div>
+        <div class="leading-none min-w-0">
+          <div class="flex items-center gap-1">
+            <h1 class="font-display font-black text-sm sm:text-xl tracking-tight text-white flex items-center gap-1">
+              <span>KABANI</span>
+              <span class="text-[9px] sm:text-xs px-1.5 py-0.2 rounded-full bg-glass-amber/20 border border-glass-amber/40 text-glass-amber font-mono font-bold">GLASS</span>
+            </h1>
+          </div>
+          <p class="text-[8px] sm:text-[10px] font-bold text-glass-amber tracking-wider uppercase font-display truncate mt-0.5" data-i18n="tagline_primary">
+            RELIABLE TRUCK NETWORK
+          </p>
+          <p class="text-[7px] sm:text-[9px] font-medium text-white/50 tracking-wide uppercase truncate" data-i18n="tagline_secondary">
+            VERIFIED TRANSPORT NETWORK
+          </p>
+        </div>
+      </div>
+
+      <!-- Header Controls: Classic Theme Switch, Language & User Pill -->
+      <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        
+        <!-- Classic Tactile Edition Link -->
+        <a href="index.html" class="p-1.5 sm:px-2.5 sm:py-1 rounded-xl glass-btn-dark text-[11px] sm:text-xs font-semibold text-white/80 hover:text-white flex items-center gap-1 border border-white/15" title="Switch to Classic Parchment Edition">
+          <svg class="w-3.5 h-3.5 text-glass-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          <span class="hidden sm:inline">Classic</span>
+        </a>
+
+        <!-- English / Hindi Language Switcher -->
+        <div class="flex items-center p-0.5 rounded-xl glass-well border border-white/15">
+          <button id="lang-btn-en" onclick="app.setLanguage('en')" class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-xs font-bold transition-all text-white bg-white/20 shadow">
+            EN
+          </button>
+          <button id="lang-btn-hi" onclick="app.setLanguage('hi')" class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-xs font-bold transition-all text-white/60 hover:text-white">
+            हिंदी
+          </button>
+        </div>
+
+        <!-- User Profile Pill (Visible when logged in) -->
+        <div id="user-header-pill" class="hidden items-center gap-1 px-2 py-0.5 rounded-xl glass-card border border-white/15 text-xs">
+          <div class="w-1.5 h-1.5 rounded-full bg-glass-emerald animate-pulse"></div>
+          <span id="user-pill-name" class="font-bold text-white max-w-[60px] sm:max-w-[100px] truncate">User</span>
+          <button id="btn-logout" onclick="app.logout()" class="ml-1 text-white/60 hover:text-red-400 font-bold p-0.5" title="Logout">✕</button>
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="relative z-10 max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 translate-y-[-10px]">
+      <div id="toast-inner" class="px-4 py-2.5 rounded-2xl glass-panel border border-white/20 text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-2xl backdrop-blur-xl">
+        <span id="toast-icon">✓</span>
+        <span id="toast-message">Message</span>
+      </div>
+    </div>
+
+    <!-- VIEW 1: AUTHENTICATION (Strict Password Login & Sign Up) -->
+    <section id="view-auth" class="view-visible max-w-md mx-auto">
+      <div class="glass-panel rounded-3xl p-5 sm:p-8 prismatic-border">
+        
+        <!-- Header Motif -->
+        <div class="text-center mb-6">
+          <div class="inline-flex p-3 rounded-2xl glass-card mb-3 border border-white/20 shadow-inner">
+            <svg class="w-8 h-8 text-glass-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-display font-extrabold text-white" data-i18n="auth_title">Welcome to KABANI</h2>
+          <p class="text-xs sm:text-sm text-white/60 mt-1 font-medium" data-i18n="auth_subtitle">
+            Reliable Truck Network • 0% Commission
+          </p>
+        </div>
+
+        <!-- Auth Tabs: Login vs Sign Up -->
+        <div class="grid grid-cols-2 p-1 rounded-2xl glass-well mb-6 border border-white/10">
+          <button id="tab-btn-login" onclick="app.switchAuthTab('login')" class="py-2 text-xs sm:text-sm font-bold rounded-xl transition-all text-white bg-white/15 shadow">
+            <span data-i18n="tab_login">Login</span>
+          </button>
+          <button id="tab-btn-signup" onclick="app.switchAuthTab('signup')" class="py-2 text-xs sm:text-sm font-bold rounded-xl transition-all text-white/60 hover:text-white">
+            <span data-i18n="tab_signup">Sign Up</span>
+          </button>
+        </div>
+
+        <!-- Alert Notification Box -->
+        <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl glass-card border border-red-500/40 text-xs text-red-300 font-medium"></div>
+
+        <!-- LOGIN FORM -->
+        <form id="form-login" onsubmit="app.handleLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_mobile">Mobile number</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-glass-amber">+91</span>
+              <input type="tel" id="login-mobile" maxlength="10" placeholder="98XXXXXXXX" class="w-full pl-12 pr-4 py-3 rounded-xl glass-input text-sm font-mono tracking-wider" required>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-semibold text-white/70" data-i18n="label_password">Password</label>
+              <button type="button" onclick="app.openForgotModal()" class="text-xs font-medium text-glass-amber hover:underline" data-i18n="link_forgot_password">Forgot password?</button>
+            </div>
+            <input type="password" id="login-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl glass-input text-sm" required>
+          </div>
+
+          <button type="submit" class="w-full py-3.5 rounded-xl glass-btn-cognac text-sm font-bold text-white shadow-lg tracking-wide uppercase">
+            <span data-i18n="btn_login">Login to Network</span>
+          </button>
+
+          <!-- Demo Quick Fill Buttons -->
+          <div class="pt-4 border-t border-white/10">
+            <p class="text-[11px] font-bold text-white/50 text-center uppercase tracking-wider mb-2" data-i18n="demo_accounts_title">Quick Demo Login</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btn-demo-transporter" onclick="app.demoLogin('transporter')" class="py-2 px-3 rounded-xl glass-btn-dark text-xs font-semibold text-glass-amber hover:text-white border border-glass-amber/30 text-center">
+                <span data-i18n="demo_transporter_btn">Demo Transporter</span>
+              </button>
+              <button type="button" id="btn-demo-driver" onclick="app.demoLogin('driver')" class="py-2 px-3 rounded-xl glass-btn-dark text-xs font-semibold text-glass-emerald hover:text-white border border-glass-emerald/30 text-center">
+                <span data-i18n="demo_driver_btn">Demo Driver</span>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- SIGN UP FORM -->
+        <form id="form-signup" onsubmit="app.handleSignup(event)" class="space-y-4 hidden">
+          <div>
+            <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_name">Full name</label>
+            <input type="text" id="signup-name" placeholder="Ramesh Kumar" class="w-full px-4 py-3 rounded-xl glass-input text-sm" required>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_mobile">Mobile number</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-glass-amber">+91</span>
+              <input type="tel" id="signup-mobile" maxlength="10" placeholder="98XXXXXXXX" class="w-full pl-12 pr-4 py-3 rounded-xl glass-input text-sm font-mono tracking-wider" required>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_email">Email address</label>
+            <input type="email" id="signup-email" placeholder="ramesh@transport.in" class="w-full px-4 py-3 rounded-xl glass-input text-sm" required>
+            <p class="text-[10px] text-white/50 mt-1" data-i18n="hint_email">Required for password recovery</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_create_password">Create password</label>
+            <input type="password" id="signup-password" placeholder="At least 6 characters" class="w-full px-4 py-3 rounded-xl glass-input text-sm" minlength="6" required>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_primary_role">Your primary role</label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 p-3 rounded-xl glass-card cursor-pointer border border-white/10 hover:border-glass-amber/50">
+                <input type="radio" name="signup-role" value="transporter" checked class="text-glass-amber">
+                <span class="text-xs font-bold text-white" data-i18n="role_transporter_short">Transporter</span>
+              </label>
+              <label class="flex items-center gap-2 p-3 rounded-xl glass-card cursor-pointer border border-white/10 hover:border-glass-emerald/50">
+                <input type="radio" name="signup-role" value="driver" class="text-glass-emerald">
+                <span class="text-xs font-bold text-white" data-i18n="role_driver_short">Driver</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3.5 rounded-xl glass-btn-emerald text-sm font-bold text-white shadow-lg tracking-wide uppercase">
+            <span data-i18n="btn_signup">Create Account</span>
+          </button>
+        </form>
+
+      </div>
+    </section>
+
+    <!-- VIEW 2: ROLE SELECTOR -->
+    <section id="view-role-select" class="view-hidden max-w-2xl mx-auto">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl sm:text-3xl font-display font-extrabold text-white" data-i18n="role_select_title">Select Your Role to Continue</h2>
+        <p class="text-xs sm:text-sm text-white/60 mt-1 max-w-md mx-auto font-medium" data-i18n="role_select_desc">
+          Choose your role. No commission, no digital bidding — finalize loads and trucks directly on phone calls.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+        <!-- Transporter Entry Point -->
+        <div id="card-role-transporter" onclick="app.selectRole('transporter')" class="glass-panel rounded-3xl p-6 prismatic-border cursor-pointer group hover:scale-[1.02] transition-all">
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-glass-amber/20 text-glass-amber border border-glass-amber/40">
+              <span data-i18n="role_transporter_badge">Party & Transporter</span>
+            </span>
+            <div class="w-10 h-10 rounded-2xl glass-card flex items-center justify-center text-glass-amber group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2m-16 0H3m6-12h6m-6 4h6m-6 4h6"/></svg>
+            </div>
+          </div>
+          <h3 class="text-xl font-display font-extrabold text-white group-hover:text-glass-amber transition-colors" data-i18n="role_transporter_title">
+            I am a Transporter
+          </h3>
+          <p class="text-xs text-white/60 mt-1 mb-4 font-medium" data-i18n="role_transporter_sub">
+            (I have loads to transport)
+          </p>
+          <ul class="text-xs text-white/75 space-y-2 mb-6">
+            <li class="flex items-center gap-2">
+              <span class="text-glass-amber">✓</span>
+              <span data-i18n="transporter_feature_1">Post requirement in 30 seconds</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-glass-amber">✓</span>
+              <span data-i18n="transporter_feature_2">Receive direct calls from verified drivers</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-glass-amber">✓</span>
+              <span data-i18n="transporter_feature_3">Mark as 'Assigned' once truck is locked</span>
+            </li>
+          </ul>
+          <button type="button" class="w-full py-3 rounded-xl glass-btn-cognac text-xs font-bold text-white uppercase tracking-wider">
+            <span data-i18n="btn_enter_transporter">Post Load (Open Dashboard)</span>
+          </button>
+        </div>
+
+        <!-- Driver Entry Point -->
+        <div id="card-role-driver" onclick="app.selectRole('driver')" class="glass-panel rounded-3xl p-6 prismatic-border cursor-pointer group hover:scale-[1.02] transition-all">
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-glass-emerald/20 text-glass-emerald border border-glass-emerald/40">
+              <span data-i18n="role_driver_badge">Driver & Truck Owner</span>
+            </span>
+            <div class="w-10 h-10 rounded-2xl glass-card flex items-center justify-center text-glass-emerald group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>
+            </div>
+          </div>
+          <h3 class="text-xl font-display font-extrabold text-white group-hover:text-glass-emerald transition-colors" data-i18n="role_driver_title">
+            I am a Driver
+          </h3>
+          <p class="text-xs text-white/60 mt-1 mb-4 font-medium" data-i18n="role_driver_sub">
+            (I need loads for my truck)
+          </p>
+          <ul class="text-xs text-white/75 space-y-2 mb-6">
+            <li class="flex items-center gap-2">
+              <span class="text-glass-emerald">✓</span>
+              <span data-i18n="driver_feature_1">Browse all available loads on your route</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-glass-emerald">✓</span>
+              <span data-i18n="driver_feature_2">Direct 1-tap call to the transporter</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-glass-emerald">✓</span>
+              <span data-i18n="driver_feature_3">Zero commission or middleman — 100% Free</span>
+            </li>
+          </ul>
+          <button type="button" class="w-full py-3 rounded-xl glass-btn-emerald text-xs font-bold text-white uppercase tracking-wider">
+            <span data-i18n="btn_enter_driver">Find Load (Browse Available Loads)</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 3: TRANSPORTER DASHBOARD -->
+    <section id="view-transporter" class="view-hidden space-y-6">
+      
+      <!-- Top Switch Strip -->
+      <div class="flex items-center justify-between gap-2 p-3 rounded-2xl glass-panel border border-white/10">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-glass-amber"></span>
+          <span class="text-xs sm:text-sm font-bold text-white" data-i18n="transporter_dashboard_title">Post & Manage Loads</span>
+        </div>
+        <button type="button" onclick="app.navigate('driver')" class="px-3 py-1.5 rounded-xl glass-btn-dark text-xs font-semibold text-glass-emerald hover:text-white border border-glass-emerald/30">
+          <span data-i18n="btn_view_driver_board">View Driver Load Board ➔</span>
+        </button>
+      </div>
+
+      <!-- Metrics Row -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="glass-card rounded-2xl p-3 text-center">
+          <div class="text-lg sm:text-2xl font-mono tabular-nums font-black text-glass-emerald" id="stat-active-loads">0</div>
+          <div class="text-[10px] sm:text-xs font-medium text-white/60" data-i18n="metric_active">Active Loads</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3 text-center">
+          <div class="text-lg sm:text-2xl font-mono tabular-nums font-black text-white/50" id="stat-assigned-loads">0</div>
+          <div class="text-[10px] sm:text-xs font-medium text-white/60" data-i18n="metric_assigned">Assigned Loads</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3 text-center">
+          <div class="text-lg sm:text-2xl font-mono tabular-nums font-black text-glass-amber">100%</div>
+          <div class="text-[10px] sm:text-xs font-medium text-white/60" data-i18n="zero_commission_badge">0% Commission</div>
+        </div>
+      </div>
+
+      <!-- Post Load Requirement Form -->
+      <div class="glass-panel rounded-3xl p-5 sm:p-7 prismatic-border">
+        <div class="mb-4">
+          <h3 class="text-lg sm:text-xl font-display font-extrabold text-white" data-i18n="form_post_heading">Post New Load Requirement</h3>
+          <p class="text-xs text-white/60 mt-0.5" data-i18n="form_post_desc">Fill in load specifications; drivers will call your phone directly</p>
+        </div>
+
+        <form id="form-post-load" onsubmit="app.handlePostLoad(event)" class="space-y-4">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_origin">Origin / Loading Point</label>
+              <input type="text" id="post-origin" placeholder="e.g. Delhi (Azadpur Mandi)" class="w-full px-4 py-3 rounded-xl glass-input text-sm" required>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_destination">Destination / Unloading Point</label>
+              <input type="text" id="post-destination" placeholder="e.g. Mumbai (Bhiwandi Hub)" class="w-full px-4 py-3 rounded-xl glass-input text-sm" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_date">Loading Date</label>
+              <input type="date" id="post-date" class="w-full px-4 py-3 rounded-xl glass-input text-sm" required>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_weight">Weight / Tonnage</label>
+              <input type="text" id="post-weight" placeholder="e.g. 15 Tons (15 MT)" class="w-full px-4 py-3 rounded-xl glass-input text-sm" required>
+            </div>
+          </div>
+
+          <!-- Material Category Selector (SVG Icon Cards) -->
+          <div>
+            <label class="block text-xs font-semibold text-white/70 mb-2" data-i18n="label_material">Material Category</label>
+            <div id="material-cards-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_truck_type">Truck Type Required</label>
+              <select id="post-truck-type" class="w-full px-4 py-3 rounded-xl glass-input text-sm">
+                <!-- Dynamically populated -->
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_contact_phone">Contact Mobile to Receive Calls</label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-glass-amber">+91</span>
+                <input type="tel" id="post-phone" maxlength="10" placeholder="98290XXXXX" class="w-full pl-12 pr-4 py-3 rounded-xl glass-input text-sm font-mono tracking-wider" required>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" id="btn-submit-post-load" class="w-full py-4 rounded-xl glass-btn-cognac text-sm font-bold text-white shadow-xl uppercase tracking-wider">
+            <span data-i18n="btn_submit_post">Publish Load Now</span>
+          </button>
+
+          <p class="text-[11px] text-white/50 text-center font-medium" data-i18n="post_disclaimer">
+            ✓ 0% Commission • Drivers will see your phone number and call directly
+          </p>
+
+        </form>
+      </div>
+
+      <!-- My Posted Loads Section -->
+      <div>
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h3 class="text-base sm:text-lg font-display font-extrabold text-white" id="transporter-postings-list" data-i18n="my_postings_heading">My Posted Loads</h3>
+          <span id="transporter-my-posts-count" class="text-xs font-mono font-bold text-glass-amber">0 Loads</span>
+        </div>
+        <div id="transporter-cards-container" class="space-y-3">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- VIEW 4: DRIVER LOAD BOARD -->
+    <section id="view-driver" class="view-hidden space-y-4">
+      
+      <!-- Top Action Strip -->
+      <div class="flex items-center justify-between gap-2 p-3 rounded-2xl glass-panel border border-white/10">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-glass-emerald animate-pulse"></span>
+          <span class="text-xs sm:text-sm font-bold text-white" data-i18n="driver_live_board">Driver Live Load Board</span>
+        </div>
+        <button type="button" onclick="app.navigate('transporter')" class="px-3 py-1.5 rounded-xl glass-btn-dark text-xs font-semibold text-glass-amber hover:text-white border border-glass-amber/30">
+          <span data-i18n="btn_switch_to_transporter">Post a Load Instead ➔</span>
+        </button>
+      </div>
+
+      <!-- Search & Filters Glass Well -->
+      <div class="glass-panel rounded-2xl p-3 sm:p-4 space-y-3 border border-white/10">
+        
+        <!-- Search Input -->
+        <div class="relative">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </span>
+          <input type="text" id="filter-search" oninput="app.filterLoads()" placeholder="Search city (e.g. Delhi, Mumbai, Jaipur...)" class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-xs sm:text-sm">
+        </div>
+
+        <!-- Filter Controls Row -->
+        <div class="flex items-center gap-2">
+          
+          <!-- Status Toggle Buttons -->
+          <div class="flex items-center p-0.5 rounded-xl glass-well border border-white/10 shrink-0">
+            <button type="button" id="status-btn-all" onclick="app.setStatusFilter('all')" class="px-2.5 py-1 text-xs font-bold rounded-lg text-white/60 hover:text-white">
+              <span data-i18n="filter_all">All</span>
+            </button>
+            <button type="button" id="status-btn-available" onclick="app.setStatusFilter('available')" class="px-2.5 py-1 text-xs font-bold rounded-lg text-white bg-white/20 shadow">
+              <span data-i18n="filter_available_only">Available</span>
+            </button>
+            <button type="button" id="status-btn-assigned" onclick="app.setStatusFilter('assigned')" class="px-2.5 py-1 text-xs font-bold rounded-lg text-white/60 hover:text-white">
+              <span data-i18n="filter_assigned_only">Assigned</span>
+            </button>
+          </div>
+
+          <!-- Hidden select for programmatic change -->
+          <select id="filter-material" onchange="app.filterLoads()" class="hidden">
+            <option value="all">All</option>
+          </select>
+
+        </div>
+
+        <!-- Material Quick Filter Carousel (Snap-Scroll) -->
+        <div id="driver-filter-chips-container" class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none snap-x">
+          <!-- Dynamically populated filter chips -->
+        </div>
+
+      </div>
+
+      <!-- Load Count -->
+      <div class="flex items-center justify-between px-1">
+        <span id="load-board-count" class="text-xs font-mono font-bold text-white/70">Showing Loads</span>
+        <span class="text-[11px] font-medium text-glass-emerald flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-glass-emerald animate-ping"></span>
+          <span>Live 0% Commission</span>
+        </span>
+      </div>
+
+      <!-- Live Stream of Bilty Cards -->
+      <div id="driver-loads-container" class="space-y-4">
+        <!-- Dynamically rendered Bilty cards -->
+      </div>
+
+      <!-- Infinite Scroll Sentinel -->
+      <div id="infinite-scroll-sentinel" class="py-6 text-center text-xs text-white/40 flex items-center justify-center gap-2">
+        <div class="w-4 h-4 border-2 border-glass-amber border-t-transparent rounded-full animate-spin"></div>
+        <span data-i18n="loading_more_loads">Loading more live loads...</span>
+      </div>
+
+    </section>
+
+    <!-- FORGOT PASSWORD MODAL -->
+    <div id="modal-forgot-password" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="glass-panel rounded-3xl p-6 max-w-sm w-full prismatic-border space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-display font-bold text-white" data-i18n="forgot_modal_title">Reset Password</h3>
+          <button onclick="app.closeForgotModal()" class="text-white/50 hover:text-white font-bold">✕</button>
+        </div>
+        <p class="text-xs text-white/60 font-medium" data-i18n="forgot_modal_desc">
+          Enter registered email address to receive password recovery link.
+        </p>
+        <div id="forgot-alert" class="hidden p-2.5 rounded-xl glass-card text-xs"></div>
+        <div>
+          <label class="block text-xs font-semibold text-white/70 mb-1" data-i18n="label_registered_email">Registered email address</label>
+          <input type="email" id="forgot-email" placeholder="ramesh@transport.in" class="w-full px-4 py-2.5 rounded-xl glass-input text-xs sm:text-sm">
+        </div>
+        <div class="space-y-2 pt-2">
+          <button type="button" id="btn-submit-forgot" onclick="app.handleForgotSubmit()" class="w-full py-2.5 rounded-xl glass-btn-cognac text-xs font-bold text-white uppercase tracking-wider">
+            <span data-i18n="btn_send_reset_link">Send Reset Link</span>
+          </button>
+          <button type="button" onclick="app.closeForgotModal()" class="w-full py-2 rounded-xl glass-btn-dark text-xs font-semibold text-white/70">
+            <span data-i18n="btn_back_to_login">Back to Login</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Script: Full Application Engine & Logic -->
+  <script>
+    (function() {
+      'use strict';
+
+      // SVG Icon Assets
+      const svgIcons = {
+        agri: `<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 2v20m0-20c2.5 3 5 4.5 5 8a5 5 0 01-5 5m0-13c-2.5 3-5 4.5-5 8a5 5 0 005 5m-5 3c2-1 3.5-1 5 0m-5 4c2-1 3.5-1 5 0m0-4c2-1 3.5-1 5 0m-5 4c2-1 3.5-1 5 0"/></svg>`,
+        construction: `<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2m-16 0H3m6-12h6m-6 4h6m-6 4h6"/></svg>`,
+        industrial: `<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+        fmcg: `<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`,
+        machinery: `<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`,
+        textiles: `<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h16"/></svg>`,
+        chemicals: `<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>`,
+        calendar: `<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`,
+        scale: `<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>`,
+        truck: `<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>`,
+        building: `<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2m-16 0H3m6-12h6m-6 4h6m-6 4h6"/></svg>`,
+        phone: `<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`,
+        lock: `<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>`
+      };
+
+      const materialMeta = {
+        agri: { icon: svgIcons.agri, nameEn: "Agricultural Produce", subEn: "Grains / Vegetables", nameHi: "एग्रीकल्चर प्रोड्यूस", subHi: "(अनाज / सब्जी)" },
+        construction: { icon: svgIcons.construction, nameEn: "Construction Material", subEn: "Cement / Bricks", nameHi: "कंस्ट्रक्शन मटेरियल", subHi: "(सीमेंट / ईंट)" },
+        industrial: { icon: svgIcons.industrial, nameEn: "Industrial Goods", subEn: "Iron / Steel", nameHi: "इंडस्ट्रियल गुड्स", subHi: "(लोहा / स्टील)" },
+        fmcg: { icon: svgIcons.fmcg, nameEn: "FMCG / Packaged Goods", subEn: "Cartons / Groceries", nameHi: "एफएमसीजी / पैकेज्ड गुड्स", subHi: "(पैक्ड सामान)" },
+        machinery: { icon: svgIcons.machinery, nameEn: "Machinery", subEn: "Heavy Parts / Equipment", nameHi: "मशीनरी", subHi: "(भारी पार्ट्स / उपकरण)" },
+        textiles: { icon: svgIcons.textiles, nameEn: "Textiles", subEn: "Fabric / Bales", nameHi: "टेक्सटाइल्स", subHi: "(कपड़ा / गांठ)" },
+        chemicals: { icon: svgIcons.chemicals, nameEn: "Chemicals / Liquids", subEn: "Tankers / Drums", nameHi: "केमिकल्स / लिक्विड", subHi: "(टैंकर / ड्रम)" }
+      };
+
+      const truckTypeOptions = {
+        en: [
+          { val: "14 Wheeler (25 Ton)", text: "14 Wheeler (25 Ton)" },
+          { val: "10 Wheeler (16 Ton)", text: "10 Wheeler (16 Ton)" },
+          { val: "32ft Container", text: "32ft Container" },
+          { val: "Taurus (21 Ton)", text: "Taurus (21 Ton)" },
+          { val: "Open Body Truck", text: "Open Body Truck" },
+          { val: "Trailer / Low Bed", text: "Trailer / Low Bed" },
+          { val: "6 Wheeler Eicher", text: "6 Wheeler Eicher (7-9 Ton)" }
+        ],
+        hi: [
+          { val: "14 चक्का (25 टन)", text: "14 चक्का (25 टन)" },
+          { val: "10 चक्का (16 टन)", text: "10 चक्का (16 टन)" },
+          { val: "32 फीट कंटेनर", text: "32 फीट कंटेनर" },
+          { val: "टॉरस (21 टन)", text: "टॉरस (21 टन)" },
+          { val: "ओपन बॉडी", text: "ओपन बॉडी" },
+          { val: "ट्रेलर", text: "ट्रेलर / लो-बेड" },
+          { val: "6 चक्का आयशर", text: "6 चक्का आयशर (7-9 टन)" }
+        ]
+      };
+
+      // Comprehensive Localization Dictionary
+      const i18n = {
+        en: {
+          tagline_primary: "RELIABLE TRUCK NETWORK",
+          tagline_secondary: "VERIFIED TRANSPORT NETWORK",
+          auth_title: "Welcome to KABANI",
+          auth_subtitle: "Reliable Truck Network • 0% Commission",
+          tab_login: "Login",
+          tab_signup: "Sign Up",
+          label_mobile: "Mobile number",
+          label_password: "Password",
+          link_forgot_password: "Forgot password?",
+          btn_login: "Login to Network",
+          demo_accounts_title: "Quick Demo Login",
+          demo_transporter_btn: "Demo Transporter",
+          demo_driver_btn: "Demo Driver",
+          label_name: "Full name",
+          label_email: "Email address",
+          hint_email: "Required for password recovery",
+          label_create_password: "Create password",
+          label_primary_role: "Your primary role",
+          role_transporter_short: "Transporter",
+          role_driver_short: "Driver",
+          btn_signup: "Create Account",
+          role_select_title: "Select Your Role to Continue",
+          role_select_desc: "Choose your role. No commission, no digital bidding — finalize loads and trucks directly on phone calls.",
+          role_transporter_badge: "Party & Transporter",
+          role_transporter_title: "I am a Transporter",
+          role_transporter_sub: "(I have loads to transport)",
+          transporter_feature_1: "Post requirement in 30 seconds",
+          transporter_feature_2: "Receive direct calls from verified drivers",
+          transporter_feature_3: "Mark as 'Assigned' once truck is locked",
+          btn_enter_transporter: "Post Load (Open Dashboard)",
+          role_driver_badge: "Driver & Truck Owner",
+          role_driver_title: "I am a Driver",
+          role_driver_sub: "(I need loads for my truck)",
+          driver_feature_1: "Browse all available loads on your route",
+          driver_feature_2: "Direct 1-tap call to the transporter",
+          driver_feature_3: "Zero commission or middleman — 100% Free",
+          btn_enter_driver: "Find Load (Browse Available Loads)",
+          zero_commission_badge: "0% Commission",
+          transporter_dashboard_title: "Post & Manage Loads",
+          btn_view_driver_board: "View Driver Load Board ➔",
+          metric_active: "Active Loads",
+          metric_assigned: "Assigned Loads",
+          form_post_heading: "Post New Load Requirement",
+          form_post_desc: "Fill in load specifications; drivers will call your phone directly",
+          label_origin: "Origin / Loading Point",
+          label_destination: "Destination / Unloading Point",
+          label_date: "Loading Date",
+          label_weight: "Weight / Tonnage",
+          label_material: "Material Category",
+          label_truck_type: "Truck Type Required",
+          label_contact_phone: "Contact Mobile to Receive Calls",
+          btn_submit_post: "Publish Load Now",
+          post_disclaimer: "✓ 0% Commission • Drivers will see your phone number and call directly",
+          my_postings_heading: "My Posted Loads",
+          driver_live_board: "Driver Live Load Board",
+          btn_switch_to_transporter: "Post a Load Instead ➔",
+          filter_all: "All",
+          filter_available_only: "Available",
+          filter_assigned_only: "Assigned",
+          loading_more_loads: "Loading more live loads...",
+          btn_call_transporter_top: "Direct Dial (Offline Rate)",
+          btn_call_transporter: "Call Transporter",
+          btn_assigned_done: "Assigned (Booked)",
+          btn_listen_load: "Listen",
+          status_available: "Available",
+          status_assigned: "Assigned",
+          card_material_label: "Material",
+          card_weight_label: "Weight",
+          card_truck_label: "Truck",
+          card_origin_label: "Loading Point",
+          card_dest_label: "Unloading Point",
+          forgot_modal_title: "Reset Password",
+          forgot_modal_desc: "Enter registered email address to receive password recovery link.",
+          label_registered_email: "Registered email address",
+          btn_send_reset_link: "Send Reset Link",
+          btn_back_to_login: "Back to Login",
+          btn_mark_assigned: "Mark as Assigned",
+          btn_reopen_active: "Reopen as Available"
+        },
+        hi: {
+          tagline_primary: "भरोसेमंद ट्रक नेटवर्क",
+          tagline_secondary: "सत्यापित ट्रांसपोर्ट नेटवर्क",
+          auth_title: "कबानी में आपका स्वागत है",
+          auth_subtitle: "भरोसेमंद ट्रक नेटवर्क • 0% कमीशन",
+          tab_login: "लॉगिन",
+          tab_signup: "साइन अप",
+          label_mobile: "मोबाइल नंबर",
+          label_password: "पासवर्ड",
+          link_forgot_password: "पासवर्ड भूल गए?",
+          btn_login: "नेटवर्क में लॉगिन करें",
+          demo_accounts_title: "त्वरित डेमो लॉगिन",
+          demo_transporter_btn: "डेमो ट्रांसपोर्टर",
+          demo_driver_btn: "डेमो ड्राइवर",
+          label_name: "पूरा नाम",
+          label_email: "ईमेल पता",
+          hint_email: "पासवर्ड रिकवरी के लिए आवश्यक है",
+          label_create_password: "पासवर्ड बनाएं",
+          label_primary_role: "आपकी मुख्य भूमिका",
+          role_transporter_short: "ट्रांसपोर्टर",
+          role_driver_short: "ड्राइवर",
+          btn_signup: "खाता बनाएं",
+          role_select_title: "आगे बढ़ने के लिए अपनी भूमिका चुनें",
+          role_select_desc: "अपनी भूमिका चुनें। कोई कमीशन नहीं, कोई ऑनलाइन बोली नहीं — सीधे फोन पर भाड़ा तय करें।",
+          role_transporter_badge: "पार्टी व ट्रांसपोर्टर",
+          role_transporter_title: "मैं ट्रांसपोर्टर हूँ",
+          role_transporter_sub: "(मुझे लोड भेजना है)",
+          transporter_feature_1: "30 सेकंड में लोड डालें",
+          transporter_feature_2: "सत्यापित ड्राइवरों से सीधे फोन कॉल प्राप्त करें",
+          transporter_feature_3: "गाड़ी तय होते ही 'असाइंड' मार्क करें",
+          btn_enter_transporter: "लोड पोस्ट करें (डैशबोर्ड)",
+          role_driver_badge: "ड्राइवर व गाड़ी मालिक",
+          role_driver_title: "मैं ड्राइवर हूँ",
+          role_driver_sub: "(मुझे गाड़ी के लिए लोड चाहिए)",
+          driver_feature_1: "अपने रूट के सभी उपलब्ध लोड देखें",
+          driver_feature_2: "ट्रांसपोर्टर को सीधे 1-टैप में कॉल लगाएं",
+          driver_feature_3: "कोई बिचौलिया या कमीशन नहीं — 100% फ्री",
+          btn_enter_driver: "लोड खोजें (उपलब्ध लोड देखें)",
+          zero_commission_badge: "0% कमीशन",
+          transporter_dashboard_title: "लोड पोस्ट व प्रबंधित करें",
+          btn_view_driver_board: "ड्राइवर लोड बोर्ड देखें ➔",
+          metric_active: "सक्रिय लोड",
+          metric_assigned: "असाइंड लोड",
+          form_post_heading: "नया लोड विवरण दर्ज करें",
+          form_post_desc: "लोड की जानकारी भरें; ड्राइवर आपको सीधे फोन लगाएंगे",
+          label_origin: "लोडिंग पॉइंट (कहाँ से)",
+          label_destination: "अनलोडिंग पॉइंट (कहाँ तक)",
+          label_date: "लोडिंग दिनांक",
+          label_weight: "वजन / टन",
+          label_material: "मटेरियल श्रेणी",
+          label_truck_type: "आवश्यक गाड़ी का प्रकार",
+          label_contact_phone: "फोन कॉल प्राप्त करने हेतु मोबाइल नंबर",
+          btn_submit_post: "लोड तुरंत लाइव करें",
+          post_disclaimer: "✓ 0% कमीशन • ड्राइवर आपका नंबर देखकर सीधे कॉल करेंगे",
+          my_postings_heading: "मेरे पोस्ट किए गए लोड",
+          driver_live_board: "ड्राइवर लाइव लोड बोर्ड",
+          btn_switch_to_transporter: "लोड पोस्ट करें ➔",
+          filter_all: "सभी",
+          filter_available_only: "उपलब्ध",
+          filter_assigned_only: "असाइंड",
+          loading_more_loads: "और लोड लोड हो रहे हैं...",
+          btn_call_transporter_top: "सीधा फोन लगाएं",
+          btn_call_transporter: "ट्रांसपोर्टर को कॉल करें",
+          btn_assigned_done: "यह लोड बुक हो चुका है",
+          btn_listen_load: "बोलकर सुनें",
+          status_available: "उपलब्ध",
+          status_assigned: "असाइंड",
+          card_material_label: "मटेरियल",
+          card_weight_label: "वजन",
+          card_truck_label: "गाड़ी",
+          card_origin_label: "लोडिंग (कहाँ से)",
+          card_dest_label: "अनलोडिंग (कहाँ तक)",
+          forgot_modal_title: "पासवर्ड रीसेट करें",
+          forgot_modal_desc: "रजिस्टर्ड ईमेल पते पर पासवर्ड रिकवरी लिंक भेजा जाएगा।",
+          label_registered_email: "रजिस्टर्ड ईमेल पता",
+          btn_send_reset_link: "रीसेट लिंक भेजें",
+          btn_back_to_login: "लॉगिन पर वापस जाएं",
+          btn_mark_assigned: "असाइंड मार्क करें",
+          btn_reopen_active: "पुनः उपलब्ध करें"
+        }
+      };
+
+      const seedLoads = [
+        {
+          id: "LOAD-701",
+          originEn: "Delhi (Azadpur Mandi)",
+          originHi: "दिल्ली (आजादपुर मंडी)",
+          destEn: "Jaipur (VKI Transport Area)",
+          destHi: "जयपुर (VKI ट्रांसपोर्ट नगर)",
+          date: "2026-11-13",
+          materialKey: "agri",
+          weightEn: "16 Tons (16 MT)",
+          weightHi: "16 टन (16 MT)",
+          truckTypeEn: "10 Wheeler",
+          truckTypeHi: "10 चक्का",
+          transporterEn: "Kabani Express Logistics",
+          transporterHi: "कबानी एक्सप्रेस लॉजिस्टिक्स",
+          phone: "9829011223",
+          status: "available",
+          postedAgoEn: "12 mins ago",
+          postedAgoHi: "12 मिनट पहले"
+        },
+        {
+          id: "LOAD-702",
+          originEn: "Ahmedabad (Changodar GIDC)",
+          originHi: "अहमदाबाद (चांगोदर GIDC)",
+          destEn: "Mumbai (Bhiwandi Logistics Park)",
+          destHi: "मुंबई (भिवंडी लॉजिस्टिक्स पार्क)",
+          date: "2026-11-13",
+          materialKey: "industrial",
+          weightEn: "25 Tons (25 MT)",
+          weightHi: "25 टन (25 MT)",
+          truckTypeEn: "14 Wheeler",
+          truckTypeHi: "14 चक्का",
+          transporterEn: "Kabani Freight Carriers",
+          transporterHi: "कबानी फ्रेट कैरियर्स",
+          phone: "9876543210",
+          status: "available",
+          postedAgoEn: "28 mins ago",
+          postedAgoHi: "28 मिनट पहले"
+        },
+        {
+          id: "LOAD-703",
+          originEn: "Ludhiana (Transport Nagar)",
+          originHi: "लुधियाना (ट्रांसपोर्ट नगर)",
+          destEn: "Kanpur (Transport Nagar)",
+          destHi: "कानपुर (ट्रांसपोर्ट नगर)",
+          date: "2026-11-14",
+          materialKey: "textiles",
+          weightEn: "12 Tons (12 MT)",
+          weightHi: "12 टन (12 MT)",
+          truckTypeEn: "32ft Container",
+          truckTypeHi: "32 फीट कंटेनर",
+          transporterEn: "Punjab Highway Fleet",
+          transporterHi: "पंजाब हाईवे फ्लीट",
+          phone: "9814055667",
+          status: "available",
+          postedAgoEn: "45 mins ago",
+          postedAgoHi: "45 मिनट पहले"
+        },
+        {
+          id: "LOAD-704",
+          originEn: "Pune (Chakan MIDC)",
+          originHi: "पुणे (चाकण MIDC)",
+          destEn: "Delhi (Sanjay Gandhi Transport Nagar)",
+          destHi: "दिल्ली (संजय गांधी ट्रांसपोर्ट नगर)",
+          date: "2026-11-14",
+          materialKey: "machinery",
+          weightEn: "28 Tons (28 MT)",
+          weightHi: "28 टन (28 MT)",
+          truckTypeEn: "Trailer / Low Bed",
+          truckTypeHi: "ट्रेलर / लो-बेड",
+          transporterEn: "Maharashtra Heavy Move",
+          transporterHi: "महाराष्ट्र हैवी मूव",
+          phone: "9820033445",
+          status: "available",
+          postedAgoEn: "1 hr ago",
+          postedAgoHi: "1 घंटा पहले"
+        },
+        {
+          id: "LOAD-705",
+          originEn: "Ankleshwar (Gujarat GIDC)",
+          originHi: "अंकलेश्वर (गुजरात GIDC)",
+          destEn: "Nagpur (Wadi Transport Area)",
+          destHi: "नागपुर (वाडी ट्रांसपोर्ट एरिया)",
+          date: "2026-11-15",
+          materialKey: "chemicals",
+          weightEn: "22 Tons (22 MT)",
+          weightHi: "22 टन (22 MT)",
+          truckTypeEn: "14 Wheeler",
+          truckTypeHi: "14 चक्का",
+          transporterEn: "Gujarat Highway Logistics",
+          transporterHi: "गुजरात हाईवे लॉजिस्टिक्स",
+          phone: "9825099887",
+          status: "available",
+          postedAgoEn: "2 hrs ago",
+          postedAgoHi: "2 घंटे पहले"
+        }
+      ];
+
+      // Application State
+      let state = {
+        lang: localStorage.getItem('kabani_lang') || 'en',
+        currentUser: JSON.parse(localStorage.getItem('kabani_user')) || null,
+        currentView: 'auth',
+        authTab: 'login',
+        statusFilter: 'all',
+        materialFilter: 'all',
+        searchQuery: '',
+        registeredUsers: (() => {
+          try {
+            const cached = localStorage.getItem('kabani_registered_users');
+            if (cached) return JSON.parse(cached);
+          } catch(e) {}
+          return [
+            { name: "Rajesh Kumar (Kabani Freight)", mobile: "9829011223", email: "rajesh.kabani@freight.com", password: "Password@123", role: "transporter" },
+            { name: "Ramesh Singh (Truck Owner)", mobile: "9876543210", email: "ramesh.driver@gmail.com", password: "Driver@123", role: "driver" }
+          ];
+        })(),
+        loads: (() => {
+          try {
+            const cached = localStorage.getItem('kabani_loads_v1');
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+          } catch(e) {}
+          return [...seedLoads];
+        })(),
+        batchCount: 0
+      };
+
+      const t = (k) => {
+        const dict = i18n[state.lang] || i18n.en;
+        return dict[k] !== undefined ? dict[k] : k;
+      };
+
+      // Toast Notification
+      const showToast = (msg, icon = '✓') => {
+        const container = document.getElementById('toast-container');
+        const iconEl = document.getElementById('toast-icon');
+        const msgEl = document.getElementById('toast-message');
+        if (!container || !msgEl) return;
+        iconEl.textContent = icon;
+        msgEl.textContent = msg;
+        container.classList.remove('opacity-0', 'translate-y-[-10px]', 'pointer-events-none');
+        container.classList.add('opacity-100', 'translate-y-0');
+        setTimeout(() => {
+          container.classList.add('opacity-0', 'translate-y-[-10px]', 'pointer-events-none');
+          container.classList.remove('opacity-100', 'translate-y-0');
+        }, 2800);
+      };
+
+      // Haptic Feedback
+      const triggerHaptic = () => {
+        if (navigator.vibrate) try { navigator.vibrate(12); } catch(e) {}
+      };
+
+      // Initialize App
+      const init = () => {
+        setLanguage(state.lang, false);
+        const todayStr = new Date().toISOString().split('T')[0];
+        const dateInput = document.getElementById('post-date');
+        if (dateInput) dateInput.value = todayStr;
+
+        if (state.currentUser) {
+          showUserHeader(state.currentUser);
+          navigate('role-select');
+        } else {
+          hideUserHeader();
+          navigate('auth');
+        }
+
+        setupScrollTracker();
+        setupInfiniteScroll();
+
+        // Sync with local backend
+        try {
+          fetch('/api/users')
+            .then(r => r.ok ? r.json() : [])
+            .then(srvUsers => {
+              if (Array.isArray(srvUsers) && srvUsers.length > 0) {
+                srvUsers.forEach(su => {
+                  if (!state.registeredUsers.some(u => u.mobile === su.mobile)) {
+                    state.registeredUsers.push(su);
+                  }
+                });
+                localStorage.setItem('kabani_registered_users', JSON.stringify(state.registeredUsers));
+              }
+            }).catch(() => {});
+        } catch(e) {}
+      };
+
+      // Scroll Progress Tracker
+      const setupScrollTracker = () => {
+        window.addEventListener('scroll', () => {
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          const progress = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
+          const bar = document.getElementById('scroll-progress-bar');
+          if (bar) bar.style.width = `${progress}%`;
+        }, { passive: true });
+      };
+
+      // Navigation Engine
+      const navigate = (view) => {
+        triggerHaptic();
+        if (!state.currentUser && view !== 'auth') {
+          showToast(t('auth_subtitle'), 'ℹ');
+          view = 'auth';
+        }
+        state.currentView = view;
+        ['auth', 'role-select', 'transporter', 'driver'].forEach(v => {
+          const el = document.getElementById(`view-${v}`);
+          if (el) {
+            el.classList.remove('view-visible');
+            el.classList.add('view-hidden');
+          }
+        });
+        const target = document.getElementById(`view-${view}`);
+        if (target) {
+          target.classList.remove('view-hidden');
+          target.classList.add('view-visible');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const navigateHome = () => {
+        if (state.currentUser) navigate('role-select');
+        else navigate('auth');
+      };
+
+      const selectRole = (role) => {
+        triggerHaptic();
+        if (role === 'transporter') navigate('transporter');
+        else navigate('driver');
+      };
+
+      // Language Switcher
+      const setLanguage = (lang, save = true) => {
+        triggerHaptic();
+        state.lang = lang;
+        if (save) localStorage.setItem('kabani_lang', lang);
+
+        const dict = i18n[lang] || i18n.en;
+        const btnEn = document.getElementById('lang-btn-en');
+        const btnHi = document.getElementById('lang-btn-hi');
+
+        if (lang === 'hi') {
+          btnHi.className = "px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-white bg-white/20 shadow";
+          btnEn.className = "px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-white/60 hover:text-white";
+          document.documentElement.lang = 'hi';
+        } else {
+          btnEn.className = "px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-white bg-white/20 shadow";
+          btnHi.className = "px-2 sm:px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-white/60 hover:text-white";
+          document.documentElement.lang = 'en';
+        }
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if (dict[key] !== undefined) el.textContent = dict[key];
+        });
+
+        if (state.currentUser) showUserHeader(state.currentUser);
+
+        renderMaterialGrid();
+        renderTruckSelect();
+        renderDriverQuickChips();
+        renderTransporterCards();
+        renderDriverCards();
+      };
+
+      // Header User Status
+      const showUserHeader = (user) => {
+        const pill = document.getElementById('user-header-pill');
+        const nameEl = document.getElementById('user-pill-name');
+        if (pill && nameEl) {
+          nameEl.textContent = user.name.split(' ')[0] || user.name;
+          pill.classList.remove('hidden');
+          pill.classList.add('flex');
+        }
+      };
+
+      const hideUserHeader = () => {
+        const pill = document.getElementById('user-header-pill');
+        if (pill) {
+          pill.classList.add('hidden');
+          pill.classList.remove('flex');
+        }
+      };
+
+      // Auth Tabs
+      const switchAuthTab = (tab) => {
+        triggerHaptic();
+        state.authTab = tab;
+        const btnLogin = document.getElementById('tab-btn-login');
+        const btnSignup = document.getElementById('tab-btn-signup');
+        const formLogin = document.getElementById('form-login');
+        const formSignup = document.getElementById('form-signup');
+        const alertBox = document.getElementById('auth-alert');
+        if (alertBox) alertBox.classList.add('hidden');
+
+        if (tab === 'login') {
+          btnLogin.className = "py-2 text-xs sm:text-sm font-bold rounded-xl transition-all text-white bg-white/15 shadow";
+          btnSignup.className = "py-2 text-xs sm:text-sm font-bold rounded-xl transition-all text-white/60 hover:text-white";
+          formLogin.classList.remove('hidden');
+          formSignup.classList.add('hidden');
+        } else {
+          btnSignup.className = "py-2 text-xs sm:text-sm font-bold rounded-xl transition-all text-white bg-white/15 shadow";
+          btnLogin.className = "py-2 text-xs sm:text-sm font-bold rounded-xl transition-all text-white/60 hover:text-white";
+          formSignup.classList.remove('hidden');
+          formLogin.classList.add('hidden');
+        }
+      };
+
+      // Auth Alert
+      const setAuthAlert = (msg) => {
+        const box = document.getElementById('auth-alert');
+        if (!box) return;
+        box.textContent = msg;
+        box.classList.remove('hidden');
+      };
+
+      // Handle Login
+      const handleLogin = (e) => {
+        e.preventDefault();
+        triggerHaptic();
+        const mobile = document.getElementById('login-mobile').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        if (mobile.length !== 10 || !/^\d{10}$/.test(mobile)) {
+          setAuthAlert(state.lang === 'hi' ? "कृपया 10 अंकों का वैध मोबाइल नंबर दर्ज करें" : "Please enter a valid 10-digit mobile number");
+          return;
+        }
+
+        if (password.length < 6) {
+          setAuthAlert(state.lang === 'hi' ? "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए" : "Password must be at least 6 characters");
+          return;
+        }
+
+        const user = state.registeredUsers.find(u => u.mobile === mobile);
+        if (!user) {
+          setAuthAlert(state.lang === 'hi'
+            ? `+91 ${mobile} का कोई खाता नहीं मिला। कृपया पहले साइन अप करें।`
+            : `No registered account found with mobile +91 ${mobile}. You must Sign Up first.`);
+          return;
+        }
+
+        if (user.password !== password) {
+          setAuthAlert(state.lang === 'hi'
+            ? "गलत पासवर्ड दर्ज किया गया। पासवर्ड केस-सेंसिटिव है।"
+            : "Incorrect password. Passwords are strictly case-sensitive. Please re-enter carefully.");
+          return;
+        }
+
+        state.currentUser = user;
+        localStorage.setItem('kabani_user', JSON.stringify(user));
+        showUserHeader(user);
+        showToast(state.lang === 'hi' ? `स्वागत है, ${user.name}` : `Welcome back, ${user.name}`, '✓');
+        navigate('role-select');
+      };
+
+      // Handle Sign Up
+      const handleSignup = (e) => {
+        e.preventDefault();
+        triggerHaptic();
+        const name = document.getElementById('signup-name').value.trim();
+        const mobile = document.getElementById('signup-mobile').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const role = document.querySelector('input[name="signup-role"]:checked')?.value || 'transporter';
+
+        if (!name || mobile.length !== 10 || !email || password.length < 6) {
+          setAuthAlert(state.lang === 'hi' ? "कृपया सभी विवरण सही से भरें" : "Please complete all fields properly");
+          return;
+        }
+
+        if (state.registeredUsers.some(u => u.mobile === mobile)) {
+          setAuthAlert(state.lang === 'hi' ? "यह मोबाइल नंबर पहले से पंजीकृत है" : "This mobile number is already registered. Please login.");
+          return;
+        }
+
+        const newUser = { name, mobile, email, password, role };
+        state.registeredUsers.push(newUser);
+        localStorage.setItem('kabani_registered_users', JSON.stringify(state.registeredUsers));
+
+        // Sync with backend
+        try {
+          fetch('/api/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newUser)
+          }).catch(() => {});
+        } catch(e) {}
+
+        state.currentUser = newUser;
+        localStorage.setItem('kabani_user', JSON.stringify(newUser));
+        showUserHeader(newUser);
+        showToast(state.lang === 'hi' ? "खाता सफलतापूर्वक बन गया!" : "Account created successfully!", '✓');
+        navigate('role-select');
+      };
+
+      // Demo Quick Logins
+      const demoLogin = (role) => {
+        triggerHaptic();
+        const user = state.registeredUsers.find(u => u.role === role) || state.registeredUsers[0];
+        state.currentUser = user;
+        localStorage.setItem('kabani_user', JSON.stringify(user));
+        showUserHeader(user);
+        showToast(`Logged in as ${user.name}`, '✓');
+        navigate('role-select');
+      };
+
+      const logout = () => {
+        triggerHaptic();
+        state.currentUser = null;
+        localStorage.removeItem('kabani_user');
+        hideUserHeader();
+        switchAuthTab('login');
+        navigate('auth');
+        showToast(state.lang === 'hi' ? "लॉगआउट हो गया" : "Logged out safely", '✓');
+      };
+
+      // Forgot Password Modal
+      const openForgotModal = () => {
+        triggerHaptic();
+        const modal = document.getElementById('modal-forgot-password');
+        const alertBox = document.getElementById('forgot-alert');
+        if (alertBox) alertBox.classList.add('hidden');
+        if (modal) modal.classList.remove('hidden');
+      };
+
+      const closeForgotModal = () => {
+        triggerHaptic();
+        const modal = document.getElementById('modal-forgot-password');
+        if (modal) modal.classList.add('hidden');
+      };
+
+      const handleForgotSubmit = () => {
+        triggerHaptic();
+        const email = document.getElementById('forgot-email').value.trim();
+        const alertBox = document.getElementById('forgot-alert');
+        if (!alertBox) return;
+
+        if (!email || !email.includes('@')) {
+          alertBox.className = "p-2.5 rounded-xl glass-card border border-red-500/40 text-xs text-red-300";
+          alertBox.textContent = state.lang === 'hi' ? "कृपया वैध ईमेल पता दर्ज करें" : "Please enter a valid email address";
+          alertBox.classList.remove('hidden');
+          return;
+        }
+
+        alertBox.className = "p-2.5 rounded-xl glass-card border border-glass-emerald/40 text-xs text-emerald-300";
+        alertBox.textContent = state.lang === 'hi' 
+          ? `पासवर्ड रीसेट लिंक ${email} पर भेज दिया गया है` 
+          : `Password reset link sent successfully to ${email}`;
+        alertBox.classList.remove('hidden');
+
+        setTimeout(() => closeForgotModal(), 2200);
+      };
+
+      // Render Material Selection Cards
+      const renderMaterialGrid = () => {
+        const grid = document.getElementById('material-cards-grid');
+        if (!grid) return;
+        const keys = ['industrial', 'agri', 'construction', 'fmcg', 'machinery', 'textiles', 'chemicals'];
+        const isHi = state.lang === 'hi';
+
+        grid.innerHTML = keys.map((k, idx) => {
+          const m = materialMeta[k];
+          const checked = (k === 'industrial') ? 'checked' : '';
+          const isSpan = (idx === 6) ? 'col-span-2 sm:col-span-2' : '';
+          return `
+            <label class="material-radio-card relative flex flex-col items-center justify-center p-3 rounded-2xl glass-card cursor-pointer group transition-all text-center ${isSpan}">
+              <input type="radio" name="post-material" value="${k}" ${checked} class="hidden">
+              <div class="card-check-glow absolute inset-0 rounded-2xl border-2 border-transparent transition-all pointer-events-none opacity-0"></div>
+              <div class="text-glass-amber mb-1 group-hover:scale-110 transition-transform">
+                ${m.icon}
+              </div>
+              <span class="text-xs font-bold text-white leading-tight">${isHi ? m.nameHi : m.nameEn}</span>
+              <span class="text-[10px] text-white/50 font-medium mt-0.5">${isHi ? m.subHi : m.subEn}</span>
+            </label>
+          `;
+        }).join('');
+      };
+
+      // Render Truck Type Options
+      const renderTruckSelect = () => {
+        const sel = document.getElementById('post-truck-type');
+        if (!sel) return;
+        const opts = truckTypeOptions[state.lang] || truckTypeOptions.en;
+        sel.innerHTML = opts.map(o => `<option value="${o.val}" class="bg-glass-obsidian text-white">${o.text}</option>`).join('');
+      };
+
+      // Render Driver Quick Filter Chips
+      const renderDriverQuickChips = () => {
+        const container = document.getElementById('driver-filter-chips-container');
+        if (!container) return;
+        const isHi = state.lang === 'hi';
+        const keys = ['all', 'industrial', 'agri', 'construction', 'fmcg', 'machinery', 'chemicals'];
+
+        container.innerHTML = keys.map(k => {
+          let label = '';
+          let iconHtml = '';
+          if (k === 'all') {
+            label = isHi ? 'सब लोड' : 'All Loads';
+          } else {
+            const m = materialMeta[k];
+            label = isHi ? m.nameHi : m.nameEn;
+            iconHtml = `<span class="text-glass-amber shrink-0">${m.icon}</span>`;
+          }
+
+          const isActive = (state.materialFilter === k);
+          const activeClass = isActive 
+            ? 'glass-btn-cognac text-white font-bold' 
+            : 'glass-card text-white/70 hover:text-white font-medium border border-white/10';
+
+          return `
+            <button type="button" onclick="app.setQuickMaterial('${k}')" class="px-3 py-1.5 rounded-full text-xs shrink-0 flex items-center gap-1.5 transition-all ${activeClass}">
+              ${iconHtml}
+              <span>${label}</span>
+            </button>
+          `;
+        }).join('');
+      };
+
+      const setQuickMaterial = (k) => {
+        triggerHaptic();
+        state.materialFilter = k;
+        renderDriverQuickChips();
+        renderDriverCards();
+      };
+
+      // Post Load Handler
+      const handlePostLoad = (e) => {
+        e.preventDefault();
+        triggerHaptic();
+        const origin = document.getElementById('post-origin').value.trim();
+        const destination = document.getElementById('post-destination').value.trim();
+        const date = document.getElementById('post-date').value;
+        const weight = document.getElementById('post-weight').value.trim();
+        const materialKey = document.querySelector('input[name="post-material"]:checked')?.value || 'industrial';
+        const truckType = document.getElementById('post-truck-type').value;
+        const phone = document.getElementById('post-phone').value.trim();
+
+        if (phone.length !== 10) {
+          showToast(state.lang === 'hi' ? "कृपया 10 अंकों का फोन नंबर भरें" : "Please enter valid 10-digit mobile number", '✕');
+          return;
+        }
+
+        const newLoad = {
+          id: `LOAD-${Math.floor(100 + Math.random() * 900)}`,
+          originEn: origin,
+          originHi: origin,
+          destEn: destination,
+          destHi: destination,
+          date: date,
+          materialKey: materialKey,
+          weightEn: weight,
+          weightHi: weight,
+          truckTypeEn: truckType,
+          truckTypeHi: truckType,
+          transporterEn: state.currentUser ? state.currentUser.name : "Kabani Transport Partner",
+          transporterHi: state.currentUser ? state.currentUser.name : "कबानी ट्रांसपोर्ट पार्टनर",
+          phone: phone,
+          status: "available",
+          postedAgoEn: "Just now",
+          postedAgoHi: "अभी-अभी"
+        };
+
+        state.loads.unshift(newLoad);
+        localStorage.setItem('kabani_loads_v1', JSON.stringify(state.loads));
+
+        document.getElementById('post-origin').value = '';
+        document.getElementById('post-destination').value = '';
+        document.getElementById('post-weight').value = '';
+
+        renderTransporterCards();
+        renderDriverCards();
+        showToast(state.lang === 'hi' ? "आपका लोड लाइव हो गया है!" : "Load published successfully!", '✓');
+
+        const listEl = document.getElementById('transporter-postings-list');
+        if (listEl) listEl.scrollIntoView({ behavior: 'smooth' });
+      };
+
+      const toggleLoadStatus = (id) => {
+        triggerHaptic();
+        const load = state.loads.find(l => l.id === id);
+        if (!load) return;
+        load.status = (load.status === 'available') ? 'assigned' : 'available';
+        localStorage.setItem('kabani_loads_v1', JSON.stringify(state.loads));
+        renderTransporterCards();
+        renderDriverCards();
+        showToast(load.status === 'assigned' ? "Marked as Assigned" : "Reopened as Available", '✓');
+      };
+
+      const deleteLoad = (id) => {
+        triggerHaptic();
+        if (!confirm(state.lang === 'hi' ? "क्या आप वाकई इस लोड को हटाना चाहते हैं?" : "Delete this load posting?")) return;
+        state.loads = state.loads.filter(l => l.id !== id);
+        localStorage.setItem('kabani_loads_v1', JSON.stringify(state.loads));
+        renderTransporterCards();
+        renderDriverCards();
+        showToast("Load deleted", '✓');
+      };
+
+      // Render Transporter Postings
+      const renderTransporterCards = () => {
+        const container = document.getElementById('transporter-cards-container');
+        const activeCount = document.getElementById('stat-active-loads');
+        const assignedCount = document.getElementById('stat-assigned-loads');
+        const myCountBadge = document.getElementById('transporter-my-posts-count');
+        if (!container) return;
+
+        const isHi = state.lang === 'hi';
+        const active = state.loads.filter(l => l.status === 'available');
+        const assigned = state.loads.filter(l => l.status === 'assigned');
+
+        if (activeCount) activeCount.textContent = active.length;
+        if (assignedCount) assignedCount.textContent = assigned.length;
+        if (myCountBadge) myCountBadge.textContent = `${active.length} ${isHi ? 'सक्रिय' : 'Active'}`;
+
+        if (state.loads.length === 0) {
+          container.innerHTML = `
+            <div class="p-8 text-center glass-card rounded-3xl">
+              <div class="w-10 h-10 mx-auto mb-2 text-glass-amber">${svgIcons.fmcg}</div>
+              <p class="text-xs text-white/60 font-medium">${isHi ? 'कोई लोड नहीं मिला' : 'No loads posted yet'}</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = state.loads.map(load => {
+          const isAvail = load.status === 'available';
+          const meta = materialMeta[load.materialKey] || materialMeta.industrial;
+          const origin = isHi ? load.originHi : load.originEn;
+          const dest = isHi ? load.destHi : load.destEn;
+          const weight = isHi ? load.weightHi : load.weightEn;
+          const truck = isHi ? load.truckTypeHi : load.truckTypeEn;
+
+          const statusBadge = isAvail
+            ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-glass-emerald/20 text-glass-emerald border border-glass-emerald/40 flex items-center gap-1.5">
+                 <span class="w-2 h-2 rounded-full bg-glass-emerald"></span>
+                 <span>${t('status_available')}</span>
+               </span>`
+            : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-white/50 border border-white/15 flex items-center gap-1.5">
+                 <span class="w-2 h-2 rounded-full bg-white/40"></span>
+                 <span>${t('status_assigned')}</span>
+               </span>`;
+
+          const actionBtn = isAvail
+            ? `<button type="button" onclick="app.toggleLoadStatus('${load.id}')" class="px-3 py-1.5 rounded-xl glass-btn-dark text-xs font-semibold text-white/80 hover:text-white flex items-center gap-1 border border-white/15">
+                 <svg class="w-3.5 h-3.5 text-glass-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                 <span>${t('btn_mark_assigned')}</span>
+               </button>`
+            : `<button type="button" onclick="app.toggleLoadStatus('${load.id}')" class="px-3 py-1.5 rounded-xl glass-btn-emerald text-xs font-semibold text-white flex items-center gap-1">
+                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                 <span>${t('btn_reopen_active')}</span>
+               </button>`;
+
+          return `
+            <div class="glass-card rounded-3xl p-4 sm:p-5 prismatic-border">
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono tabular-nums text-xs font-bold text-glass-amber">${load.id}</span>
+                  ${statusBadge}
+                  <span class="text-xs font-medium text-white/50 flex items-center gap-1 font-mono tabular-nums">
+                    ${svgIcons.calendar} <span>${load.date}</span>
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  ${actionBtn}
+                  <button type="button" onclick="app.deleteLoad('${load.id}')" class="p-1.5 rounded-xl glass-btn-dark text-white/40 hover:text-red-400" title="Delete">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 text-base sm:text-lg font-bold text-white mb-2">
+                <span class="text-glass-emerald">${origin}</span>
+                <span class="text-glass-amber text-sm">➔</span>
+                <span class="text-glass-amber">${dest}</span>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2 text-xs font-medium text-white/70">
+                <span class="px-2.5 py-1 rounded-xl glass-well flex items-center gap-1.5 text-white/80">
+                  <span class="text-glass-amber">${meta.icon}</span>
+                  <span>${isHi ? meta.nameHi : meta.nameEn}</span>
+                </span>
+                <span class="px-2.5 py-1 rounded-xl glass-well flex items-center gap-1.5 text-white/80">
+                  <span class="text-glass-amber">${svgIcons.scale}</span>
+                  <span class="font-mono tabular-nums">${weight}</span>
+                </span>
+                <span class="px-2.5 py-1 rounded-xl glass-well flex items-center gap-1.5 text-white/80">
+                  <span class="text-white/50">${svgIcons.truck}</span>
+                  <span>${truck}</span>
+                </span>
+                <span class="px-2.5 py-1 rounded-xl glass-well flex items-center gap-1.5 font-mono tabular-nums text-glass-emerald">
+                  ${svgIcons.phone} <span>+91 ${load.phone}</span>
+                </span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      };
+
+      // Filter Logic for Driver
+      const filterLoads = () => {
+        const input = document.getElementById('filter-search');
+        if (input) state.searchQuery = input.value.toLowerCase().trim();
+        renderDriverCards();
+      };
+
+      const setStatusFilter = (status) => {
+        triggerHaptic();
+        state.statusFilter = status;
+        ['all', 'available', 'assigned'].forEach(s => {
+          const btn = document.getElementById(`status-btn-${s}`);
+          if (btn) {
+            if (s === status) {
+              btn.className = "px-2.5 py-1 text-xs font-bold rounded-lg text-white bg-white/20 shadow";
+            } else {
+              btn.className = "px-2.5 py-1 text-xs font-bold rounded-lg text-white/60 hover:text-white";
+            }
+          }
+        });
+        renderDriverCards();
+      };
+
+      // Speak Load Details (Speech Synthesis)
+      const speakLoad = (origin, dest, weight, material) => {
+        triggerHaptic();
+        if (!('speechSynthesis' in window)) {
+          showToast("Speech audio not supported on this browser", 'ℹ');
+          return;
+        }
+        window.speechSynthesis.cancel();
+        const text = (state.lang === 'hi')
+          ? `${origin} से ${dest}, वजन ${weight}, मटेरियल ${material}. कबानी भरोसेमंद ट्रक नेटवर्क पर सीधा कॉल करें।`
+          : `Load from ${origin} to ${dest}. Weight ${weight}. Material ${material}. Call transporter directly on Kabani Reliable Truck Network.`;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = (state.lang === 'hi') ? 'hi-IN' : 'en-US';
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+        showToast(state.lang === 'hi' ? "लोड विवरण बोला जा रहा है..." : "Speaking load details...", '🔊');
+      };
+
+      // Render Driver Bilty Cards
+      const renderDriverCards = () => {
+        const container = document.getElementById('driver-loads-container');
+        const countEl = document.getElementById('load-board-count');
+        if (!container) return;
+
+        const isHi = state.lang === 'hi';
+
+        const filtered = state.loads.filter(l => {
+          if (state.statusFilter === 'available' && l.status !== 'available') return false;
+          if (state.statusFilter === 'assigned' && l.status !== 'assigned') return false;
+          if (state.materialFilter !== 'all' && l.materialKey !== state.materialFilter) return false;
+
+          if (state.searchQuery) {
+            const meta = materialMeta[l.materialKey] || materialMeta.industrial;
+            const targetStr = [
+              l.originEn, l.originHi,
+              l.destEn, l.destHi,
+              l.weightEn, l.weightHi,
+              l.truckTypeEn, l.truckTypeHi,
+              meta.nameEn, meta.nameHi
+            ].join(' ').toLowerCase();
+            if (!targetStr.includes(state.searchQuery)) return false;
+          }
+          return true;
+        });
+
+        if (countEl) {
+          countEl.textContent = `${filtered.length} ${isHi ? 'लोड उपलब्ध' : 'Loads Available'}`;
+        }
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="p-8 sm:p-12 text-center glass-card rounded-3xl">
+              <div class="w-10 h-10 mx-auto mb-3 text-glass-amber">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </div>
+              <h4 class="text-base font-bold text-white">${isHi ? 'कोई लोड नहीं मिला' : 'No Loads Match Your Filter'}</h4>
+              <p class="text-xs text-white/50 mt-1 max-w-sm mx-auto">${isHi ? 'कृपया शहर का नाम बदलें या फिल्टर रीसेट करें' : 'Try searching another city or clearing filters'}</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = filtered.map(load => {
+          const isAvail = load.status === 'available';
+          const meta = materialMeta[load.materialKey] || materialMeta.industrial;
+          const origin = isHi ? load.originHi : load.originEn;
+          const dest = isHi ? load.destHi : load.destEn;
+          const weight = isHi ? load.weightHi : load.weightEn;
+          const truck = isHi ? load.truckTypeHi : load.truckTypeEn;
+          const transporter = isHi ? load.transporterHi : load.transporterEn;
+          const postedAgo = isHi ? load.postedAgoHi : load.postedAgoEn;
+
+          const statusBadge = isAvail
+            ? `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-glass-emerald/20 text-glass-emerald border border-glass-emerald/40 text-xs font-bold">
+                 <span class="w-2 h-2 rounded-full bg-glass-emerald"></span>
+                 <span>${t('status_available')}</span>
+               </div>`
+            : `<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white/50 border border-white/15 text-xs font-bold">
+                 <span class="w-2 h-2 rounded-full bg-white/40"></span>
+                 <span>${t('status_assigned')}</span>
+               </div>`;
+
+          // Call Button with Sonar Soundwave Rings
+          const callBtn = isAvail
+            ? `
+              <a href="tel:+91${load.phone}" class="w-full relative overflow-hidden py-4 px-5 glass-btn-emerald rounded-2xl flex items-center justify-center gap-3 text-white font-bold shadow-2xl">
+                <!-- Sonar Rings -->
+                <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
+                  <div class="absolute inset-0 rounded-full bg-white/30 sonar-ring-1"></div>
+                  <div class="absolute inset-0 rounded-full bg-white/20 sonar-ring-2"></div>
+                  <div class="relative w-10 h-10 rounded-full bg-white/25 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                  </div>
+                </div>
+                <div class="text-left leading-tight">
+                  <div class="text-[10px] sm:text-xs uppercase tracking-wider text-green-100 font-extrabold">
+                    ${t('btn_call_transporter_top')}
+                  </div>
+                  <div class="text-base sm:text-lg font-display">
+                    ${t('btn_call_transporter')}
+                  </div>
+                </div>
+              </a>
+            `
+            : `
+              <button type="button" disabled class="w-full py-3.5 px-5 glass-well rounded-2xl text-white/40 font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2">
+                ${svgIcons.lock}
+                <span>${t('btn_assigned_done')}</span>
+              </button>
+            `;
+
+          return `
+            <div class="glass-panel rounded-3xl p-5 sm:p-6 prismatic-border">
+              
+              <!-- Card Header: Status, Date, Audio Button -->
+              <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-white/10">
+                <div class="flex items-center gap-2">
+                  ${statusBadge}
+                  <span class="text-xs font-semibold text-white/60 flex items-center gap-1 font-mono tabular-nums">
+                    <span class="text-glass-amber">${svgIcons.calendar}</span>
+                    <span>${load.date}</span>
+                  </span>
+                </div>
+
+                <button type="button" onclick="app.speakLoad('${origin}', '${dest}', '${weight}', '${isHi ? meta.nameHi : meta.nameEn}')" class="px-2.5 py-1 rounded-xl glass-btn-dark text-xs font-semibold text-glass-amber hover:text-white flex items-center gap-1.5 border border-glass-amber/30">
+                  <svg class="w-4 h-4 text-glass-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                  <span>${t('btn_listen_load')}</span>
+                </button>
+              </div>
+
+              <!-- Route Display with Pulse Route Indicator -->
+              <div class="mb-4">
+                <div class="flex items-start gap-3">
+                  <div class="flex flex-col items-center mt-1 relative">
+                    <span class="w-3.5 h-3.5 rounded-full bg-glass-emerald border-2 border-white/50 shadow"></span>
+                    <div class="w-0.5 h-10 road-lane-anim my-0.5 relative overflow-hidden">
+                      <div class="w-1.5 h-1.5 rounded-full bg-glass-amber absolute -left-0.5 top-0 route-pulse-dot shadow"></div>
+                    </div>
+                    <span class="w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-white/50 shadow"></span>
+                  </div>
+
+                  <div class="flex-1 space-y-2">
+                    <div>
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-glass-emerald block">
+                        ${t('card_origin_label')}
+                      </span>
+                      <h3 class="text-lg sm:text-xl font-display font-extrabold text-white tracking-tight">
+                        ${origin}
+                      </h3>
+                    </div>
+                    <div>
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-red-400 block">
+                        ${t('card_dest_label')}
+                      </span>
+                      <h3 class="text-lg sm:text-xl font-display font-extrabold text-white tracking-tight">
+                        ${dest}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Specs Grid (Frosted Inset Well) -->
+              <div class="grid grid-cols-3 gap-2 p-3 rounded-2xl glass-well mb-4 text-center">
+                <div class="p-1">
+                  <div class="text-[10px] uppercase font-semibold text-white/50 mb-0.5">${t('card_material_label')}</div>
+                  <div class="text-xs sm:text-sm font-bold text-white flex items-center justify-center gap-1.5 truncate">
+                    <span class="text-glass-amber shrink-0">${meta.icon}</span>
+                    <span class="truncate">${isHi ? meta.nameHi : meta.nameEn}</span>
+                  </div>
+                </div>
+
+                <div class="p-1 border-x border-white/10">
+                  <div class="text-[10px] uppercase font-semibold text-white/50 mb-0.5">${t('card_weight_label')}</div>
+                  <div class="text-xs sm:text-sm font-bold text-glass-amber flex items-center justify-center gap-1.5 truncate font-mono tabular-nums">
+                    <span class="text-glass-amber shrink-0">${svgIcons.scale}</span>
+                    <span class="truncate">${weight}</span>
+                  </div>
+                </div>
+
+                <div class="p-1">
+                  <div class="text-[10px] uppercase font-semibold text-white/50 mb-0.5">${t('card_truck_label')}</div>
+                  <div class="text-xs sm:text-sm font-bold text-white flex items-center justify-center gap-1.5 truncate">
+                    <span class="text-white/60 shrink-0">${svgIcons.truck}</span>
+                    <span class="truncate">${truck}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Transporter Strip -->
+              <div class="flex items-center justify-between text-xs text-white/70 mb-4 px-1">
+                <div class="flex items-center gap-1.5 truncate">
+                  <span class="w-6 h-6 rounded-full glass-card flex items-center justify-center text-glass-amber text-[10px] border border-white/10">
+                    ${svgIcons.building}
+                  </span>
+                  <span class="font-bold text-white truncate">${transporter}</span>
+                  <span class="text-glass-emerald font-black" title="Verified Transporter">✓</span>
+                </div>
+                <div class="shrink-0 font-mono tabular-nums text-[11px] font-medium text-white/40">
+                  ${postedAgo}
+                </div>
+              </div>
+
+              <!-- Call Action Button -->
+              ${callBtn}
+
+              <!-- Direct Deal Disclaimer -->
+              <div class="text-center text-[11px] text-white/40 font-medium mt-2.5 flex items-center justify-center gap-2">
+                <span class="inline-flex items-center gap-1">${svgIcons.lock} <span>0% Commission</span></span>
+                <span>•</span>
+                <span class="inline-flex items-center gap-1">${svgIcons.phone} <span>${isHi ? 'सीधे फोन पर भाड़ा तय करें' : 'Direct negotiation on phone call'}</span></span>
+              </div>
+
+            </div>
+          `;
+        }).join('');
+      };
+
+      // Infinite Scroll Sentinel
+      const setupInfiniteScroll = () => {
+        const sentinel = document.getElementById('infinite-scroll-sentinel');
+        if (!sentinel) return;
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && state.currentView === 'driver' && state.batchCount < 4) {
+              state.batchCount++;
+              setTimeout(() => {
+                const clones = seedLoads.map((s, idx) => ({
+                  ...s,
+                  id: `LOAD-${800 + state.batchCount * 10 + idx}`,
+                  postedAgoEn: `${state.batchCount * 2} hrs ago`,
+                  postedAgoHi: `${state.batchCount * 2} घंटे पहले`
+                }));
+                state.loads.push(...clones);
+                renderDriverCards();
+              }, 400);
+            }
+          });
+        }, { rootMargin: '200px' });
+
+        observer.observe(sentinel);
+      };
+
+      // Expose Public API
+      window.app = {
+        init,
+        navigate,
+        navigateHome,
+        selectRole,
+        setLanguage,
+        switchAuthTab,
+        handleLogin,
+        handleSignup,
+        demoLogin,
+        logout,
+        openForgotModal,
+        closeForgotModal,
+        handleForgotSubmit,
+        setQuickMaterial,
+        handlePostLoad,
+        toggleLoadStatus,
+        deleteLoad,
+        filterLoads,
+        setStatusFilter,
+        speakLoad
+      };
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>
