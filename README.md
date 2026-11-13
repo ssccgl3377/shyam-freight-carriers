@@ -3,11 +3,14 @@
 > **RELIABLE TRUCK NETWORK** | **VERIFIED TRANSPORT NETWORK**  
 > *TRUCKS • LOADS • TRUST*
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-success.svg)](https://ssccgl3377.github.io/shyam-freight-carriers/)
 [![Playwright Tests](https://img.shields.io/badge/Playwright%20Tests-7%20Passed-brightgreen.svg)](#playwright-cli-assurance)
 [![PWA](https://img.shields.io/badge/PWA-Mobile%20Optimized-orange.svg)](#smartphone--mobile-os-optimizations)
 [![Language](https://img.shields.io/badge/Localization-EN%20%7C%20HI%20(Transliterated)-blue.svg)](#strict-language-localization)
 
 A modern, tactile Progressive Web App (PWA) designed and engineered specifically for truck drivers, transport contractors, and freight booking offices across India. Built for **Shyam Freight Carriers** under the **KABANI** brand identity.
+
+🌐 **Live GitHub Pages URL**: [https://ssccgl3377.github.io/shyam-freight-carriers/](https://ssccgl3377.github.io/shyam-freight-carriers/)
 
 ---
 
