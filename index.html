@@ -295,6 +295,271 @@
       -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
       border-bottom: 1.5px solid rgba(255, 255, 255, 0.8) !important;
     }
+
+    /* ==========================================================================
+       BENCHO INTERACTION SUITE (bencho.dev)
+       Press, Slide, Swipe, Type, Select, Loading Animations
+       ========================================================================== */
+
+    /* 1. BENCHO PRESS ANIMATION */
+    .bencho-press, .btn-tactile, .btn-spring, .btn-primary, .btn-secondary {
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.16s ease, filter 0.16s ease;
+      will-change: transform;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bencho-press:active, .btn-tactile:active, .btn-spring:active {
+      transform: scale(0.955) translateY(1.5px) !important;
+    }
+
+    /* Bencho Interactive Like Pill with Heart Burst & Particles */
+    .bencho-like-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 14px rgba(46, 24, 14, 0.06);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: visible;
+    }
+    .bencho-like-pill:hover {
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-1px) scale(1.03);
+    }
+    .bencho-like-pill:active {
+      transform: scale(0.95);
+    }
+    .bencho-like-pill.is-liked {
+      background: #FFF1F2 !important;
+      border-color: #FECDD3 !important;
+      color: #E11D48 !important;
+    }
+    .bencho-like-pill.is-liked svg {
+      fill: #E11D48;
+      stroke: #E11D48;
+      animation: benchoHeartBurst 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes benchoHeartBurst {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.45) rotate(-8deg); }
+      75% { transform: scale(0.9) rotate(4deg); }
+      100% { transform: scale(1.15) rotate(0deg); }
+    }
+
+    /* Like Particle Pop Explosion */
+    .bencho-particle {
+      position: absolute;
+      pointer-events: none;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: benchoParticleExplode 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      z-index: 10;
+    }
+    @keyframes benchoParticleExplode {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+    }
+
+    /* 2. BENCHO SLIDE ANIMATION */
+    /* Segmented Control with Sliding Dynamic Pill Thumb */
+    .bencho-segmented-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      border-radius: 1rem;
+      background: rgba(245, 236, 225, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(138, 75, 8, 0.12);
+      user-select: none;
+    }
+    .bencho-slider-thumb {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      border-radius: 0.75rem;
+      background: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(46, 24, 14, 0.09), 0 1px 3px rgba(46, 24, 14, 0.05);
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.25s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Slide Up Bottom Sheet / Modal Drawer */
+    .bencho-slide-up {
+      animation: benchoSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes benchoSlideUp {
+      from { transform: translateY(32px) scale(0.97); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    /* 3. BENCHO SWIPE ANIMATION */
+    /* Touch & Drag Swipe Action on Bilty Load Cards */
+    .bencho-swipe-card-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: 1.25rem;
+      touch-action: pan-y;
+    }
+    .bencho-swipe-actions {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 1.25rem;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 30%, rgba(22, 101, 52, 0.12) 100%);
+      border-radius: inherit;
+      z-index: 1;
+      pointer-events: auto;
+    }
+    .bencho-swipe-card {
+      position: relative;
+      z-index: 2;
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform;
+    }
+    .bencho-swipe-card.is-swiped {
+      transform: translateX(-88px);
+    }
+
+    /* Snap-Swipe Horizontal Filter Carousel */
+    .bencho-swipe-carousel {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .bencho-swipe-carousel::-webkit-scrollbar {
+      display: none;
+    }
+    .bencho-swipe-carousel > * {
+      scroll-snap-align: start;
+      flex-shrink: 0;
+    }
+
+    /* 4. BENCHO TYPE ANIMATION */
+    /* Specular Breathing Focus Halo & Keystroke Pulse */
+    .bencho-type-input {
+      transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.16s ease;
+    }
+    .bencho-type-input:focus {
+      outline: none;
+      border-color: #8D5028 !important;
+      box-shadow: 0 0 0 3.5px rgba(141, 80, 40, 0.22), 0 6px 18px rgba(141, 80, 40, 0.12) !important;
+      animation: benchoTypeBreathing 2.4s ease-in-out infinite alternate;
+    }
+    @keyframes benchoTypeBreathing {
+      0% { box-shadow: 0 0 0 3px rgba(141, 80, 40, 0.18), 0 3px 10px rgba(141, 80, 40, 0.08); }
+      100% { box-shadow: 0 0 0 6px rgba(141, 80, 40, 0.28), 0 6px 22px rgba(141, 80, 40, 0.18); }
+    }
+
+    /* Invalid Input Shake Animation */
+    .bencho-shake {
+      animation: benchoShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+    @keyframes benchoShake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+      40%, 60% { transform: translate3d(6px, 0, 0); }
+    }
+
+    /* 5. BENCHO SELECT ANIMATION */
+    /* Spring Bump Selection Cards */
+    .bencho-select-card {
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .bencho-select-card:hover {
+      transform: translateY(-2px);
+    }
+    .bencho-select-card:active {
+      transform: scale(0.98);
+    }
+    .bencho-select-card.is-selected {
+      transform: scale(1.025);
+      border-color: #8D5028 !important;
+      box-shadow: 0 8px 24px rgba(141, 80, 40, 0.22), 0 0 0 2px #8D5028 !important;
+    }
+
+    /* Checkmark Rotational Spring Pop */
+    .bencho-check-pop {
+      animation: benchoCheckPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes benchoCheckPop {
+      0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+      70% { transform: scale(1.3) rotate(6deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* 6. BENCHO LOADING ANIMATION */
+    /* Shimmer Skeleton Wave */
+    .bencho-skeleton {
+      position: relative;
+      overflow: hidden;
+      background: rgba(235, 224, 210, 0.45);
+      border-radius: 8px;
+    }
+    .bencho-skeleton::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+      animation: benchoShimmer 1.5s infinite ease-in-out;
+    }
+    @keyframes benchoShimmer {
+      100% { transform: translateX(100%); }
+    }
+
+    /* Miniature Spinning Truck Rim / Wheel Spinner */
+    .bencho-wheel-spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #FFFFFF;
+      border-radius: 50%;
+      animation: benchoWheelSpin 0.7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes benchoWheelSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Sonar Ripple Pulse for Live Status Badges */
+    .bencho-sonar-badge {
+      position: relative;
+    }
+    .bencho-sonar-badge::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: inherit;
+      background: inherit;
+      opacity: 0.5;
+      animation: benchoSonarPulse 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+    @keyframes benchoSonarPulse {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
   </style>
 
   <!-- Three.js for 3D Background Rotating Freight Truck -->
@@ -379,13 +644,14 @@
           </button>
         </div>
 
-        <!-- STRICT DIRECTIVE: Fixed Prominent Language Toggle (English / Hindi) -->
-        <div class="relative bg-kabani-cardWarm p-1 rounded-2xl border-2 border-kabani-border/30 shadow-inner flex items-center">
+        <!-- STRICT DIRECTIVE: Fixed Prominent Language Toggle (English / Hindi with Bencho Sliding Pill Thumb) -->
+        <div id="lang-segmented-container" class="relative bg-kabani-cardWarm p-1 rounded-2xl border-2 border-kabani-border/30 shadow-inner flex items-center overflow-hidden">
+          <div id="lang-slider-thumb" class="absolute top-1 bottom-1 w-[calc(50%-4px)] left-1 rounded-xl bg-kabani-espresso shadow-tactile-espresso transition-all duration-300 ease-out pointer-events-none z-0"></div>
           <button 
             type="button"
             id="lang-btn-en" 
             onclick="app.setLanguage('en')" 
-            class="px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring"
+            class="relative z-10 px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 text-white btn-spring bencho-press"
             aria-label="Switch to English">
             <span>EN</span>
           </button>
@@ -393,7 +659,7 @@
             type="button"
             id="lang-btn-hi" 
             onclick="app.setLanguage('hi')" 
-            class="px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 text-kabani-espresso hover:text-kabani-cognac btn-spring"
+            class="relative z-10 px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 text-kabani-espresso hover:text-kabani-cognac btn-spring bencho-press"
             aria-label="Switch to Hindi">
             <span>हिन्दी</span>
           </button>
@@ -446,13 +712,14 @@
           </p>
         </div>
 
-        <!-- Auth Tabs (Login vs Sign-Up) -->
-        <div class="grid grid-cols-2 p-1 bg-kabani-cardWarm rounded-2xl mb-6 border border-kabani-border/30">
+        <!-- Auth Tabs (Login vs Sign-Up with Bencho Segmented Pill Slider) -->
+        <div id="auth-segmented-container" class="relative grid grid-cols-2 p-1 bg-kabani-cardWarm rounded-2xl mb-6 border border-kabani-border/30 overflow-hidden">
+          <div id="auth-slider-thumb" class="absolute top-1 bottom-1 w-[calc(50%-4px)] left-1 rounded-xl bg-kabani-espresso shadow-tactile-espresso transition-all duration-300 ease-out pointer-events-none z-0"></div>
           <button 
             type="button" 
             id="tab-btn-login" 
             onclick="app.switchAuthTab('login')" 
-            class="py-2.5 text-sm font-black rounded-xl transition-all duration-150 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring"
+            class="relative z-10 py-2.5 text-sm font-black rounded-xl transition-all duration-150 text-white btn-spring bencho-press"
             data-i18n="auth_tab_login">
             Log In
           </button>
@@ -460,7 +727,7 @@
             type="button" 
             id="tab-btn-signup" 
             onclick="app.switchAuthTab('signup')" 
-            class="py-2.5 text-sm font-black rounded-xl transition-all duration-150 text-kabani-espresso hover:text-kabani-cognac btn-spring"
+            class="relative z-10 py-2.5 text-sm font-black rounded-xl transition-all duration-150 text-kabani-espresso hover:text-kabani-cognac btn-spring bencho-press"
             data-i18n="auth_tab_signup">
             Sign Up
           </button>
@@ -685,7 +952,7 @@
               type="button" 
               id="btn-demo-transporter"
               onclick="app.quickDemoLogin('transporter')" 
-              class="py-2.5 px-2 bg-kabani-cardWarm hover:bg-kabani-sand border-2 border-kabani-border/30 rounded-xl text-xs font-black text-kabani-espresso flex items-center justify-center gap-1.5 transition-colors btn-spring">
+              class="py-2.5 px-2 bg-kabani-cardWarm hover:bg-kabani-sand border-2 border-kabani-border/30 rounded-xl text-xs font-black text-kabani-espresso flex items-center justify-center gap-1.5 transition-colors btn-spring bencho-press">
               <span>🏢</span>
               <span data-i18n="demo_transporter_btn">Demo Transporter</span>
             </button>
@@ -693,7 +960,7 @@
               type="button" 
               id="btn-demo-driver"
               onclick="app.quickDemoLogin('driver')" 
-              class="py-2.5 px-2 bg-kabani-cardWarm hover:bg-kabani-sand border-2 border-kabani-border/30 rounded-xl text-xs font-black text-kabani-cognac flex items-center justify-center gap-1.5 transition-colors btn-spring">
+              class="py-2.5 px-2 bg-kabani-cardWarm hover:bg-kabani-sand border-2 border-kabani-border/30 rounded-xl text-xs font-black text-kabani-cognac flex items-center justify-center gap-1.5 transition-colors btn-spring bencho-press">
               <span>🚚</span>
               <span data-i18n="demo_driver_btn">Demo Driver</span>
             </button>
@@ -728,14 +995,14 @@
       <!-- Two Massive Entry Cards with Interactive Scroll-tilt & Motion Graphics -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
         
-        <!-- CARD 1: TRANSPORTER -->
+        <!-- CARD 1: TRANSPORTER (Bencho Select Card) -->
         <div 
           id="card-role-transporter"
           onclick="app.selectRole('transporter')" 
           role="button"
           tabindex="0"
           onkeydown="if(event.key==='Enter'||event.key===' ') app.selectRole('transporter')"
-          class="reveal-on-scroll is-revealed group relative bg-kabani-card border-2 border-kabani-border/40 rounded-3xl overflow-hidden shadow-card-warm hover:shadow-card-lift hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between">
+          class="reveal-on-scroll is-revealed group relative bg-kabani-card border-2 border-kabani-border/40 rounded-3xl overflow-hidden shadow-card-warm hover:shadow-card-lift hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between bencho-select-card bencho-press">
           
           <!-- Top Section: Warm Cognac / Earthy Background with Illustration -->
           <div class="bg-gradient-to-b from-[#8C522B] to-[#6E3C1B] p-6 text-white relative overflow-hidden">
@@ -799,14 +1066,14 @@
           </div>
         </div>
 
-        <!-- CARD 2: DRIVER -->
+        <!-- CARD 2: DRIVER (Bencho Select Card) -->
         <div 
           id="card-role-driver"
           onclick="app.selectRole('driver')" 
           role="button"
           tabindex="0"
           onkeydown="if(event.key==='Enter'||event.key===' ') app.selectRole('driver')"
-          class="reveal-on-scroll is-revealed group relative bg-kabani-card border-2 border-kabani-border/40 rounded-3xl overflow-hidden shadow-card-warm hover:shadow-card-lift hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between">
+          class="reveal-on-scroll is-revealed group relative bg-kabani-card border-2 border-kabani-border/40 rounded-3xl overflow-hidden shadow-card-warm hover:shadow-card-lift hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between bencho-select-card bencho-press">
           
           <div class="bg-gradient-to-b from-[#A36235] to-[#7A421E] p-6 text-white relative overflow-hidden">
             
@@ -1207,25 +1474,26 @@
             </select>
           </div>
 
-          <!-- Status Filter Pills -->
-          <div class="flex items-center gap-1 bg-kabani-cardWarm p-1 rounded-2xl border-2 border-kabani-border/30">
+          <!-- Status Filter Pills (Bencho Segmented Pill Slider) -->
+          <div id="status-segmented-container" class="relative flex items-center gap-1 bg-kabani-cardWarm p-1 rounded-2xl border-2 border-kabani-border/30 overflow-hidden">
+            <div id="status-slider-thumb" class="absolute top-1 bottom-1 rounded-xl bg-kabani-espresso shadow-tactile-espresso transition-all duration-300 ease-out pointer-events-none z-0"></div>
             <button 
               type="button" 
               onclick="app.setStatusFilter('all')" 
               id="status-btn-all" 
-              class="flex-1 py-1.5 text-xs font-black rounded-xl transition-colors bg-kabani-espresso text-white btn-spring" 
+              class="relative z-10 flex-1 py-1.5 text-xs font-black rounded-xl transition-colors bg-kabani-espresso text-white btn-spring bencho-press" 
               data-i18n="filter_all">All</button>
             <button 
               type="button" 
               onclick="app.setStatusFilter('available')" 
               id="status-btn-available" 
-              class="flex-1 py-1.5 text-xs font-black rounded-xl text-kabani-espresso/70 hover:text-kabani-espresso transition-colors btn-spring" 
+              class="relative z-10 flex-1 py-1.5 text-xs font-black rounded-xl text-kabani-espresso/70 hover:text-kabani-espresso transition-colors btn-spring bencho-press" 
               data-i18n="filter_available_only">Available</button>
             <button 
               type="button" 
               onclick="app.setStatusFilter('assigned')" 
               id="status-btn-assigned" 
-              class="flex-1 py-1.5 text-xs font-black rounded-xl text-kabani-espresso/70 hover:text-kabani-espresso transition-colors btn-spring" 
+              class="relative z-10 flex-1 py-1.5 text-xs font-black rounded-xl text-kabani-espresso/70 hover:text-kabani-espresso transition-colors btn-spring bencho-press" 
               data-i18n="filter_assigned_only">Assigned</button>
           </div>
 
@@ -1968,6 +2236,18 @@
         isInfiniteLoading: false
       };
 
+      // Bencho Type Animation: Keystroke micro-bounce and specular focus
+      const initBenchoInputs = () => {
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(el => {
+          el.classList.add('bencho-type-input');
+          el.addEventListener('keydown', () => {
+            el.style.transform = 'scale(1.008)';
+            setTimeout(() => { el.style.transform = ''; }, 75);
+          });
+        });
+      };
+
       const init = () => {
         setLanguage(state.lang, false);
 
@@ -1989,6 +2269,7 @@
         setupInfiniteScroll();
         setupScrollRevealObserver();
         registerServiceWorker();
+        initBenchoInputs();
 
         // Sync with local backend server (Desktop storage) if online
         try {
@@ -2031,15 +2312,18 @@
         const dict = i18n[lang] || i18n.en;
         const btnHi = document.getElementById('lang-btn-hi');
         const btnEn = document.getElementById('lang-btn-en');
+        const thumb = document.getElementById('lang-slider-thumb');
 
         if (lang === 'hi') {
-          btnHi.className = "px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring";
-          btnEn.className = "px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 text-kabani-espresso hover:text-kabani-cognac btn-spring";
+          btnHi.className = "relative z-10 px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring bencho-press";
+          btnEn.className = "relative z-10 px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 text-kabani-espresso hover:text-kabani-cognac btn-spring bencho-press";
           document.documentElement.lang = 'hi';
+          if (thumb) thumb.style.transform = 'translateX(calc(100% + 4px))';
         } else {
-          btnEn.className = "px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring";
-          btnHi.className = "px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 text-kabani-espresso hover:text-kabani-cognac btn-spring";
+          btnEn.className = "relative z-10 px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring bencho-press";
+          btnHi.className = "relative z-10 px-2.5 sm:px-3 py-1 rounded-xl text-xs sm:text-sm font-black transition-all duration-150 flex items-center gap-1.5 text-kabani-espresso hover:text-kabani-cognac btn-spring bencho-press";
           document.documentElement.lang = 'en';
+          if (thumb) thumb.style.transform = 'translateX(0)';
         }
 
         document.title = dict.page_title;
@@ -2244,13 +2528,23 @@
 
       const selectRole = (role) => {
         triggerHaptic();
-        if (role === 'transporter') {
-          navigate('transporter');
-          showToast(state.lang === 'hi' ? "ट्रांसपोर्टर हब में आपका स्वागत है" : "Welcome to Transporter Hub", 'cognac');
-        } else {
-          navigate('driver');
-          showToast(state.lang === 'hi' ? "लाइव लोड बोर्ड खुला है" : "Live Load Board Active", 'green');
+        const driverCard = document.getElementById('card-role-driver');
+        const transpCard = document.getElementById('card-role-transporter');
+        if (driverCard && transpCard) {
+          driverCard.classList.remove('is-selected');
+          transpCard.classList.remove('is-selected');
+          if (role === 'transporter') transpCard.classList.add('is-selected');
+          else driverCard.classList.add('is-selected');
         }
+        setTimeout(() => {
+          if (role === 'transporter') {
+            navigate('transporter');
+            showToast(state.lang === 'hi' ? "ट्रांसपोर्टर हब में आपका स्वागत है" : "Welcome to Transporter Hub", 'cognac');
+          } else {
+            navigate('driver');
+            showToast(state.lang === 'hi' ? "लाइव लोड बोर्ड खुला है" : "Live Load Board Active", 'green');
+          }
+        }, 120);
       };
 
       const switchAuthTab = (tab) => {
@@ -2261,19 +2555,22 @@
         const formLogin = document.getElementById('form-login');
         const formSignup = document.getElementById('form-signup');
         const alertBox = document.getElementById('auth-alert');
+        const thumb = document.getElementById('auth-slider-thumb');
 
         if (alertBox) alertBox.classList.add('hidden');
 
         if (tab === 'login') {
-          loginTabBtn.className = "py-2.5 text-sm font-black rounded-xl transition-all duration-150 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring";
-          signupTabBtn.className = "py-2.5 text-sm font-black rounded-xl transition-all duration-150 text-kabani-espresso hover:text-kabani-cognac btn-spring";
+          loginTabBtn.className = "relative z-10 py-2.5 text-sm font-black rounded-xl transition-all duration-150 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring bencho-press";
+          signupTabBtn.className = "relative z-10 py-2.5 text-sm font-black rounded-xl transition-all duration-150 text-kabani-espresso hover:text-kabani-cognac btn-spring bencho-press";
           formLogin.classList.remove('hidden');
           formSignup.classList.add('hidden');
+          if (thumb) thumb.style.transform = 'translateX(0)';
         } else {
-          signupTabBtn.className = "py-2.5 text-sm font-black rounded-xl transition-all duration-150 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring";
-          loginTabBtn.className = "py-2.5 text-sm font-black rounded-xl transition-all duration-150 text-kabani-espresso hover:text-kabani-cognac btn-spring";
+          signupTabBtn.className = "relative z-10 py-2.5 text-sm font-black rounded-xl transition-all duration-150 bg-kabani-espresso text-white shadow-tactile-espresso btn-spring bencho-press";
+          loginTabBtn.className = "relative z-10 py-2.5 text-sm font-black rounded-xl transition-all duration-150 text-kabani-espresso hover:text-kabani-cognac btn-spring bencho-press";
           formSignup.classList.remove('hidden');
           formLogin.classList.add('hidden');
+          if (thumb) thumb.style.transform = 'translateX(calc(100% + 4px))';
         }
       };
 
@@ -2298,6 +2595,14 @@
           alertBox.className = "mb-4 p-3 rounded-2xl text-sm font-bold border-2 bg-red-50 border-red-500 text-red-900 flex items-start gap-2.5";
           alertText.textContent = msg;
           alertBox.classList.remove('hidden');
+        }
+        // Bencho shake on error
+        const authCard = document.querySelector('#view-auth > div');
+        if (authCard) {
+          authCard.classList.remove('bencho-shake');
+          void authCard.offsetWidth; // Reflow
+          authCard.classList.add('bencho-shake');
+          setTimeout(() => authCard.classList.remove('bencho-shake'), 500);
         }
       };
 
@@ -2514,10 +2819,7 @@
           : `✓ Password reset link sent to '${email}'. Please check your inbox.`;
         alertBox.classList.remove('hidden');
 
-        setTimeout(() => {
-          closeForgotPasswordModal();
-          showToast(state.lang === 'hi' ? "ईमेल पर रीसेट लिंक भेजा गया" : "Reset link sent to registered email", 'green');
-        }, 2000);
+        showToast(state.lang === 'hi' ? "ईमेल पर रीसेट लिंक भेजा गया" : "Reset link sent to registered email", 'green');
       };
 
       const fillOrigin = (city) => { triggerHaptic(); document.getElementById('post-origin').value = city; };
@@ -2757,22 +3059,92 @@
         renderDriverLoads();
       };
 
+      // Status Filter with Bencho Sliding Pill Thumb
       const setStatusFilter = (status) => {
         triggerHaptic();
         state.statusFilter = status;
         const allBtn = document.getElementById('status-btn-all');
         const availBtn = document.getElementById('status-btn-available');
         const assignBtn = document.getElementById('status-btn-assigned');
+        const thumb = document.getElementById('status-slider-thumb');
 
         [allBtn, availBtn, assignBtn].forEach(b => {
-          if (b) b.className = "flex-1 py-1.5 text-xs font-black rounded-xl text-kabani-espresso/70 hover:text-kabani-espresso transition-colors btn-spring";
+          if (b) b.className = "relative z-10 flex-1 py-1.5 text-xs font-black rounded-xl text-kabani-espresso/70 hover:text-kabani-espresso transition-colors btn-spring bencho-press";
         });
 
-        if (status === 'all' && allBtn) allBtn.className = "flex-1 py-1.5 text-xs font-black rounded-xl transition-colors bg-kabani-espresso text-white btn-spring";
-        if (status === 'available' && availBtn) availBtn.className = "flex-1 py-1.5 text-xs font-black rounded-xl transition-colors bg-kabani-espresso text-white btn-spring";
-        if (status === 'assigned' && assignBtn) assignBtn.className = "flex-1 py-1.5 text-xs font-black rounded-xl transition-colors bg-kabani-espresso text-white btn-spring";
+        const activeEl = status === 'all' ? allBtn : (status === 'available' ? availBtn : assignBtn);
+        if (activeEl) {
+          activeEl.className = "relative z-10 flex-1 py-1.5 text-xs font-black rounded-xl transition-colors bg-kabani-espresso text-white btn-spring bencho-press";
+          if (thumb) {
+            thumb.style.left = activeEl.offsetLeft + 'px';
+            thumb.style.width = activeEl.offsetWidth + 'px';
+          }
+        }
 
         renderDriverLoads();
+      };
+
+      // Bencho Particle Pop Effect for Heart Burst
+      const triggerHeartParticles = (btn) => {
+        const colors = ['#E11D48', '#FB7185', '#8C522B', '#D98236', '#1B6A34'];
+        for (let i = 0; i < 8; i++) {
+          const p = document.createElement('span');
+          p.className = 'bencho-particle';
+          const angle = (i / 8) * 2 * Math.PI + (Math.random() * 0.4 - 0.2);
+          const dist = 22 + Math.random() * 16;
+          const dx = Math.round(Math.cos(angle) * dist) + 'px';
+          const dy = Math.round(Math.sin(angle) * dist) + 'px';
+          p.style.setProperty('--dx', dx);
+          p.style.setProperty('--dy', dy);
+          p.style.backgroundColor = colors[i % colors.length];
+          p.style.left = '50%';
+          p.style.top = '50%';
+          btn.appendChild(p);
+          setTimeout(() => p.remove(), 600);
+        }
+      };
+
+      // Bencho Interactive Like Micro-interaction
+      window.toggleLoadLike = function(loadId, btn) {
+        triggerHaptic();
+        const countEl = btn.querySelector('.like-count');
+        let count = parseInt(countEl.textContent.replace(/,/g, '')) || 0;
+        if (btn.classList.contains('is-liked')) {
+          btn.classList.remove('is-liked');
+          count--;
+        } else {
+          btn.classList.add('is-liked');
+          count++;
+          triggerHeartParticles(btn);
+        }
+        countEl.textContent = count.toLocaleString('en-IN');
+      };
+
+      // Bencho Swipe Card Handlers
+      window.benchoHandleSwipePointer = function(e, cardEl) {
+        if (e.target.closest('button, a, input, select')) return;
+        const startX = e.clientX;
+        let diff = 0;
+        const moveHandler = (moveEvent) => {
+          diff = moveEvent.clientX - startX;
+          if (diff < 0 && diff > -110) {
+            cardEl.style.transform = `translateX(${diff}px)`;
+          } else if (diff > 0 && cardEl.classList.contains('is-swiped')) {
+            cardEl.style.transform = `translateX(${-88 + diff}px)`;
+          }
+        };
+        const upHandler = () => {
+          window.removeEventListener('pointermove', moveHandler);
+          window.removeEventListener('pointerup', upHandler);
+          cardEl.style.transform = '';
+          if (diff < -45) {
+            cardEl.classList.add('is-swiped');
+          } else {
+            cardEl.classList.remove('is-swiped');
+          }
+        };
+        window.addEventListener('pointermove', moveHandler);
+        window.addEventListener('pointerup', upHandler);
       };
 
       const setQuickMaterial = (matKey, btnEl) => {
@@ -2877,7 +3249,7 @@
               <a 
                 href="tel:+91${load.transporterPhone}" 
                 onclick="app.logCallAction('${load.id}', '${load.transporterPhone}')"
-                class="w-full relative overflow-hidden py-4 px-5 bg-kabani-actionGreen hover:bg-kabani-actionGreenHover text-white font-bold text-lg sm:text-xl rounded-2xl shadow-tactile-green btn-spring flex items-center justify-center gap-3">
+                class="w-full relative overflow-hidden py-4 px-5 bg-kabani-actionGreen hover:bg-kabani-actionGreenHover text-white font-bold text-lg sm:text-xl rounded-2xl shadow-tactile-green btn-spring bencho-press flex items-center justify-center gap-3">
                 
                 <!-- Sonar soundwave animation rings (Huashu) -->
                 <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
@@ -2910,113 +3282,136 @@
               </button>
             `;
 
+          // Bencho Style Like Badge
+          const likeCount = 1240 + (parseInt(load.transporterPhone.slice(-3)) * 7) % 320;
+
           return `
-            <div class="bg-kabani-card border-2 ${isAvail ? 'border-kabani-border/40 hover:border-kabani-cognac shadow-card-warm hover:shadow-card-lift' : 'border-kabani-border/20 opacity-80'} rounded-3xl p-5 sm:p-6 transition-all reveal-on-scroll is-revealed">
-              
-              <!-- Top Row: Status, Date, Audio -->
-              <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b-2 border-kabani-border/10">
-                <div class="flex items-center gap-2">
-                  ${statusBadge}
-                  <span class="text-xs font-semibold text-kabani-espresso/70 flex items-center gap-1">
-                    <span class="text-kabani-cognac">${svgIcons.calendar}</span>
-                    <span class="font-mono tabular-nums">${load.date}</span>
-                  </span>
-                </div>
-
-                <button 
-                  type="button" 
-                  onclick="app.speakLoad('${safeOrigin}', '${safeDest}', '${safeWeight}', '${safeMaterial}')" 
-                  class="px-2.5 py-1 bg-kabani-cardWarm hover:bg-kabani-sand border border-kabani-border/30 rounded-xl text-xs font-semibold text-kabani-cognac flex items-center gap-1.5 transition-colors btn-spring">
-                  <svg class="w-4 h-4 text-kabani-cognac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                  <span>${t('btn_listen_load')}</span>
-                </button>
+            <div class="bencho-swipe-card-wrapper mb-4">
+              <!-- Bencho Swipe Quick Actions Background -->
+              <div class="bencho-swipe-actions">
+                <a href="tel:+91${load.transporterPhone}" class="py-2.5 px-4 rounded-xl bg-kabani-actionGreen text-xs font-bold text-white shadow-md flex items-center gap-1.5 bencho-press" title="Call Transporter">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                  <span>${isHi ? 'सीधा कॉल' : 'Quick Call'}</span>
+                </a>
               </div>
 
-              <!-- Route Display with Dynamic Traveling Pulse (Huashu Motion Graphics) -->
-              <div class="mb-4">
-                <div class="flex items-start gap-3">
-                  <div class="flex flex-col items-center mt-1 relative">
-                    <span class="w-3.5 h-3.5 rounded-full bg-kabani-actionGreen border-2 border-white shadow"></span>
-                    <div class="w-0.5 h-9 bg-kabani-border/30 my-0.5 relative overflow-hidden">
-                      <!-- Traveling pulse dot -->
-                      <div class="w-1.5 h-1.5 rounded-full bg-kabani-cognac absolute -left-0.5 top-0 route-pulse-dot"></div>
+              <div class="bg-kabani-card border-2 ${isAvail ? 'border-kabani-border/40 hover:border-kabani-cognac shadow-card-warm hover:shadow-card-lift' : 'border-kabani-border/20 opacity-80'} rounded-3xl p-5 sm:p-6 transition-all reveal-on-scroll is-revealed bencho-swipe-card" onpointerdown="window.benchoHandleSwipePointer(event, this)">
+                
+                <!-- Top Row: Status, Date, Bencho Like & Audio -->
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b-2 border-kabani-border/10">
+                  <div class="flex items-center gap-2">
+                    ${statusBadge}
+                    <span class="text-xs font-semibold text-kabani-espresso/70 flex items-center gap-1">
+                      <span class="text-kabani-cognac">${svgIcons.calendar}</span>
+                      <span class="font-mono tabular-nums">${load.date}</span>
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <!-- Bencho Interactive Like Pill -->
+                    <button type="button" class="bencho-like-pill bencho-press text-xs font-bold text-kabani-espresso" onclick="window.toggleLoadLike('${load.id}', this)" title="Appreciate Load">
+                      <svg class="w-3.5 h-3.5 text-red-500 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                      </svg>
+                      <span class="like-count font-mono">${likeCount.toLocaleString('en-IN')}</span>
+                    </button>
+
+                    <button 
+                      type="button" 
+                      onclick="app.speakLoad('${safeOrigin}', '${safeDest}', '${safeWeight}', '${safeMaterial}')" 
+                      class="px-2.5 py-1 bg-kabani-cardWarm hover:bg-kabani-sand border border-kabani-border/30 rounded-xl text-xs font-semibold text-kabani-cognac flex items-center gap-1.5 transition-colors btn-spring bencho-press">
+                      <svg class="w-4 h-4 text-kabani-cognac" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                      </svg>
+                      <span>${t('btn_listen_load')}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Route Display with Dynamic Traveling Pulse (Huashu Motion Graphics) -->
+                <div class="mb-4">
+                  <div class="flex items-start gap-3">
+                    <div class="flex flex-col items-center mt-1 relative">
+                      <span class="w-3.5 h-3.5 rounded-full bg-kabani-actionGreen border-2 border-white shadow"></span>
+                      <div class="w-0.5 h-9 bg-kabani-border/30 my-0.5 relative overflow-hidden">
+                        <!-- Traveling pulse dot -->
+                        <div class="w-1.5 h-1.5 rounded-full bg-kabani-cognac absolute -left-0.5 top-0 route-pulse-dot"></div>
+                      </div>
+                      <span class="w-3.5 h-3.5 rounded-full bg-red-600 border-2 border-white shadow"></span>
                     </div>
-                    <span class="w-3.5 h-3.5 rounded-full bg-red-600 border-2 border-white shadow"></span>
-                  </div>
 
-                  <div class="flex-1 space-y-2">
-                    <div>
-                      <span class="text-[10px] font-bold uppercase tracking-wider text-kabani-actionGreen block">
-                        ${t('card_origin_label')}
-                      </span>
-                      <h3 class="text-lg sm:text-xl font-display font-bold text-kabani-espresso tracking-tight">
-                        ${origin}
-                      </h3>
+                    <div class="flex-1 space-y-2">
+                      <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-kabani-actionGreen block">
+                          ${t('card_origin_label')}
+                        </span>
+                        <h3 class="text-lg sm:text-xl font-display font-bold text-kabani-espresso tracking-tight">
+                          ${origin}
+                        </h3>
+                      </div>
+
+                      <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-red-600 block">
+                          ${t('card_dest_label')}
+                        </span>
+                        <h3 class="text-lg sm:text-xl font-display font-bold text-kabani-espresso tracking-tight">
+                          ${dest}
+                        </h3>
+                      </div>
                     </div>
+                  </div>
+                </div>
 
-                    <div>
-                      <span class="text-[10px] font-bold uppercase tracking-wider text-red-600 block">
-                        ${t('card_dest_label')}
-                      </span>
-                      <h3 class="text-lg sm:text-xl font-display font-bold text-kabani-espresso tracking-tight">
-                        ${dest}
-                      </h3>
+                <!-- Specs Grid (Parchment Card Inset) -->
+                <div class="grid grid-cols-3 gap-2 p-3.5 bg-kabani-cardWarm rounded-2xl border border-kabani-border/20 mb-4 text-center">
+                  <div class="p-1">
+                    <div class="text-[10px] uppercase font-semibold text-kabani-espresso/60 mb-0.5">${t('card_material_label')}</div>
+                    <div class="text-xs sm:text-sm font-semibold text-kabani-espresso flex items-center justify-center gap-1.5 truncate">
+                      <span class="text-kabani-cognac shrink-0">${meta.icon}</span>
+                      <span class="truncate">${materialName}</span>
+                    </div>
+                  </div>
+
+                  <div class="p-1 border-x border-kabani-border/20">
+                    <div class="text-[10px] uppercase font-semibold text-kabani-espresso/60 mb-0.5">${t('card_weight_label')}</div>
+                    <div class="text-xs sm:text-sm font-semibold text-kabani-cognac flex items-center justify-center gap-1.5 truncate">
+                      <span class="text-kabani-cognac shrink-0">${svgIcons.scale}</span>
+                      <span class="font-mono tabular-nums truncate">${weight}</span>
+                    </div>
+                  </div>
+
+                  <div class="p-1">
+                    <div class="text-[10px] uppercase font-semibold text-kabani-espresso/60 mb-0.5">${t('card_truck_label')}</div>
+                    <div class="text-xs sm:text-sm font-semibold text-kabani-espresso flex items-center justify-center gap-1.5 truncate">
+                      <span class="text-kabani-espresso/70 shrink-0">${svgIcons.truck}</span>
+                      <span class="truncate">${truckType}</span>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Specs Grid (Parchment Card Inset) -->
-              <div class="grid grid-cols-3 gap-2 p-3.5 bg-kabani-cardWarm rounded-2xl border border-kabani-border/20 mb-4 text-center">
-                <div class="p-1">
-                  <div class="text-[10px] uppercase font-semibold text-kabani-espresso/60 mb-0.5">${t('card_material_label')}</div>
-                  <div class="text-xs sm:text-sm font-semibold text-kabani-espresso flex items-center justify-center gap-1.5 truncate">
-                    <span class="text-kabani-cognac shrink-0">${meta.icon}</span>
-                    <span class="truncate">${materialName}</span>
+                <!-- Transporter Strip -->
+                <div class="flex items-center justify-between text-xs text-kabani-espresso/70 mb-4 px-1">
+                  <div class="flex items-center gap-1.5 truncate">
+                    <span class="w-6 h-6 rounded-full bg-kabani-cardWarm border border-kabani-border/30 text-kabani-cognac flex items-center justify-center text-[10px]">${svgIcons.building}</span>
+                    <span class="font-bold text-kabani-espresso truncate">${transporter}</span>
+                    <span class="text-kabani-actionGreen font-black" title="Verified Transporter">✓</span>
+                  </div>
+                  <div class="shrink-0 font-mono tabular-nums text-[11px] font-medium text-kabani-espresso/50">
+                    ${postedAgo}
                   </div>
                 </div>
 
-                <div class="p-1 border-x border-kabani-border/20">
-                  <div class="text-[10px] uppercase font-semibold text-kabani-espresso/60 mb-0.5">${t('card_weight_label')}</div>
-                  <div class="text-xs sm:text-sm font-semibold text-kabani-cognac flex items-center justify-center gap-1.5 truncate">
-                    <span class="text-kabani-cognac shrink-0">${svgIcons.scale}</span>
-                    <span class="font-mono tabular-nums truncate">${weight}</span>
-                  </div>
+                <!-- Primary Action: Call Button with Sonar Wave Motion -->
+                ${primaryCallButton}
+
+                <!-- Direct Negotiation Disclaimer -->
+                <div class="text-center text-[11px] text-kabani-espresso/60 font-medium mt-2.5 flex items-center justify-center gap-2">
+                  <span class="inline-flex items-center gap-1 text-kabani-espresso/70">${svgIcons.lock} <span>${isHi ? '0% कमीशन' : '0% Commission'}</span></span>
+                  <span>•</span>
+                  <span class="inline-flex items-center gap-1 text-kabani-espresso/70">${svgIcons.phone} <span>${isHi ? 'सीधे फोन पर भाड़ा तय करें' : 'Direct negotiation on phone call'}</span></span>
                 </div>
 
-                <div class="p-1">
-                  <div class="text-[10px] uppercase font-semibold text-kabani-espresso/60 mb-0.5">${t('card_truck_label')}</div>
-                  <div class="text-xs sm:text-sm font-semibold text-kabani-espresso flex items-center justify-center gap-1.5 truncate">
-                    <span class="text-kabani-espresso/70 shrink-0">${svgIcons.truck}</span>
-                    <span class="truncate">${truckType}</span>
-                  </div>
-                </div>
               </div>
-
-              <!-- Transporter Strip -->
-              <div class="flex items-center justify-between text-xs text-kabani-espresso/70 mb-4 px-1">
-                <div class="flex items-center gap-1.5 truncate">
-                  <span class="w-6 h-6 rounded-full bg-kabani-cardWarm border border-kabani-border/30 text-kabani-cognac flex items-center justify-center text-[10px]">${svgIcons.building}</span>
-                  <span class="font-bold text-kabani-espresso truncate">${transporter}</span>
-                  <span class="text-kabani-actionGreen font-black" title="Verified Transporter">✓</span>
-                </div>
-                <div class="shrink-0 font-mono tabular-nums text-[11px] font-medium text-kabani-espresso/50">
-                  ${postedAgo}
-                </div>
-              </div>
-
-              <!-- Primary Action: Call Button with Sonar Wave Motion -->
-              ${primaryCallButton}
-
-              <!-- Direct Negotiation Disclaimer -->
-              <div class="text-center text-[11px] text-kabani-espresso/60 font-medium mt-2.5 flex items-center justify-center gap-2">
-                <span class="inline-flex items-center gap-1 text-kabani-espresso/70">${svgIcons.lock} <span>${isHi ? '0% कमीशन' : '0% Commission'}</span></span>
-                <span>•</span>
-                <span class="inline-flex items-center gap-1 text-kabani-espresso/70">${svgIcons.phone} <span>${isHi ? 'सीधे फोन पर भाड़ा तय करें' : 'Direct negotiation on phone call'}</span></span>
-              </div>
-
             </div>
           `;
         }).join('');
