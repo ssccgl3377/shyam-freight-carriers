@@ -8,6 +8,8 @@ test.describe('KABANI - Bencho Micro-Interactions Suite (press, slide, swipe, ty
 
   test.beforeEach(async ({ page }) => {
     await page.goto(LOCAL_URL);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
     await page.waitForLoadState('domcontentloaded');
   });
 

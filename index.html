@@ -3767,678 +3767,691 @@
     })();
     window.app = app;
 
-    // 3D Rotating Authentic Indian Goods Carrier Truck Background Engine (Three.js WebGL)
-    function initBackgroundTruck3D() {
-      const canvas = document.getElementById('bg-truck-canvas');
-      if (!canvas || typeof THREE === 'undefined') return;
+          // 3D Rotating Authentic Indian Goods Carrier Truck Engine (Three.js WebGL)
+      function initBackgroundTruck3D() {
+        const canvas = document.getElementById('bg-truck-canvas');
+        if (!canvas || typeof THREE === 'undefined') return;
 
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 1000);
-      
-      let renderer;
-      try {
-        renderer = new THREE.WebGLRenderer({
-          canvas: canvas,
-          alpha: true,
-          antialias: true,
-          powerPreference: 'high-performance'
-        });
-      } catch(e) {
-        console.warn('WebGL not supported for 3D background truck');
-        return;
-      }
-
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
-
-      // Warm Lighting matching Off-White & Beige Canvas
-      const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.4);
-      scene.add(ambientLight);
-
-      const keyLight = new THREE.DirectionalLight(0xfff2e2, 1.9);
-      keyLight.position.set(14, 20, 16);
-      scene.add(keyLight);
-
-      const fillLight = new THREE.DirectionalLight(0xe8d8c8, 1.0);
-      fillLight.position.set(-14, 12, -12);
-      scene.add(fillLight);
-
-      const rimLight = new THREE.DirectionalLight(0xd98236, 1.4);
-      rimLight.position.set(0, -6, -16);
-      scene.add(rimLight);
-
-      // ==========================================
-      // PROCEDURAL CANVAS TEXTURES (Authentic Indian Truck Art)
-      // ==========================================
-      function createCrownTexture() {
-        const c = document.createElement('canvas');
-        c.width = 512; c.height = 128;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#FFFBEB'; ctx.fillRect(0, 0, 512, 128);
-        ctx.strokeStyle = '#B91C1C'; ctx.lineWidth = 6; ctx.strokeRect(6, 6, 500, 116);
-        ctx.strokeStyle = '#D97706'; ctx.lineWidth = 3; ctx.strokeRect(12, 12, 488, 104);
-
-        // Tricolor Ribbons
-        ctx.fillStyle = '#FF9933'; ctx.fillRect(20, 24, 40, 24);
-        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(20, 48, 40, 24);
-        ctx.fillStyle = '#138808'; ctx.fillRect(20, 72, 40, 24);
-        ctx.strokeRect(20, 24, 40, 72);
-
-        ctx.fillStyle = '#FF9933'; ctx.fillRect(452, 24, 40, 24);
-        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(452, 48, 40, 24);
-        ctx.fillStyle = '#138808'; ctx.fillRect(452, 72, 40, 24);
-        ctx.strokeRect(452, 24, 40, 72);
-
-        // "GOODS CARRIER" Text
-        ctx.font = '900 44px "Arial Black", sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#7F1D1D'; ctx.fillText('GOODS CARRIER', 258, 56);
-        ctx.fillStyle = '#D97706'; ctx.fillText('GOODS CARRIER', 256, 54);
-        ctx.strokeStyle = '#1E1B4B'; ctx.lineWidth = 2; ctx.strokeText('GOODS CARRIER', 256, 54);
-
-        ctx.font = 'bold 15px sans-serif'; ctx.fillStyle = '#0F766E';
-        ctx.fillText('★ KABANI FREIGHT CARRIERS • ALL INDIA PERMIT ★', 256, 96);
-        return new THREE.CanvasTexture(c);
-      }
-
-      function createBumperArtTexture() {
-        const c = document.createElement('canvas');
-        c.width = 512; c.height = 128;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#18181B'; ctx.fillRect(0, 0, 512, 128);
-
-        // Colorful Chevrons
-        const chevronW = 32;
-        const colors = ['#F59E0B', '#DC2626', '#FFFFFF', '#059669', '#2563EB'];
-        for (let i = 0; i < 16; i++) {
-          const x = i * chevronW;
-          ctx.fillStyle = colors[i % colors.length];
-          ctx.beginPath();
-          ctx.moveTo(x, 128); ctx.lineTo(x + chevronW / 2, 12); ctx.lineTo(x + chevronW, 128); ctx.closePath();
-          ctx.fill();
-          ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
+        let renderer;
+        try {
+          renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            alpha: true,
+            antialias: true,
+            powerPreference: 'high-performance'
+          });
+        } catch(e) {
+          console.warn('WebGL not supported for 3D background truck');
+          return;
         }
 
-        // Top/Bottom Chrome Trims
-        ctx.fillStyle = '#E5E7EB'; ctx.fillRect(0, 0, 512, 10); ctx.fillRect(0, 118, 512, 10);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
 
-        // RJ Number Plate
-        ctx.fillStyle = '#F59E0B'; ctx.fillRect(196, 26, 120, 56);
-        ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.strokeRect(196, 26, 120, 56);
-        ctx.fillStyle = '#000'; ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('RJ 14 GB', 256, 50);
-        ctx.font = 'bold 18px monospace'; ctx.fillText('7788', 256, 72);
-        return new THREE.CanvasTexture(c);
-      }
+        // Warm Natural Studio Lighting matching Kraft / Beige Canvas
+        const ambientLight = new THREE.AmbientLight(0xfff7ee, 1.45);
+        scene.add(ambientLight);
 
-      function createRearGateTexture() {
-        const c = document.createElement('canvas');
-        c.width = 512; c.height = 512;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#991B1B'; ctx.fillRect(0, 0, 512, 512);
+        const keyLight = new THREE.DirectionalLight(0xffedd5, 1.9);
+        keyLight.position.set(16, 22, 16);
+        scene.add(keyLight);
 
-        // Horizontal Planks
-        for (let y = 0; y < 512; y += 40) {
-          ctx.strokeStyle = '#450A0A'; ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(512, y); ctx.stroke();
+        const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.1);
+        fillLight.position.set(-16, 14, -14);
+        scene.add(fillLight);
+
+        const rimLight = new THREE.DirectionalLight(0xd98236, 1.35);
+        rimLight.position.set(0, -6, -16);
+        scene.add(rimLight);
+
+        // ==========================================
+        // PROCEDURAL CANVAS TEXTURES (Authentic Indian Truck Art)
+        // ==========================================
+
+        // 1. Goods Carrier Crown Board (Front & Sides)
+        function createCrownFrontTexture() {
+          const c = document.createElement('canvas');
+          c.width = 512; c.height = 128;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#EAB308'; ctx.fillRect(0, 0, 512, 128);
+          ctx.strokeStyle = '#991B1B'; ctx.lineWidth = 8; ctx.strokeRect(4, 4, 504, 120);
+          ctx.strokeStyle = '#1E1B4B'; ctx.lineWidth = 3; ctx.strokeRect(10, 10, 492, 108);
+
+          [18, 454].forEach(x => {
+            ctx.fillStyle = '#FF9933'; ctx.fillRect(x, 18, 40, 28);
+            ctx.fillStyle = '#FFFFFF'; ctx.fillRect(x, 46, 40, 28);
+            ctx.fillStyle = '#138808'; ctx.fillRect(x, 74, 40, 28);
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.strokeRect(x, 18, 40, 84);
+          });
+
+          ctx.font = '900 52px "Arial Black", sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#18181B'; ctx.fillText('GOODS CARRIER', 259, 58);
+          ctx.fillStyle = '#DC2626'; ctx.fillText('GOODS CARRIER', 256, 55);
+          ctx.strokeStyle = '#FEF08A'; ctx.lineWidth = 2.5; ctx.strokeText('GOODS CARRIER', 256, 55);
+
+          ctx.font = 'bold 15px sans-serif'; ctx.fillStyle = '#14532D';
+          ctx.fillText('★ KABANI FREIGHT • ALL INDIA PERMIT ★', 256, 102);
+          return new THREE.CanvasTexture(c);
         }
 
-        // Vertical Iron Reinforcing Straps
-        [40, 150, 362, 472].forEach(x => {
-          ctx.fillStyle = '#1F2937'; ctx.fillRect(x - 8, 0, 16, 512);
-          for (let r = 20; r < 512; r += 50) {
-            ctx.fillStyle = '#9CA3AF'; ctx.beginPath(); ctx.arc(x, r, 4, 0, Math.PI * 2); ctx.fill();
+        function createCrownSideTexture() {
+          const c = document.createElement('canvas');
+          c.width = 256; c.height = 128;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#EAB308'; ctx.fillRect(0, 0, 256, 128);
+          ctx.strokeStyle = '#991B1B'; ctx.lineWidth = 6; ctx.strokeRect(4, 4, 248, 120);
+          ctx.font = '900 32px "Arial Black", sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#18181B'; ctx.fillText('GOODS', 129, 45);
+          ctx.fillStyle = '#DC2626'; ctx.fillText('GOODS', 128, 44);
+          ctx.fillStyle = '#18181B'; ctx.fillText('CARRIER', 129, 87);
+          ctx.fillStyle = '#DC2626'; ctx.fillText('CARRIER', 128, 86);
+          return new THREE.CanvasTexture(c);
+        }
+
+        // 2. Windshield with Red Hazard Triangles & National Permit
+        function createWindshieldTexture() {
+          const c = document.createElement('canvas');
+          c.width = 512; c.height = 256;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#0F172A'; ctx.fillRect(0, 0, 512, 256);
+
+          ctx.fillStyle = '#065F46'; ctx.fillRect(0, 0, 512, 54);
+          ctx.fillStyle = '#FDE047'; ctx.font = '900 24px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('★ ALL INDIA NATIONAL PERMIT ★', 256, 36);
+
+          ctx.fillStyle = '#64748B'; ctx.fillRect(250, 0, 12, 256);
+
+          [110, 402].forEach(cx => {
+            ctx.fillStyle = '#DC2626';
+            ctx.beginPath();
+            ctx.moveTo(cx, 95); ctx.lineTo(cx - 55, 220); ctx.lineTo(cx + 55, 220);
+            ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 6; ctx.stroke();
+            ctx.strokeStyle = '#F59E0B'; ctx.lineWidth = 2.5; ctx.stroke();
+          });
+
+          ctx.strokeStyle = '#000000'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(90, 245); ctx.lineTo(150, 130); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(370, 245); ctx.lineTo(430, 130); ctx.stroke();
+          return new THREE.CanvasTexture(c);
+        }
+
+        // 3. Front Grille with Tata / Ashok Leyland Styling
+        function createFrontGrilleTexture() {
+          const c = document.createElement('canvas');
+          c.width = 512; c.height = 256;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#CBD5E1'; ctx.fillRect(0, 0, 512, 256);
+
+          for (let y = 30; y < 190; y += 22) {
+            ctx.fillStyle = '#0F172A'; ctx.fillRect(36, y, 440, 14);
+            ctx.fillStyle = '#64748B'; ctx.fillRect(36, y, 440, 2);
           }
+
+          ctx.fillStyle = '#94A3B8'; ctx.beginPath(); ctx.arc(256, 105, 34, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#0F172A'; ctx.beginPath(); ctx.arc(256, 105, 26, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#10B981'; ctx.font = '900 18px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('TATA', 256, 105);
+
+          [75, 437].forEach(hx => {
+            ctx.fillStyle = '#94A3B8'; ctx.beginPath(); ctx.arc(hx, 110, 38, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#FEF08A'; ctx.beginPath(); ctx.arc(hx, 110, 30, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#D97706'; ctx.lineWidth = 2.5; ctx.stroke();
+            ctx.fillStyle = '#F59E0B'; ctx.fillRect(hx - 24, 162, 48, 22);
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.strokeRect(hx - 24, 162, 48, 22);
+          });
+          return new THREE.CanvasTexture(c);
+        }
+
+        // 4. Front Chevron Truck Art Bumper
+        function createBumperTexture() {
+          const c = document.createElement('canvas');
+          c.width = 512; c.height = 128;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#0F172A'; ctx.fillRect(0, 0, 512, 128);
+
+          const colors = ['#F59E0B', '#EF4444', '#FFFFFF', '#059669', '#3B82F6'];
+          const cW = 32;
+          for (let i = 0; i < 16; i++) {
+            const x = i * cW;
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.beginPath();
+            ctx.moveTo(x, 128); ctx.lineTo(x + cW / 2, 8); ctx.lineTo(x + cW, 128); ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
+          }
+
+          ctx.fillStyle = '#F59E0B'; ctx.fillRect(198, 22, 116, 56);
+          ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.strokeRect(198, 22, 116, 56);
+          ctx.fillStyle = '#000'; ctx.font = '900 19px monospace'; ctx.textAlign = 'center';
+          ctx.fillText('RJ 14 GB', 256, 46);
+          ctx.fillText('7788', 256, 68);
+          return new THREE.CanvasTexture(c);
+        }
+
+        // 5. Cargo Side Panel Generator (Left or Right side aware)
+        function createCargoSideTexture(isRightSide) {
+          const c = document.createElement('canvas');
+          c.width = 1024; c.height = 512;
+          const ctx = c.getContext('2d');
+
+          // Top 32% (y: 0 to 164): Teal Green Ribbed Corrugated Metal
+          ctx.fillStyle = '#164E43'; ctx.fillRect(0, 0, 1024, 164);
+          for (let x = 0; x < 1024; x += 16) {
+            ctx.fillStyle = (Math.floor(x / 16) % 2 === 0) ? '#1E5E50' : '#114238';
+            ctx.fillRect(x, 0, 14, 164);
+            ctx.fillStyle = '#0A2621'; ctx.fillRect(x + 14, 0, 2, 164);
+          }
+          ctx.fillStyle = '#0F332C'; ctx.fillRect(0, 0, 1024, 14);
+          ctx.fillStyle = '#5EEAD4'; ctx.fillRect(0, 14, 1024, 3);
+          ctx.fillStyle = '#0F332C'; ctx.fillRect(0, 160, 1024, 8);
+
+          // Bottom 68% (y: 168 to 512): Rich Weathered Indian Teak Timber Planks
+          ctx.fillStyle = '#5E3821'; ctx.fillRect(0, 168, 1024, 344);
+          for (let x = 0; x < 1024; x += 32) {
+            ctx.fillStyle = (Math.floor(x / 32) % 2 === 0) ? '#6B4026' : '#57331D';
+            ctx.fillRect(x, 168, 30, 344);
+            ctx.strokeStyle = '#381E10'; ctx.lineWidth = 2; ctx.strokeRect(x, 168, 30, 344);
+          }
+
+          // Traditional Indian Folk Crests & Ornaments on Wood (matching Image 4 reference)
+          function drawFolkEagle(cx, cy, scale) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(scale, scale);
+            ctx.fillStyle = 'rgba(217, 119, 6, 0.45)';
+            ctx.beginPath();
+            ctx.moveTo(0, -20);
+            ctx.bezierCurveTo(25, -40, 50, -20, 60, 10);
+            ctx.bezierCurveTo(40, 5, 20, 15, 0, 5);
+            ctx.bezierCurveTo(-20, 15, -40, 5, -60, 10);
+            ctx.bezierCurveTo(-50, -20, -25, -40, 0, -20);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(254, 240, 138, 0.6)';
+            ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#92400E'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.restore();
+          }
+          drawFolkEagle(240, 260, 0.7);
+          drawFolkEagle(784, 260, 0.7);
+
+          // Traditional Painted Transport Insignia on Wood
+          ctx.save();
+          ctx.fillStyle = 'rgba(245, 158, 11, 0.95)';
+          ctx.font = '900 38px "Arial Black", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('SHYAM FREIGHT CARRIERS', 514, 335);
+          ctx.strokeStyle = '#1E1B4B'; ctx.lineWidth = 2.5; ctx.strokeText('SHYAM FREIGHT CARRIERS', 514, 335);
+          ctx.fillStyle = '#FEF08A'; ctx.fillText('SHYAM FREIGHT CARRIERS', 512, 333);
+
+          ctx.font = 'bold 18px sans-serif'; ctx.fillStyle = '#FFFFFF';
+          ctx.fillText('★ ALL INDIA PERMIT • KABANI RELIABLE NETWORK ★', 512, 385);
+          ctx.restore();
+
+          // Vertical Steel Reinforcement Straps & Rivet Bolts
+          for (let i = 0; i <= 9; i++) {
+            const sx = 50 + i * 102;
+            ctx.fillStyle = '#1E293B'; ctx.fillRect(sx - 4, 168, 8, 344);
+            for (let ry = 190; ry < 512; ry += 48) {
+              ctx.fillStyle = '#94A3B8'; ctx.beginPath(); ctx.arc(sx, ry, 3, 0, Math.PI * 2); ctx.fill();
+            }
+          }
+
+          return new THREE.CanvasTexture(c);
+        }
+
+        // 6. Rear Tailgate: Shiva Painting on Top Slats + "HORN OK PLEASE" Bottom Gate (Image 1)
+        function createRearGateTexture() {
+          const c = document.createElement('canvas');
+          c.width = 512; c.height = 512;
+          const ctx = c.getContext('2d');
+
+          // Top Half: Lord Shiva Himalayan Painting on Slats
+          ctx.fillStyle = '#1E293B'; ctx.fillRect(0, 0, 512, 240);
+          const skyGrad = ctx.createLinearGradient(0, 0, 0, 240);
+          skyGrad.addColorStop(0, '#0F172A'); skyGrad.addColorStop(1, '#0E7490');
+          ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, 512, 240);
+
+          // Mountain Peaks
+          ctx.fillStyle = '#083344';
+          ctx.beginPath(); ctx.moveTo(0, 240); ctx.lineTo(120, 100); ctx.lineTo(240, 240); ctx.closePath(); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(200, 240); ctx.lineTo(340, 80); ctx.lineTo(512, 240); ctx.closePath(); ctx.fill();
+
+          // Lord Shiva Silhouette & Aura
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
+          ctx.beginPath(); ctx.arc(256, 120, 75, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#F8FAFC';
+          ctx.beginPath(); ctx.arc(256, 85, 22, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(256, 62, 12, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#FEF08A'; ctx.beginPath(); ctx.arc(268, 60, 6, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#FEF08A'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(305, 45); ctx.lineTo(305, 180); ctx.stroke();
+          ctx.beginPath(); ctx.arc(305, 60, 14, Math.PI, 0); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(305, 45); ctx.lineTo(305, 32); ctx.stroke();
+
+          // Lower Half: "HORN OK PLEASE" Weathered Red Wood Gate
+          ctx.fillStyle = '#831843'; ctx.fillRect(0, 240, 512, 272);
+          for (let y = 240; y < 512; y += 36) {
+            ctx.strokeStyle = '#500724'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(512, y); ctx.stroke();
+          }
+
+          ctx.fillStyle = '#FEF3C7'; ctx.font = '900 22px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('★ SHYAM FREIGHT CARRIERS ★', 256, 268);
+
+          ctx.font = '900 42px "Arial Black", sans-serif';
+          ctx.fillStyle = '#000000'; ctx.fillText('HORN', 115, 345);
+          ctx.fillStyle = '#FDE047'; ctx.fillText('HORN', 114, 344);
+
+          ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(256, 340, 42, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#DC2626'; ctx.lineWidth = 5; ctx.stroke();
+          ctx.fillStyle = '#DC2626'; ctx.font = '900 42px "Arial Black", sans-serif'; ctx.fillText('OK', 256, 354);
+
+          ctx.font = '900 42px "Arial Black", sans-serif';
+          ctx.fillStyle = '#000000'; ctx.fillText('PLEASE', 395, 345);
+          ctx.fillStyle = '#FDE047'; ctx.fillText('PLEASE', 394, 344);
+
+          const cW = 512 / 16;
+          for (let i = 0; i < 16; i++) {
+            ctx.fillStyle = (i % 2 === 0) ? '#DC2626' : '#FBBF24';
+            ctx.beginPath();
+            ctx.moveTo(i * cW, 512); ctx.lineTo(i * cW + cW / 2, 450); ctx.lineTo((i + 1) * cW, 512); ctx.closePath();
+            ctx.fill();
+          }
+          return new THREE.CanvasTexture(c);
+        }
+
+        // 7. Slotted Rub Rail Guard
+        function createSlottedRailTexture() {
+          const c = document.createElement('canvas');
+          c.width = 512; c.height = 64;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#164E43'; ctx.fillRect(0, 0, 512, 64);
+          ctx.strokeStyle = '#0F332C'; ctx.lineWidth = 3; ctx.strokeRect(0, 0, 512, 64);
+          for (let x = 16; x < 500; x += 42) {
+            ctx.fillStyle = '#0A1E1A'; ctx.fillRect(x, 14, 26, 36);
+            ctx.strokeStyle = '#5EEAD4'; ctx.lineWidth = 1; ctx.strokeRect(x, 14, 26, 36);
+          }
+          return new THREE.CanvasTexture(c);
+        }
+
+        // 8. Wheel Rim & Rubber Tire
+        function createWheelTexture() {
+          const c = document.createElement('canvas');
+          c.width = 256; c.height = 256;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#27272A'; ctx.fillRect(0, 0, 256, 256);
+          const grad = ctx.createRadialGradient(128, 128, 18, 128, 128, 120);
+          grad.addColorStop(0, '#52525B'); grad.addColorStop(0.55, '#94A3B8'); grad.addColorStop(0.85, '#334155'); grad.addColorStop(1, '#0F172A');
+          ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(128, 128, 118, 0, Math.PI * 2); ctx.fill();
+
+          ctx.fillStyle = '#0F172A'; ctx.beginPath(); ctx.arc(128, 128, 48, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#D97706'; ctx.beginPath(); ctx.arc(128, 128, 22, 0, Math.PI * 2); ctx.fill();
+
+          for (let i = 0; i < 10; i++) {
+            const a = (i / 10) * Math.PI * 2;
+            const nx = 128 + Math.cos(a) * 72; const ny = 128 + Math.sin(a) * 72;
+            ctx.fillStyle = '#E2E8F0'; ctx.beginPath(); ctx.arc(nx, ny, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(nx, ny, 3, 0, Math.PI * 2); ctx.fill();
+          }
+          return new THREE.CanvasTexture(c);
+        }
+
+        // ==========================================
+        // MATERIALS
+        // ==========================================
+        const cabGreenMat = new THREE.MeshStandardMaterial({ color: 0x1E4D3E, roughness: 0.45, metalness: 0.25 });
+        const cabGreyMat = new THREE.MeshStandardMaterial({ color: 0x94A3B8, roughness: 0.5, metalness: 0.35 });
+        const cabRoofGreenMat = new THREE.MeshStandardMaterial({ color: 0x164E43, roughness: 0.5, metalness: 0.2 });
+        const chromeMat = new THREE.MeshStandardMaterial({ color: 0xF1F5F9, roughness: 0.12, metalness: 0.95 });
+        const darkMetalMat = new THREE.MeshStandardMaterial({ color: 0x1E293B, roughness: 0.6, metalness: 0.7 });
+        const rubberMat = new THREE.MeshStandardMaterial({ color: 0x18181B, roughness: 0.92, metalness: 0.05 });
+        const amberLightMat = new THREE.MeshStandardMaterial({ color: 0xF59E0B, emissive: 0xF59E0B, emissiveIntensity: 0.8 });
+        const redLightMat = new THREE.MeshStandardMaterial({ color: 0xDC2626, emissive: 0xDC2626, emissiveIntensity: 0.8 });
+
+        const crownFrontMat = new THREE.MeshStandardMaterial({ map: createCrownFrontTexture(), roughness: 0.4 });
+        const crownSideMat = new THREE.MeshStandardMaterial({ map: createCrownSideTexture(), roughness: 0.4 });
+        const windshieldMat = new THREE.MeshStandardMaterial({ map: createWindshieldTexture(), roughness: 0.1, metalness: 0.85 });
+        const grilleMat = new THREE.MeshStandardMaterial({ map: createFrontGrilleTexture(), roughness: 0.35, metalness: 0.3 });
+        const bumperArtMat = new THREE.MeshStandardMaterial({ map: createBumperTexture(), roughness: 0.4 });
+        const cargoSideMat = new THREE.MeshStandardMaterial({ map: createCargoSideTexture(), roughness: 0.55 });
+        const cargoSideLMat = cargoSideMat;
+        const cargoSideRMat = cargoSideMat;
+        const rearGateMat = new THREE.MeshStandardMaterial({ map: createRearGateTexture(), roughness: 0.5 });
+        const slottedRailMat = new THREE.MeshStandardMaterial({ map: createSlottedRailTexture(), roughness: 0.5, metalness: 0.4 });
+        const wheelDiscMat = new THREE.MeshStandardMaterial({ map: createWheelTexture(), roughness: 0.45, metalness: 0.6 });
+
+        // ==========================================
+        // RIGID TRUCK COMPOSITION (True to Reference Images)
+        // ==========================================
+        const truckGroup = new THREE.Group();
+
+        // 1. CABIN UNIT
+        const cabGroup = new THREE.Group();
+
+        // Lower Cab (Silver / Grey with green fender trims)
+        const cabLower = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.25, 2.3), cabGreyMat);
+        cabLower.position.set(0, 1.35, 3.1);
+        cabGroup.add(cabLower);
+
+        // Green Accent Stripe across Lower Cab
+        const cabStripe = new THREE.Mesh(new THREE.BoxGeometry(2.42, 0.16, 2.32), cabGreenMat);
+        cabStripe.position.set(0, 1.55, 3.1);
+        cabGroup.add(cabStripe);
+
+        // Upper Cab (Dark Teal Green)
+        const cabUpper = new THREE.Mesh(new THREE.BoxGeometry(2.38, 1.2, 2.28), cabGreenMat);
+        cabUpper.position.set(0, 2.55, 3.1);
+        cabGroup.add(cabUpper);
+
+        // Front Windshield with Red Triangles & National Permit
+        const windshield = new THREE.Mesh(new THREE.BoxGeometry(2.28, 0.88, 0.08), windshieldMat);
+        windshield.position.set(0, 2.6, 4.25);
+        cabGroup.add(windshield);
+
+        // Sun Visor Brow
+        const sunVisor = new THREE.Mesh(new THREE.BoxGeometry(2.44, 0.16, 0.32), cabGreyMat);
+        sunVisor.position.set(0, 3.1, 4.3);
+        sunVisor.rotation.x = 0.22;
+        cabGroup.add(sunVisor);
+
+        // Three-Sided Crown Board ("GOODS CARRIER")
+        const crownFront = new THREE.Mesh(new THREE.BoxGeometry(2.36, 0.58, 0.08), crownFrontMat);
+        crownFront.position.set(0, 3.48, 4.24);
+        cabGroup.add(crownFront);
+        const crownLeft = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.58, 1.4), crownSideMat);
+        crownLeft.position.set(-1.18, 3.48, 3.54);
+        cabGroup.add(crownLeft);
+        const crownRight = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.58, 1.4), crownSideMat);
+        crownRight.position.set(1.18, 3.48, 3.54);
+        cabGroup.add(crownRight);
+
+        // Top Board Frame Rails
+        const crownTopRail = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.05, 0.1), darkMetalMat);
+        crownTopRail.position.set(0, 3.78, 4.24);
+        cabGroup.add(crownTopRail);
+
+        // 5 Amber Clearance Marker Lights on Top of Crown
+        for (let i = 0; i < 5; i++) {
+          const marker = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.1), amberLightMat);
+          marker.position.set(-0.8 + i * 0.4, 3.83, 4.24);
+          cabGroup.add(marker);
+        }
+
+        // Roof Rack with TWO Spare Tires (Stepneys) on the Cab Roof
+        const roofRack = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.08, 1.4), darkMetalMat);
+        roofRack.position.set(0, 3.18, 2.75);
+        cabGroup.add(roofRack);
+
+        // Dual Air Horn Trumpets
+        const hornL = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.04, 0.85, 12), chromeMat);
+        hornL.rotation.x = Math.PI / 2;
+        hornL.position.set(-0.88, 3.32, 3.7);
+        cabGroup.add(hornL);
+        const hornR = hornL.clone();
+        hornR.position.x = 0.88;
+        cabGroup.add(hornR);
+
+        // Tire 1 (Left)
+        const spare1 = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.26, 20), rubberMat);
+        spare1.position.set(-0.52, 3.35, 2.75);
+        cabGroup.add(spare1);
+        const rim1 = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.28, 16), wheelDiscMat);
+        rim1.position.set(-0.52, 3.35, 2.75);
+        cabGroup.add(rim1);
+
+        // Tire 2 (Right)
+        const spare2 = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.26, 20), rubberMat);
+        spare2.position.set(0.52, 3.35, 2.75);
+        cabGroup.add(spare2);
+        const rim2 = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.28, 16), wheelDiscMat);
+        rim2.position.set(0.52, 3.35, 2.75);
+        cabGroup.add(rim2);
+
+        // Front Grille with Headlights & Tata Emblem
+        const frontGrille = new THREE.Mesh(new THREE.BoxGeometry(2.28, 1.15, 0.1), grilleMat);
+        frontGrille.position.set(0, 1.32, 4.26);
+        cabGroup.add(frontGrille);
+
+        // Front Chevron Bumper
+        const bumper = new THREE.Mesh(new THREE.BoxGeometry(2.55, 0.46, 0.24), bumperArtMat);
+        bumper.position.set(0, 0.6, 4.34);
+        cabGroup.add(bumper);
+
+        // Hanging Mudflaps
+        const mudflapL = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.32, 0.04), rubberMat);
+        mudflapL.position.set(-0.92, 0.24, 4.36);
+        cabGroup.add(mudflapL);
+        const mudflapR = mudflapL.clone();
+        mudflapR.position.x = 0.92;
+        cabGroup.add(mudflapR);
+
+        // Side Mirrors on Clean A-Pillar Mounting Brackets
+        const mirrorGeo = new THREE.BoxGeometry(0.12, 0.44, 0.22);
+        const mirrorArmGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.32, 8);
+        mirrorArmGeo.rotateZ(Math.PI / 2);
+
+        const mirrorArmL = new THREE.Mesh(mirrorArmGeo, darkMetalMat);
+        mirrorArmL.position.set(-1.32, 2.52, 4.0);
+        cabGroup.add(mirrorArmL);
+        const mirrorL = new THREE.Mesh(mirrorGeo, darkMetalMat);
+        mirrorL.position.set(-1.5, 2.52, 4.0);
+        cabGroup.add(mirrorL);
+
+        const mirrorArmR = new THREE.Mesh(mirrorArmGeo, darkMetalMat);
+        mirrorArmR.position.set(1.32, 2.52, 4.0);
+        cabGroup.add(mirrorArmR);
+        const mirrorR = new THREE.Mesh(mirrorGeo, darkMetalMat);
+        mirrorR.position.set(1.5, 2.52, 4.0);
+        cabGroup.add(mirrorR);
+
+        // Side Windows on Cab Doors
+        const sideWindowGeo = new THREE.BoxGeometry(0.04, 0.68, 1.05);
+        const sideWindowL = new THREE.Mesh(sideWindowGeo, windshieldMat);
+        sideWindowL.position.set(-1.21, 2.52, 3.25);
+        cabGroup.add(sideWindowL);
+        const sideWindowR = new THREE.Mesh(sideWindowGeo, windshieldMat);
+        sideWindowR.position.set(1.21, 2.52, 3.25);
+        cabGroup.add(sideWindowR);
+
+        // Vertical Exhaust Pipe behind Cab
+        const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3.5, 16), chromeMat);
+        exhaust.position.set(-1.18, 2.7, 1.9);
+        cabGroup.add(exhaust);
+
+        truckGroup.add(cabGroup);
+
+        // 2. CHASSIS FRAME (Stops cleanly behind bumper at z = 4.22)
+        const chassisGroup = new THREE.Group();
+        const railL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.28, 11.0), darkMetalMat);
+        railL.position.set(-0.55, 0.68, -1.28);
+        chassisGroup.add(railL);
+        const railR = railL.clone();
+        railR.position.x = 0.55;
+        chassisGroup.add(railR);
+
+        // Cylindrical Fuel Tank (Left Side) - Mounted longitudinally along Z-axis!
+        const fuelTank = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 2.0, 16), darkMetalMat);
+        fuelTank.rotation.x = Math.PI / 2;
+        fuelTank.position.set(-0.95, 0.68, 0.6);
+        chassisGroup.add(fuelTank);
+
+        // Battery Box (Right Side)
+        const batteryBox = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.45, 0.8), darkMetalMat);
+        batteryBox.position.set(0.95, 0.68, 0.6);
+        chassisGroup.add(batteryBox);
+
+        // Rear Under-Ride Bumper Protection Bar with Tail Lights
+        const rearBumper = new THREE.Mesh(new THREE.BoxGeometry(2.55, 0.28, 0.16), darkMetalMat);
+        rearBumper.position.set(0, 0.6, -6.82);
+        chassisGroup.add(rearBumper);
+
+        // Triple Rear Lamp Clusters (Amber, Red, White)
+        [-0.95, -0.75, 0.75, 0.95].forEach((lx, i) => {
+          const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 0.06), (i % 2 === 0) ? redLightMat : amberLightMat);
+          lamp.position.set(lx, 0.6, -6.91);
+          chassisGroup.add(lamp);
         });
 
-        // "HORN OK PLEASE"
-        ctx.fillStyle = '#FEF3C7'; ctx.font = '900 24px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('★ KABANI FREIGHT CARRIERS ★', 256, 40);
+        // Rear Mudflaps
+        const rearMudflapL = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.35, 0.04), rubberMat);
+        rearMudflapL.position.set(-0.95, 0.22, -6.83);
+        chassisGroup.add(rearMudflapL);
+        const rearMudflapR = rearMudflapL.clone();
+        rearMudflapR.position.x = 0.95;
+        chassisGroup.add(rearMudflapR);
 
-        ctx.fillStyle = '#FDE047'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
-        ctx.font = '900 48px "Arial Black", sans-serif';
-        ctx.strokeText('HORN', 95, 230); ctx.fillText('HORN', 95, 230);
+        truckGroup.add(chassisGroup);
 
-        ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(256, 220, 50, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#DC2626'; ctx.lineWidth = 6; ctx.stroke();
-        ctx.fillStyle = '#DC2626'; ctx.font = '900 52px "Arial Black", sans-serif'; ctx.fillText('OK', 256, 238);
+        // 3. AUTHENTIC CARGO BODY (Starts right behind cab at z = 1.82, ends at z = -6.78)
+        const cargoGroup = new THREE.Group();
 
-        ctx.fillStyle = '#FDE047'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
-        ctx.font = '900 48px "Arial Black", sans-serif';
-        ctx.strokeText('PLEASE', 415, 230); ctx.fillText('PLEASE', 415, 230);
+        // Bed Floor
+        const bedFloor = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.16, 8.6), darkMetalMat);
+        bedFloor.position.set(0, 0.92, -2.48);
+        cargoGroup.add(bedFloor);
 
-        ctx.fillStyle = '#FDE68A'; ctx.font = 'bold 20px sans-serif';
-        ctx.fillText('॥ देखो मगर प्यार से ॥', 256, 310);
+        // Side Panels (Left & Right) with Left/Right specific textures for unmirrored text
+        const sidePanelL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.92, 8.6), cargoSideLMat);
+        sidePanelL.position.set(-1.24, 2.4, -2.48);
+        cargoGroup.add(sidePanelL);
 
-        // Hazard Chevrons at Bottom
-        const chevrons = 16; const cW = 512 / chevrons;
-        for (let i = 0; i < chevrons; i++) {
-          ctx.fillStyle = (i % 2 === 0) ? '#DC2626' : '#FBBF24';
-          ctx.beginPath(); ctx.moveTo(i * cW, 512); ctx.lineTo(i * cW + cW / 2, 440); ctx.lineTo((i + 1) * cW, 512); ctx.closePath(); ctx.fill();
+        const sidePanelR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.92, 8.6), cargoSideRMat);
+        sidePanelR.position.set(1.24, 2.4, -2.48);
+        cargoGroup.add(sidePanelR);
+
+        // Solid Flat Green Roof cleanly capping the top border (NO FINS OR HANDS!)
+        const roofCover = new THREE.Mesh(new THREE.BoxGeometry(2.54, 0.08, 8.64), cabRoofGreenMat);
+        roofCover.position.set(0, 3.87, -2.48);
+        cargoGroup.add(roofCover);
+
+        // Top Border Steel Trim Rails
+        for (let side of [-1, 1]) {
+          const topRail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 8.66), darkMetalMat);
+          topRail.position.set(side * 1.25, 3.88, -2.48);
+          cargoGroup.add(topRail);
         }
 
-        // Reflective warning triangles
-        ctx.fillStyle = '#EF4444';
-        ctx.beginPath(); ctx.moveTo(50, 420); ctx.lineTo(90, 360); ctx.lineTo(130, 420); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 3; ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(382, 420); ctx.lineTo(422, 360); ctx.lineTo(462, 420); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 3; ctx.stroke();
-        return new THREE.CanvasTexture(c);
-      }
+        // Front Bulkhead behind Cab
+        const frontBulkhead = new THREE.Mesh(new THREE.BoxGeometry(2.46, 2.92, 0.1), cargoSideLMat);
+        frontBulkhead.position.set(0, 2.4, 1.82);
+        cargoGroup.add(frontBulkhead);
 
-      function createSideBodyTexture() {
-        const c = document.createElement('canvas');
-        c.width = 1024; c.height = 512;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#78350F'; ctx.fillRect(0, 0, 1024, 512);
+        // Rear Gate with Shiva Painting on top & HORN OK PLEASE at bottom (Image 1)
+        const rearGate = new THREE.Mesh(new THREE.BoxGeometry(2.46, 2.92, 0.12), rearGateMat);
+        rearGate.position.set(0, 2.4, -6.78);
+        cargoGroup.add(rearGate);
 
-        for (let y = 0; y < 512; y += 32) {
-          ctx.fillStyle = (Math.floor(y / 32) % 2 === 0) ? '#92400E' : '#78350F';
-          ctx.fillRect(0, y, 1024, 30);
-          ctx.strokeStyle = '#451A03'; ctx.lineWidth = 2; ctx.strokeRect(0, y, 1024, 30);
+        // Vertical Iron Stakes (10 along each side, cleanly attached flat)
+        const stakeGeo = new THREE.BoxGeometry(0.04, 2.94, 0.04);
+        for (let i = 0; i <= 9; i++) {
+          const zPos = 1.76 - i * 0.94;
+          const stakeL = new THREE.Mesh(stakeGeo, darkMetalMat);
+          stakeL.position.set(-1.27, 2.4, zPos);
+          cargoGroup.add(stakeL);
+          const stakeR = new THREE.Mesh(stakeGeo, darkMetalMat);
+          stakeR.position.set(1.27, 2.4, zPos);
+          cargoGroup.add(stakeR);
         }
 
-        // Painted Livery Panel
-        ctx.fillStyle = '#0F766E'; ctx.fillRect(40, 160, 944, 180);
-        ctx.strokeStyle = '#FDE68A'; ctx.lineWidth = 6; ctx.strokeRect(40, 160, 944, 180);
+        // Slotted Rub Rails along Bottom of Cargo Bed
+        const slottedRailL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.35, 3.6), slottedRailMat);
+        slottedRailL.position.set(-1.26, 0.68, 0.8);
+        cargoGroup.add(slottedRailL);
+        const slottedRailR = slottedRailL.clone();
+        slottedRailR.position.x = 1.26;
+        cargoGroup.add(slottedRailR);
 
-        ctx.font = '900 50px "Arial Black", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#000000'; ctx.fillText('SHYAM FREIGHT CARRIERS', 514, 232);
-        ctx.fillStyle = '#FEF08A'; ctx.fillText('SHYAM FREIGHT CARRIERS', 512, 230);
-        ctx.strokeStyle = '#DC2626'; ctx.lineWidth = 2; ctx.strokeText('SHYAM FREIGHT CARRIERS', 512, 230);
+        truckGroup.add(cargoGroup);
 
-        ctx.font = 'bold 24px sans-serif'; ctx.fillStyle = '#FFFFFF';
-        ctx.fillText('★ ALL INDIA PERMIT • KABANI RELIABLE NETWORK ★', 512, 290);
-        return new THREE.CanvasTexture(c);
-      }
+        // 4. TRUE 10-WHEELER CONFIGURATION (Front Steer + Tandem Rear Duals)
+        const wheelGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.28, 24);
+        wheelGeo.rotateZ(Math.PI / 2);
+        const discGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.29, 18);
+        discGeo.rotateZ(Math.PI / 2);
 
-      function createGreenRibbedTexture() {
-        const c = document.createElement('canvas');
-        c.width = 512; c.height = 256;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#0F766E'; ctx.fillRect(0, 0, 512, 256);
-
-        // Vertical Corrugated Ribs / Slats
-        for (let x = 0; x < 512; x += 16) {
-          ctx.fillStyle = (Math.floor(x / 16) % 2 === 0) ? '#115E59' : '#0D9488';
-          ctx.fillRect(x, 0, 14, 256);
-          ctx.fillStyle = '#042F2E';
-          ctx.fillRect(x + 14, 0, 2, 256);
+        function createWheelUnit(x, y, z) {
+          const wGroup = new THREE.Group();
+          const tire = new THREE.Mesh(wheelGeo, rubberMat);
+          const disc = new THREE.Mesh(discGeo, wheelDiscMat);
+          wGroup.add(tire);
+          wGroup.add(disc);
+          wGroup.position.set(x, y, z);
+          return wGroup;
         }
 
-        // Top Border Trim Rail
-        ctx.fillStyle = '#134E4A'; ctx.fillRect(0, 0, 512, 16);
-        ctx.fillStyle = '#5EEAD4'; ctx.fillRect(0, 16, 512, 3);
-        return new THREE.CanvasTexture(c);
-      }
+        // Front Steer Axle (2 Wheels)
+        truckGroup.add(createWheelUnit(-1.18, 0.48, 3.3));
+        truckGroup.add(createWheelUnit(1.18, 0.48, 3.3));
 
-      function createWheelTexture() {
-        const c = document.createElement('canvas');
-        c.width = 256; c.height = 256;
-        const ctx = c.getContext('2d');
-        ctx.fillStyle = '#27272A'; ctx.fillRect(0, 0, 256, 256);
-        const grad = ctx.createRadialGradient(128, 128, 20, 128, 128, 120);
-        grad.addColorStop(0, '#52525B'); grad.addColorStop(0.6, '#A1A1AA'); grad.addColorStop(0.85, '#3F3F46'); grad.addColorStop(1, '#18181B');
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(128, 128, 118, 0, Math.PI * 2); ctx.fill();
+        // Tandem Rear Duals (8 Wheels total)
+        // Front Rear Axle (4 Wheels)
+        truckGroup.add(createWheelUnit(-1.02, 0.48, -2.6));
+        truckGroup.add(createWheelUnit(-1.32, 0.48, -2.6));
+        truckGroup.add(createWheelUnit(1.02, 0.48, -2.6));
+        truckGroup.add(createWheelUnit(1.32, 0.48, -2.6));
+        // Back Rear Axle (4 Wheels)
+        truckGroup.add(createWheelUnit(-1.02, 0.48, -4.0));
+        truckGroup.add(createWheelUnit(-1.32, 0.48, -4.0));
+        truckGroup.add(createWheelUnit(1.02, 0.48, -4.0));
+        truckGroup.add(createWheelUnit(1.32, 0.48, -4.0));
 
-        ctx.fillStyle = '#18181B'; ctx.beginPath(); ctx.arc(128, 128, 52, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#D97706'; ctx.beginPath(); ctx.arc(128, 128, 26, 0, Math.PI * 2); ctx.fill();
+        // Scale & Position
+        truckGroup.scale.set(0.68, 0.68, 0.68);
+        truckGroup.position.set(0, -0.35, 0);
+        scene.add(truckGroup);
 
-        for (let i = 0; i < 10; i++) {
-          const a = (i / 10) * Math.PI * 2;
-          const nx = 128 + Math.cos(a) * 76; const ny = 128 + Math.sin(a) * 76;
-          ctx.fillStyle = '#E4E4E7'; ctx.beginPath(); ctx.arc(nx, ny, 7, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#71717A'; ctx.beginPath(); ctx.arc(nx, ny, 3.5, 0, Math.PI * 2); ctx.fill();
+        camera.position.set(0, 2.7, 10.8);
+        camera.lookAt(0, 1.4, 0);
+
+        let targetTiltX = 0;
+        let targetTiltY = 0;
+        window.addEventListener('mousemove', (e) => {
+          const nx = (e.clientX / window.innerWidth) * 2 - 1;
+          const ny = (e.clientY / window.innerHeight) * 2 - 1;
+          targetTiltX = nx * 0.12;
+          targetTiltY = -ny * 0.06;
+        }, { passive: true });
+
+        function onResize() {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+          if (w < 640) {
+            truckGroup.scale.set(0.50, 0.50, 0.50);
+            camera.position.set(0, 2.4, 12.5);
+          } else {
+            truckGroup.scale.set(0.68, 0.68, 0.68);
+            camera.position.set(0, 2.7, 10.8);
+          }
         }
-        return new THREE.CanvasTexture(c);
-      }
+        window.addEventListener('resize', onResize);
+        onResize();
 
-      // ==========================================
-      // MATERIALS
-      // ==========================================
-      const cabColorMat = new THREE.MeshStandardMaterial({ color: 0x0F766E, roughness: 0.32, metalness: 0.35 });
-      const cabCreamMat = new THREE.MeshStandardMaterial({ color: 0xFDFBF7, roughness: 0.35, metalness: 0.2 });
-      const chromeMat = new THREE.MeshStandardMaterial({ color: 0xF3F4F6, roughness: 0.1, metalness: 0.95 });
-      const darkMetalMat = new THREE.MeshStandardMaterial({ color: 0x27272A, roughness: 0.5, metalness: 0.7 });
-      const glassMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.08, metalness: 0.9 });
-      const rubberMat = new THREE.MeshStandardMaterial({ color: 0x18181B, roughness: 0.9, metalness: 0.05 });
-      const woodMat = new THREE.MeshStandardMaterial({ map: createSideBodyTexture(), roughness: 0.65 });
-      const greenRibbedMat = new THREE.MeshStandardMaterial({ map: createGreenRibbedTexture(), roughness: 0.45, metalness: 0.2 });
-      const greenRoofMat = new THREE.MeshStandardMaterial({ color: 0x0F766E, roughness: 0.4, metalness: 0.25 });
-      const crownMat = new THREE.MeshStandardMaterial({ map: createCrownTexture(), roughness: 0.35 });
-      const bumperArtMat = new THREE.MeshStandardMaterial({ map: createBumperArtTexture(), roughness: 0.4 });
-      const rearGateMat = new THREE.MeshStandardMaterial({ map: createRearGateTexture(), roughness: 0.5 });
-      const wheelDiscMat = new THREE.MeshStandardMaterial({ map: createWheelTexture(), roughness: 0.35, metalness: 0.4 });
+        const clock = new THREE.Clock();
+        function animate() {
+          requestAnimationFrame(animate);
+          const elapsedTime = clock.getElapsedTime();
 
-      const headlightGlowMat = new THREE.MeshStandardMaterial({
-        color: 0xFFFEE0, emissive: 0xFFF5B0, emissiveIntensity: 0.9, roughness: 0.1
-      });
-      const amberLightMat = new THREE.MeshStandardMaterial({
-        color: 0xF59E0B, emissive: 0xF59E0B, emissiveIntensity: 0.85, roughness: 0.2
-      });
-      const redLightMat = new THREE.MeshStandardMaterial({
-        color: 0xDC2626, emissive: 0xDC2626, emissiveIntensity: 0.85, roughness: 0.2
-      });
+          if (!prefersReducedMotion && !window.pauseTruckRotation) {
+            truckGroup.rotation.y += 0.007;
+            truckGroup.position.y = -0.35 + Math.sin(elapsedTime * 0.85) * 0.08;
+            truckGroup.rotation.x += (targetTiltY - truckGroup.rotation.x) * 0.04;
+            truckGroup.rotation.z += (targetTiltX * 0.25 - truckGroup.rotation.z) * 0.04;
+          }
 
-      // Root Truck Group
-      const truckGroup = new THREE.Group();
-
-      // 1. CABIN UNIT (Tata/Ashok Leyland Classic Cowl Cab)
-      const cabGroup = new THREE.Group();
-
-      // Main lower cab block
-      const cabLower = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.4, 2.5), cabColorMat);
-      cabLower.position.set(0, 1.35, 3.2);
-      cabGroup.add(cabLower);
-
-      // Cream mid-band
-      const cabMid = new THREE.Mesh(new THREE.BoxGeometry(2.42, 0.4, 2.52), cabCreamMat);
-      cabMid.position.set(0, 1.9, 3.2);
-      cabGroup.add(cabMid);
-
-      // Upper cab with roof
-      const cabUpper = new THREE.Mesh(new THREE.BoxGeometry(2.38, 1.0, 2.4), cabColorMat);
-      cabUpper.position.set(0, 2.5, 3.15);
-      cabGroup.add(cabUpper);
-
-      // Split Windshield (Iconic Indian Truck Dual-Pane)
-      const windshieldL = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.82, 0.08), glassMat);
-      windshieldL.position.set(-0.55, 2.45, 4.36);
-      windshieldL.rotation.x = 0.16;
-      cabGroup.add(windshieldL);
-
-      const windshieldR = windshieldL.clone();
-      windshieldR.position.x = 0.55;
-      cabGroup.add(windshieldR);
-
-      // Center Mullion divider bar
-      const mullion = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.85, 0.1), chromeMat);
-      mullion.position.set(0, 2.45, 4.37);
-      mullion.rotation.x = 0.16;
-      cabGroup.add(mullion);
-
-      // Overhanging Sun Visor Brow
-      const sunVisor = new THREE.Mesh(new THREE.BoxGeometry(2.46, 0.2, 0.35), cabCreamMat);
-      sunVisor.position.set(0, 2.92, 4.38);
-      sunVisor.rotation.x = 0.28;
-      cabGroup.add(sunVisor);
-
-      // Top Crown Visor ("GOODS CARRIER")
-      const crownMesh = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.65, 0.12), crownMat);
-      crownMesh.position.set(0, 3.38, 4.25);
-      crownMesh.rotation.x = 0.1;
-      cabGroup.add(crownMesh);
-
-      // Roof Rack with Mounted Spare Tire (Stepney)
-      const roofRack = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.12, 1.8), darkMetalMat);
-      roofRack.position.set(0, 3.1, 2.8);
-      cabGroup.add(roofRack);
-
-      // Spare Tire lying on Roof Rack
-      const spareTire = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.3, 20), rubberMat);
-      spareTire.position.set(0, 3.32, 2.8);
-      cabGroup.add(spareTire);
-      const spareRim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.32, 16), wheelDiscMat);
-      spareRim.position.set(0, 3.32, 2.8);
-      cabGroup.add(spareRim);
-
-      // Dual Chrome Air Horn Trumpets on Roof
-      const hornL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.04, 0.85, 12), chromeMat);
-      hornL.rotation.x = Math.PI / 2;
-      hornL.position.set(-0.85, 3.18, 3.8);
-      cabGroup.add(hornL);
-      const hornR = hornL.clone();
-      hornR.position.x = 0.85;
-      cabGroup.add(hornR);
-
-      // 5 Top Roof Clearance Marker Lights
-      for (let i = 0; i < 5; i++) {
-        const marker = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.1), amberLightMat);
-        marker.position.set(-0.8 + i * 0.4, 3.72, 4.22);
-        cabGroup.add(marker);
-      }
-
-      // Side Windows & Doors
-      const sideWindowL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.68, 1.05), glassMat);
-      sideWindowL.position.set(-1.21, 2.45, 3.25);
-      cabGroup.add(sideWindowL);
-      const sideWindowR = sideWindowL.clone();
-      sideWindowR.position.x = 1.21;
-      cabGroup.add(sideWindowR);
-
-      // Radiator Grille with Chrome Slats & Badge
-      const grilleBack = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.95, 0.12), darkMetalMat);
-      grilleBack.position.set(0, 1.25, 4.46);
-      cabGroup.add(grilleBack);
-
-      for (let i = 0; i < 5; i++) {
-        const slat = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.06, 0.16), chromeMat);
-        slat.position.set(0, 0.95 + i * 0.15, 4.5);
-        cabGroup.add(slat);
-      }
-
-      // Center Circular Kabani Emblem
-      const emblem = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.18, 16), chromeMat);
-      emblem.rotation.x = Math.PI / 2;
-      emblem.position.set(0, 1.25, 4.52);
-      cabGroup.add(emblem);
-
-      // Round Dual Headlights with Chrome Rings & Warm Glow
-      const headlightGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.12, 18);
-      headlightGeo.rotateX(Math.PI / 2);
-      const headlightL = new THREE.Mesh(headlightGeo, headlightGlowMat);
-      headlightL.position.set(-0.88, 1.05, 4.54);
-      cabGroup.add(headlightL);
-      const ringGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.08, 18);
-      ringGeo.rotateX(Math.PI / 2);
-      const ringL = new THREE.Mesh(ringGeo, chromeMat);
-      ringL.position.set(-0.88, 1.05, 4.5);
-      cabGroup.add(ringL);
-
-      const headlightR = headlightL.clone();
-      headlightR.position.x = 0.88;
-      cabGroup.add(headlightR);
-      const ringR = ringL.clone();
-      ringR.position.x = 0.88;
-      cabGroup.add(ringR);
-
-      // Front Heavy Bumper with Painted Chevron Truck Art Texture
-      const bumper = new THREE.Mesh(new THREE.BoxGeometry(2.65, 0.48, 0.38), bumperArtMat);
-      bumper.position.set(0, 0.58, 4.58);
-      cabGroup.add(bumper);
-
-      // Hanging Rubber Mudflaps under Front Bumper
-      const mudflapL = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.35, 0.04), rubberMat);
-      mudflapL.position.set(-0.95, 0.2, 4.62);
-      cabGroup.add(mudflapL);
-      const mudflapR = mudflapL.clone();
-      mudflapR.position.x = 0.95;
-      cabGroup.add(mudflapR);
-
-      // Fog Lamps on Bumper
-      const fogGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.08, 16);
-      fogGeo.rotateX(Math.PI / 2);
-      const fogL = new THREE.Mesh(fogGeo, amberLightMat);
-      fogL.position.set(-0.45, 0.58, 4.78);
-      cabGroup.add(fogL);
-      const fogR = fogL.clone();
-      fogR.position.x = 0.45;
-      cabGroup.add(fogR);
-
-      // Metal Tubular Rear-view Mirror Stalks & Mirrors
-      const mirrorArmGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.65, 8);
-      const armL = new THREE.Mesh(mirrorArmGeo, chromeMat);
-      armL.rotation.z = -0.55;
-      armL.position.set(-1.42, 2.35, 3.8);
-      cabGroup.add(armL);
-      const mirrorL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.45, 0.22), chromeMat);
-      mirrorL.position.set(-1.62, 2.45, 3.9);
-      cabGroup.add(mirrorL);
-
-      const armR = new THREE.Mesh(mirrorArmGeo, chromeMat);
-      armR.rotation.z = 0.55;
-      armR.position.set(1.42, 2.35, 3.8);
-      cabGroup.add(armR);
-      const mirrorR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.45, 0.22), chromeMat);
-      mirrorR.position.set(1.62, 2.45, 3.9);
-      cabGroup.add(mirrorR);
-
-      // Cab Boarding Ladder Footsteps
-      for (let i = 0; i < 2; i++) {
-        const stepL = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.06, 0.18), darkMetalMat);
-        stepL.position.set(-1.22, 0.45 + i * 0.28, 3.2);
-        cabGroup.add(stepL);
-        const stepR = stepL.clone();
-        stepR.position.x = 1.22;
-        cabGroup.add(stepR);
-      }
-
-      // Vertical Exhaust Stack Pipe behind Cab with Rain Flapper Cap
-      const exhaustPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 3.5, 16), chromeMat);
-      exhaustPipe.position.set(-1.18, 2.65, 1.8);
-      cabGroup.add(exhaustPipe);
-      const exhaustCap = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.09, 0.2, 16), chromeMat);
-      exhaustCap.position.set(-1.18, 4.45, 1.8);
-      exhaustCap.rotation.z = 0.2;
-      cabGroup.add(exhaustCap);
-
-      truckGroup.add(cabGroup);
-
-      // 2. CHASSIS FRAME & UNDERCARRIAGE
-      const chassisGroup = new THREE.Group();
-
-      // Twin Longitudinal I-Beams
-      const railL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.28, 12.2), darkMetalMat);
-      railL.position.set(-0.55, 0.65, -0.6);
-      chassisGroup.add(railL);
-      const railR = railL.clone();
-      railR.position.x = 0.55;
-      chassisGroup.add(railR);
-
-      // Crossmembers
-      for (let z = -5.5; z <= 4.5; z += 2.0) {
-        const cross = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.16, 0.14), darkMetalMat);
-        cross.position.set(0, 0.65, z);
-        chassisGroup.add(cross);
-      }
-
-      // Cylindrical Diesel Fuel Tank (Left Side)
-      const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 2.1, 18), chromeMat);
-      tank.rotation.z = Math.PI / 2;
-      tank.position.set(-1.08, 0.68, 1.1);
-      chassisGroup.add(tank);
-      // Tank Chrome Straps
-      for (let s of [-0.6, 0.6]) {
-        const strap = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.08, 18), darkMetalMat);
-        strap.rotation.z = Math.PI / 2;
-        strap.position.set(-1.08 + s, 0.68, 1.1);
-        chassisGroup.add(strap);
-      }
-
-      // Battery & Tool Lockers (Right Side)
-      const batteryBox = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.45, 1.2), darkMetalMat);
-      batteryBox.position.set(1.08, 0.68, 1.3);
-      chassisGroup.add(batteryBox);
-      const toolBox = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.42, 1.1), cabColorMat);
-      toolBox.position.set(1.08, 0.68, -0.1);
-      chassisGroup.add(toolBox);
-
-      // Side Underrun Safety Guardrails (Between front and rear axles)
-      for (let side of [-1, 1]) {
-        for (let h of [0.45, 0.75]) {
-          const guardRail = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 4.4, 12), chromeMat);
-          guardRail.rotation.x = Math.PI / 2;
-          guardRail.position.set(side * 1.25, h, 0.6);
-          chassisGroup.add(guardRail);
+          renderer.render(scene, camera);
         }
+        animate();
       }
-
-      // Heavy Rear Bumper with Triple Tail-light Clusters
-      const rearBumper = new THREE.Mesh(new THREE.BoxGeometry(2.55, 0.3, 0.2), darkMetalMat);
-      rearBumper.position.set(0, 0.65, -6.65);
-      chassisGroup.add(rearBumper);
-
-      // Triple Tail-lights (Brake, Turn, Reverse)
-      for (let side of [-1, 1]) {
-        const tRed = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.16, 0.06), redLightMat);
-        tRed.position.set(side * 0.95, 0.65, -6.76);
-        chassisGroup.add(tRed);
-        const tAmber = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.16, 0.06), amberLightMat);
-        tAmber.position.set(side * 0.72, 0.65, -6.76);
-        chassisGroup.add(tAmber);
-      }
-
-      // Rear Mudflaps
-      const rearFlapL = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.42, 0.04), rubberMat);
-      rearFlapL.position.set(-0.95, 0.28, -6.62);
-      chassisGroup.add(rearFlapL);
-      const rearFlapR = rearFlapL.clone();
-      rearFlapR.position.x = 0.95;
-      chassisGroup.add(rearFlapR);
-
-      truckGroup.add(chassisGroup);
-
-      // 3. AUTHENTIC INDIAN CARGO BODY (Matches User Reference Image)
-      const cargoGroup = new THREE.Group();
-
-      // Heavy Wood / Steel Floor Bed
-      const bedFloor = new THREE.Mesh(new THREE.BoxGeometry(2.54, 0.16, 8.42), darkMetalMat);
-      bedFloor.position.set(0, 0.9, -2.4);
-      cargoGroup.add(bedFloor);
-
-      // Lower Wooden Slatted Side Panels (Left & Right) with Painted Transport Art
-      const sidePanelL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.82, 8.38), woodMat);
-      sidePanelL.position.set(-1.24, 1.81, -2.4);
-      cargoGroup.add(sidePanelL);
-
-      const sidePanelR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.82, 8.38), woodMat);
-      sidePanelR.position.set(1.24, 1.81, -2.4);
-      cargoGroup.add(sidePanelR);
-
-      // Upper Green Structure Covering Top Border & Upper Part of Truck Body
-      const upperGreenL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.98, 8.38), greenRibbedMat);
-      upperGreenL.position.set(-1.24, 3.19, -2.4);
-      cargoGroup.add(upperGreenL);
-
-      const upperGreenR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.98, 8.38), greenRibbedMat);
-      upperGreenR.position.set(1.24, 3.19, -2.4);
-      cargoGroup.add(upperGreenR);
-
-      // Clean Solid Green Roof Covering the Top Border (No fins or hands)
-      const roofCover = new THREE.Mesh(new THREE.BoxGeometry(2.56, 0.08, 8.42), greenRoofMat);
-      roofCover.position.set(0, 3.72, -2.4);
-      cargoGroup.add(roofCover);
-
-      // Top Border Iron Rails
-      for (let side of [-1, 1]) {
-        const topRail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 8.44), darkMetalMat);
-        topRail.position.set(side * 1.25, 3.73, -2.4);
-        cargoGroup.add(topRail);
-      }
-
-      // Front Bulkhead behind Cab (Wood lower + Green upper)
-      const frontBulkheadLower = new THREE.Mesh(new THREE.BoxGeometry(2.46, 1.82, 0.1), woodMat);
-      frontBulkheadLower.position.set(0, 1.81, 1.78);
-      cargoGroup.add(frontBulkheadLower);
-
-      const frontBulkheadUpper = new THREE.Mesh(new THREE.BoxGeometry(2.46, 0.98, 0.1), greenRibbedMat);
-      frontBulkheadUpper.position.set(0, 3.19, 1.78);
-      cargoGroup.add(frontBulkheadUpper);
-
-      // Rear Tailgate with "HORN OK PLEASE" & Upper Green Panel
-      const rearGate = new THREE.Mesh(new THREE.BoxGeometry(2.48, 1.82, 0.12), rearGateMat);
-      rearGate.position.set(0, 1.81, -6.58);
-      cargoGroup.add(rearGate);
-
-      const rearGateUpper = new THREE.Mesh(new THREE.BoxGeometry(2.48, 0.98, 0.12), greenRibbedMat);
-      rearGateUpper.position.set(0, 3.19, -6.58);
-      cargoGroup.add(rearGateUpper);
-
-      // Vertical Structural Iron Stake Posts (Cleanly aligned flat along sides)
-      const stakeGeo = new THREE.BoxGeometry(0.035, 2.78, 0.045);
-      for (let i = 0; i <= 9; i++) {
-        const zPos = 1.72 - i * 0.92;
-        const stakeL = new THREE.Mesh(stakeGeo, darkMetalMat);
-        stakeL.position.set(-1.26, 2.29, zPos);
-        cargoGroup.add(stakeL);
-
-        const stakeR = new THREE.Mesh(stakeGeo, darkMetalMat);
-        stakeR.position.set(1.26, 2.29, zPos);
-        cargoGroup.add(stakeR);
-      }
-
-      truckGroup.add(cargoGroup);
-
-      // 4. TRUE 10-WHEELER CONFIGURATION (Front Steer + Tandem Rear Duals)
-      const wheelGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.28, 24);
-      wheelGeo.rotateZ(Math.PI / 2);
-      const discGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.29, 18);
-      discGeo.rotateZ(Math.PI / 2);
-
-      function createWheelUnit(x, y, z) {
-        const wGroup = new THREE.Group();
-        const tire = new THREE.Mesh(wheelGeo, rubberMat);
-        const disc = new THREE.Mesh(discGeo, wheelDiscMat);
-        wGroup.add(tire);
-        wGroup.add(disc);
-        wGroup.position.set(x, y, z);
-        return wGroup;
-      }
-
-      // Front Steer Axle (2 Wheels)
-      truckGroup.add(createWheelUnit(-1.18, 0.48, 3.5));
-      truckGroup.add(createWheelUnit(1.18, 0.48, 3.5));
-
-      // Intermediate Drive Axle (Dual Wheels on each side = 4 Wheels)
-      truckGroup.add(createWheelUnit(-1.02, 0.48, -1.8));
-      truckGroup.add(createWheelUnit(-1.32, 0.48, -1.8));
-      truckGroup.add(createWheelUnit(1.02, 0.48, -1.8));
-      truckGroup.add(createWheelUnit(1.32, 0.48, -1.8));
-
-      // Rear Tandem Axle (Dual Wheels on each side = 4 Wheels)
-      truckGroup.add(createWheelUnit(-1.02, 0.48, -3.2));
-      truckGroup.add(createWheelUnit(-1.32, 0.48, -3.2));
-      truckGroup.add(createWheelUnit(1.02, 0.48, -3.2));
-      truckGroup.add(createWheelUnit(1.32, 0.48, -3.2));
-
-      // Scale & Position
-      truckGroup.scale.set(0.64, 0.64, 0.64);
-      truckGroup.position.set(0, -0.4, 0);
-      scene.add(truckGroup);
-
-      camera.position.set(0, 3.2, 13.5);
-      camera.lookAt(0, 1.3, 0);
-
-      // Interactive subtle tilt
-      let targetTiltX = 0;
-      let targetTiltY = 0;
-      window.addEventListener('mousemove', (e) => {
-        const nx = (e.clientX / window.innerWidth) * 2 - 1;
-        const ny = (e.clientY / window.innerHeight) * 2 - 1;
-        targetTiltX = nx * 0.12;
-        targetTiltY = -ny * 0.06;
-      }, { passive: true });
-
-      function onResize() {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-        if (w < 640) {
-          truckGroup.scale.set(0.48, 0.48, 0.48);
-          camera.position.set(0, 2.8, 15);
-        } else {
-          truckGroup.scale.set(0.64, 0.64, 0.64);
-          camera.position.set(0, 3.2, 13.5);
-        }
-      }
-      window.addEventListener('resize', onResize);
-      onResize();
-
-      const clock = new THREE.Clock();
-      function animate() {
-        requestAnimationFrame(animate);
-        const elapsedTime = clock.getElapsedTime();
-
-        if (!prefersReducedMotion) {
-          // 360° Majestic continuous turntable rotation
-          truckGroup.rotation.y += 0.007;
-
-          // Gentle floating bob
-          truckGroup.position.y = -0.4 + Math.sin(elapsedTime * 0.85) * 0.1;
-
-          // Subtle interactive tilt
-          truckGroup.rotation.x += (targetTiltY - truckGroup.rotation.x) * 0.04;
-          truckGroup.rotation.z += (targetTiltX * 0.25 - truckGroup.rotation.z) * 0.04;
-        }
-
-        renderer.render(scene, camera);
-      }
-      animate();
-    }
 
     document.addEventListener('DOMContentLoaded', () => {
       app.init();
