@@ -965,6 +965,14 @@
               <span data-i18n="demo_driver_btn">Demo Driver</span>
             </button>
           </div>
+          <button 
+            type="button" 
+            id="btn-demo-owner"
+            onclick="app.quickDemoLogin('owner')" 
+            class="mt-2 w-full py-2.5 px-3 bg-amber-50 hover:bg-amber-100 border-2 border-amber-400 rounded-xl text-xs font-black text-amber-900 flex items-center justify-center gap-1.5 transition-colors btn-spring bencho-press shadow-sm">
+            <span>👑</span>
+            <span>Website Owner (Sunil Gahlot)</span>
+          </button>
         </div>
 
       </div>
@@ -1661,18 +1669,25 @@
   <script>
     const app = (() => {
 
-      // Scroll Progress & Motion Graphics Tracking (Huashu + Scroll Craft)
+      // Scroll Progress & Motion Graphics Tracking (Throttled with requestAnimationFrame for 60fps performance)
+      let isIndexScrollTicking = false;
       window.addEventListener('scroll', () => {
-        const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (h > 0) ? (window.scrollY / h) * 100 : 0;
-        
-        // Update top gradient line
-        const bar = document.getElementById('scroll-progress-bar');
-        if (bar) bar.style.width = scrolled + '%';
+        if (!isIndexScrollTicking) {
+          window.requestAnimationFrame(() => {
+            const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (h > 0) ? (window.scrollY / h) * 100 : 0;
+            
+            // Update top gradient line
+            const bar = document.getElementById('scroll-progress-bar');
+            if (bar) bar.style.width = scrolled + '%';
 
-        // Update highway mini-truck cruiser motion position
-        const truck = document.getElementById('highway-scroll-indicator');
-        if (truck) truck.style.left = Math.min(Math.max(scrolled, 1), 98) + '%';
+            // Update highway mini-truck cruiser motion position
+            const truck = document.getElementById('highway-scroll-indicator');
+            if (truck) truck.style.left = Math.min(Math.max(scrolled, 1), 98) + '%';
+            isIndexScrollTicking = false;
+          });
+          isIndexScrollTicking = true;
+        }
       }, { passive: true });
 
       // Haptic feedback simulation for mobile phones
@@ -1995,6 +2010,9 @@
         const t = l.truckType || l.truckTypeEn || l.truckTypeHi || "14 Wheeler";
         const name = l.transporterName || l.transporterNameEn || l.transporterNameHi || "Kabani Transport Partner";
         const phone = l.transporterPhone || l.phone || "9829011223";
+        const posterMobile = l.posterMobile || phone;
+        const posterEmail = l.posterEmail || "";
+        const posterName = l.posterName || name;
 
         return {
           id: l.id || ('LOAD-' + Math.floor(100 + Math.random() * 900)),
@@ -2016,6 +2034,9 @@
           transporterNameEn: l.transporterNameEn || name,
           transporterNameHi: l.transporterNameHi || name,
           transporterPhone: phone,
+          posterMobile: posterMobile,
+          posterEmail: posterEmail,
+          posterName: posterName,
           verified: l.verified !== undefined ? l.verified : true,
           status: l.status || "available",
           postedAgoEn: l.postedAgoEn || "10 mins ago",
@@ -2207,11 +2228,15 @@
         currentView: 'auth',
         authTab: 'login',
         registeredUsers: (() => {
-          try {
-            const cached = localStorage.getItem('kabani_registered_users');
-            if (cached) return JSON.parse(cached);
-          } catch(e) {}
-          return [
+          const defaultUsers = [
+            {
+              name: "Sunil Gahlot (Website Owner)",
+              mobile: "7231858636",
+              email: "sunilgahlot0636@gmail.com",
+              password: "Owner@7231858636",
+              role: "owner",
+              registeredAt: "2026-11-14T12:00:00.000Z"
+            },
             {
               name: "Rajesh Kumar (Kabani Freight)",
               mobile: "9829011223",
@@ -2229,6 +2254,25 @@
               registeredAt: "2026-11-13T00:00:00.000Z"
             }
           ];
+          try {
+            const cached = localStorage.getItem('kabani_registered_users');
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                defaultUsers.forEach(du => {
+                  const idx = parsed.findIndex(u => u.mobile === du.mobile || (u.email && u.email.toLowerCase() === du.email.toLowerCase()));
+                  if (idx === -1) {
+                    parsed.unshift(du);
+                  } else if (du.role === 'owner') {
+                    parsed[idx].role = 'owner';
+                    parsed[idx].name = du.name;
+                  }
+                });
+                return parsed;
+              }
+            }
+          } catch(e) {}
+          return defaultUsers;
         })(),
         loads: (() => {
           try {
@@ -2742,26 +2786,49 @@
         loginSuccess(newUser);
       };
 
+      const isOwnerUser = (user) => {
+        if (!user) return false;
+        return (
+          user.mobile === '7231858636' ||
+          (user.email && user.email.toLowerCase() === 'sunilgahlot0636@gmail.com') ||
+          user.role === 'owner'
+        );
+      };
+
       const quickDemoLogin = (role) => {
         triggerHaptic();
-        const targetMobile = (role === 'transporter') ? "9829011223" : "9876543210";
+        let targetMobile = (role === 'transporter') ? "9829011223" : "9876543210";
+        if (role === 'owner') targetMobile = "7231858636";
         let user = state.registeredUsers.find(u => u.mobile === targetMobile);
         if (!user) {
-          user = (role === 'transporter') ? {
-            name: state.lang === 'hi' ? "राजेश कुमार (कबानी ट्रांसपोर्ट)" : "Rajesh Kumar (Kabani Freight)",
-            mobile: "9829011223",
-            email: "rajesh.kabani@freight.com",
-            password: "Password@123",
-            role: "transporter",
-            registeredAt: new Date().toISOString()
-          } : {
-            name: state.lang === 'hi' ? "रामेश सिंह (गाड़ी मालिक)" : "Ramesh Singh (Truck Owner)",
-            mobile: "9876543210",
-            email: "driver.ramesh@kabani.com",
-            password: "Driver@123",
-            role: "driver",
-            registeredAt: new Date().toISOString()
-          };
+          if (role === 'owner') {
+            user = {
+              name: state.lang === 'hi' ? "सुनील गहलोत (वेबसाइट मालिक)" : "Sunil Gahlot (Website Owner)",
+              mobile: "7231858636",
+              email: "sunilgahlot0636@gmail.com",
+              password: "OwnerPassword@7231",
+              role: "owner",
+              registeredAt: new Date().toISOString()
+            };
+          } else if (role === 'transporter') {
+            user = {
+              name: state.lang === 'hi' ? "राजेश कुमार (कबानी ट्रांसपोर्ट)" : "Rajesh Kumar (Kabani Freight)",
+              mobile: "9829011223",
+              email: "rajesh.kabani@freight.com",
+              password: "Password@123",
+              role: "transporter",
+              registeredAt: new Date().toISOString()
+            };
+          } else {
+            user = {
+              name: state.lang === 'hi' ? "रामेश सिंह (गाड़ी मालिक)" : "Ramesh Singh (Truck Owner)",
+              mobile: "9876543210",
+              email: "driver.ramesh@kabani.com",
+              password: "Driver@123",
+              role: "driver",
+              registeredAt: new Date().toISOString()
+            };
+          }
           state.registeredUsers.push(user);
           localStorage.setItem('kabani_registered_users', JSON.stringify(state.registeredUsers));
         }
@@ -2778,6 +2845,9 @@
         if (postPhone && user.mobile) {
           postPhone.value = user.mobile;
         }
+
+        if (typeof renderTransporterPostings === 'function') renderTransporterPostings();
+        if (typeof renderDriverLoads === 'function') renderDriverLoads();
 
         showToast(state.lang === 'hi' ? `स्वागत है, ${user.name}!` : `Welcome, ${user.name}!`, 'green');
         navigate('role-select');
@@ -2797,7 +2867,13 @@
         const pill = document.getElementById('user-header-pill');
         const nameEl = document.getElementById('user-pill-name');
         if (pill && nameEl) {
-          nameEl.textContent = user.name.split(' ')[0] || user.name;
+          if (isOwnerUser(user)) {
+            nameEl.textContent = '👑 Sunil Gahlot (Owner)';
+            pill.className = 'items-center gap-2 bg-amber-100 border border-amber-400 rounded-full pl-2.5 pr-2 py-1 shadow-sm flex text-amber-900 font-bold';
+          } else {
+            nameEl.textContent = user.name.split(' ')[0] || user.name;
+            pill.className = 'items-center gap-2 bg-kabani-cardWarm border border-kabani-border/30 rounded-full pl-2.5 pr-1 py-1 shadow-sm flex';
+          }
           pill.classList.remove('hidden');
           pill.classList.add('flex');
         }
@@ -2896,6 +2972,10 @@
           return;
         }
 
+        const posterMobile = state.currentUser ? state.currentUser.mobile : phone;
+        const posterEmail = state.currentUser ? state.currentUser.email : "";
+        const posterName = state.currentUser ? state.currentUser.name : "Kabani Transport Partner";
+
         const newLoad = normalizeLoad({
           id: `LOAD-${Math.floor(100 + Math.random() * 900)}`,
           origin: origin,
@@ -2912,10 +2992,13 @@
           truckType: truckType,
           truckTypeEn: truckType,
           truckTypeHi: truckType,
-          transporterName: state.currentUser ? state.currentUser.name : "Kabani Transport Partner",
-          transporterNameEn: state.currentUser ? state.currentUser.name : "Kabani Transport Partner",
-          transporterNameHi: state.currentUser ? state.currentUser.name : "कबानी ट्रांसपोर्ट पार्टनर",
+          transporterName: posterName,
+          transporterNameEn: posterName,
+          transporterNameHi: posterName,
           transporterPhone: phone,
+          posterMobile: posterMobile,
+          posterEmail: posterEmail,
+          posterName: posterName,
           verified: true,
           status: "available",
           postedAgoEn: "Just now",
@@ -2938,10 +3021,28 @@
         if (listHeader) listHeader.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       };
 
+      const canModifyLoad = (load) => {
+        if (!state.currentUser) return false;
+        if (isOwnerUser(state.currentUser)) return true;
+        return (
+          (load.posterMobile && load.posterMobile === state.currentUser.mobile) ||
+          (load.transporterPhone && load.transporterPhone === state.currentUser.mobile) ||
+          (load.phone && load.phone === state.currentUser.mobile)
+        );
+      };
+
       const toggleLoadStatus = (loadId) => {
         triggerHaptic();
         const load = state.loads.find(l => l.id === loadId);
         if (!load) return;
+
+        if (!canModifyLoad(load)) {
+          const msg = state.lang === 'hi'
+            ? "अनुमति अस्वीकृत: यह लोड केवल इसे पोस्ट करने वाले या वेबसाइट मालिक (सुनील गहलोत) द्वारा ही बदला जा सकता है।"
+            : "Access Denied: Only the creator who posted this load (or Website Owner Sunil Gahlot) can edit or change its status.";
+          showToast(msg, 'red');
+          return;
+        }
 
         if (load.status === 'available') {
           load.status = 'assigned';
@@ -2958,6 +3059,17 @@
 
       const deleteLoad = (loadId) => {
         triggerHaptic();
+        const load = state.loads.find(l => l.id === loadId);
+        if (!load) return;
+
+        if (!canModifyLoad(load)) {
+          const msg = state.lang === 'hi'
+            ? "अनुमति अस्वीकृत: यह लोड केवल इसे पोस्ट करने वाले या वेबसाइट मालिक (सुनील गहलोत) द्वारा ही हटाया जा सकता है।"
+            : "Access Denied: Only the creator who posted this load (or Website Owner Sunil Gahlot) can delete it.";
+          showToast(msg, 'red');
+          return;
+        }
+
         if (!confirm(state.lang === 'hi' ? "क्या आप वाकई इस लोड को हटाना चाहते हैं?" : "Are you sure you want to delete this load?")) {
           return;
         }
@@ -2976,6 +3088,7 @@
         if (!container) return;
 
         const isHi = state.lang === 'hi';
+        const isOwner = isOwnerUser(state.currentUser);
         const activeLoads = state.loads.filter(l => l.status === 'available');
         const assignedLoads = state.loads.filter(l => l.status === 'assigned');
 
@@ -3003,6 +3116,7 @@
           const dest = String(isHi ? (load.destHi || load.destination) : (load.destEn || load.destination) || '');
           const weight = String(isHi ? (load.weightHi || load.weight) : (load.weightEn || load.weight) || '');
           const truckType = String(isHi ? (load.truckTypeHi || load.truckType) : (load.truckTypeEn || load.truckType) || '');
+          const userCanEdit = canModifyLoad(load);
 
           const statusBadge = isAvail
             ? `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-kabani-actionGreenSoft text-kabani-actionGreen border border-kabani-actionGreen/40 flex items-center gap-1.5">
@@ -3030,6 +3144,24 @@
                  <span>${t('btn_reopen_active')}</span>
                </button>`;
 
+          const editControl = userCanEdit
+            ? `<div class="flex items-center gap-2">
+                 ${isOwner ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-200 text-amber-900 border border-amber-400">👑 Owner</span>` : ''}
+                 ${assignActionBtn}
+                 <button 
+                   type="button" 
+                   onclick="app.deleteLoad('${load.id}')" 
+                   class="p-2 text-kabani-espresso/40 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors btn-spring"
+                   aria-label="Delete">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                 </button>
+               </div>`
+            : `<div class="flex items-center gap-2">
+                 <span class="px-2.5 py-1 rounded-xl text-xs font-semibold bg-stone-100 text-stone-600 border border-stone-300 flex items-center gap-1">
+                   <span>🔒</span> <span>${isHi ? 'अन्य ट्रांसपोर्टर' : 'Protected'}</span>
+                 </span>
+               </div>`;
+
           return `
             <div class="p-4 sm:p-5 rounded-3xl bg-kabani-card border-2 ${isAvail ? 'border-kabani-border/40 hover:border-kabani-cognac shadow-card-warm' : 'border-kabani-border/20 opacity-80'} transition-all reveal-on-scroll is-revealed">
               <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -3041,16 +3173,7 @@
                     <span class="font-mono tabular-nums">${load.date}</span>
                   </span>
                 </div>
-                <div class="flex items-center gap-2">
-                  ${assignActionBtn}
-                  <button 
-                    type="button" 
-                    onclick="app.deleteLoad('${load.id}')" 
-                    class="p-2 text-kabani-espresso/40 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors btn-spring"
-                    aria-label="Delete">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  </button>
-                </div>
+                ${editControl}
               </div>
 
               <div class="flex items-center gap-2 text-base sm:text-lg font-bold text-kabani-espresso mb-2">
@@ -3668,7 +3791,7 @@
       }
 
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
 
       // Warm Lighting matching Off-White & Beige Canvas
       const ambientLight = new THREE.AmbientLight(0xfff8ee, 1.4);
@@ -3831,22 +3954,24 @@
         return new THREE.CanvasTexture(c);
       }
 
-      function createTarpTexture() {
+      function createGreenRibbedTexture() {
         const c = document.createElement('canvas');
-        c.width = 512; c.height = 512;
+        c.width = 512; c.height = 256;
         const ctx = c.getContext('2d');
-        ctx.fillStyle = '#1E2923'; ctx.fillRect(0, 0, 512, 512);
-        for (let y = 0; y < 512; y += 8) {
-          ctx.fillStyle = (Math.floor(y / 8) % 2 === 0) ? '#283830' : '#1E2923';
-          ctx.fillRect(0, y, 512, 8);
+        ctx.fillStyle = '#0F766E'; ctx.fillRect(0, 0, 512, 256);
+
+        // Vertical Corrugated Ribs / Slats
+        for (let x = 0; x < 512; x += 16) {
+          ctx.fillStyle = (Math.floor(x / 16) % 2 === 0) ? '#115E59' : '#0D9488';
+          ctx.fillRect(x, 0, 14, 256);
+          ctx.fillStyle = '#042F2E';
+          ctx.fillRect(x + 14, 0, 2, 256);
         }
-        ctx.strokeStyle = '#D97706'; ctx.lineWidth = 3; ctx.setLineDash([12, 6]);
-        for (let x = 40; x < 512; x += 80) {
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 512); ctx.stroke();
-        }
-        const tex = new THREE.CanvasTexture(c);
-        tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(2, 1);
-        return tex;
+
+        // Top Border Trim Rail
+        ctx.fillStyle = '#134E4A'; ctx.fillRect(0, 0, 512, 16);
+        ctx.fillStyle = '#5EEAD4'; ctx.fillRect(0, 16, 512, 3);
+        return new THREE.CanvasTexture(c);
       }
 
       function createWheelTexture() {
@@ -3880,7 +4005,8 @@
       const glassMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.08, metalness: 0.9 });
       const rubberMat = new THREE.MeshStandardMaterial({ color: 0x18181B, roughness: 0.9, metalness: 0.05 });
       const woodMat = new THREE.MeshStandardMaterial({ map: createSideBodyTexture(), roughness: 0.65 });
-      const tarpMat = new THREE.MeshStandardMaterial({ map: createTarpTexture(), roughness: 0.8 });
+      const greenRibbedMat = new THREE.MeshStandardMaterial({ map: createGreenRibbedTexture(), roughness: 0.45, metalness: 0.2 });
+      const greenRoofMat = new THREE.MeshStandardMaterial({ color: 0x0F766E, roughness: 0.4, metalness: 0.25 });
       const crownMat = new THREE.MeshStandardMaterial({ map: createCrownTexture(), roughness: 0.35 });
       const bumperArtMat = new THREE.MeshStandardMaterial({ map: createBumperArtTexture(), roughness: 0.4 });
       const rearGateMat = new THREE.MeshStandardMaterial({ map: createRearGateTexture(), roughness: 0.5 });
@@ -4154,63 +4280,74 @@
 
       truckGroup.add(chassisGroup);
 
-      // 3. AUTHENTIC INDIAN HIGH-SIDED SLATTED CARGO BODY
+      // 3. AUTHENTIC INDIAN CARGO BODY (Matches User Reference Image)
       const cargoGroup = new THREE.Group();
 
-      // Heavy Wood Floor Bed
-      const bedFloor = new THREE.Mesh(new THREE.BoxGeometry(2.52, 0.15, 8.4), darkMetalMat);
+      // Heavy Wood / Steel Floor Bed
+      const bedFloor = new THREE.Mesh(new THREE.BoxGeometry(2.54, 0.16, 8.42), darkMetalMat);
       bedFloor.position.set(0, 0.9, -2.4);
       cargoGroup.add(bedFloor);
 
-      // Front Protective Cab-Guard Bulkhead
-      const cabGuard = new THREE.Mesh(new THREE.BoxGeometry(2.52, 2.6, 0.12), darkMetalMat);
-      cabGuard.position.set(0, 2.2, 1.76);
-      cargoGroup.add(cabGuard);
-
-      // Wooden Slatted Side Panels (Left & Right) with Painted Transport Art
-      const sidePanelL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.8, 8.35), woodMat);
-      sidePanelL.position.set(-1.24, 1.85, -2.4);
+      // Lower Wooden Slatted Side Panels (Left & Right) with Painted Transport Art
+      const sidePanelL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.82, 8.38), woodMat);
+      sidePanelL.position.set(-1.24, 1.81, -2.4);
       cargoGroup.add(sidePanelL);
 
-      const sidePanelR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.8, 8.35), woodMat);
-      sidePanelR.position.set(1.24, 1.85, -2.4);
+      const sidePanelR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.82, 8.38), woodMat);
+      sidePanelR.position.set(1.24, 1.81, -2.4);
       cargoGroup.add(sidePanelR);
 
-      // Vertical Structural Iron Stake Posts (Iconic Indian Open-Cage High Body)
+      // Upper Green Structure Covering Top Border & Upper Part of Truck Body
+      const upperGreenL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.98, 8.38), greenRibbedMat);
+      upperGreenL.position.set(-1.24, 3.19, -2.4);
+      cargoGroup.add(upperGreenL);
+
+      const upperGreenR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.98, 8.38), greenRibbedMat);
+      upperGreenR.position.set(1.24, 3.19, -2.4);
+      cargoGroup.add(upperGreenR);
+
+      // Clean Solid Green Roof Covering the Top Border (No fins or hands)
+      const roofCover = new THREE.Mesh(new THREE.BoxGeometry(2.56, 0.08, 8.42), greenRoofMat);
+      roofCover.position.set(0, 3.72, -2.4);
+      cargoGroup.add(roofCover);
+
+      // Top Border Iron Rails
+      for (let side of [-1, 1]) {
+        const topRail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 8.44), darkMetalMat);
+        topRail.position.set(side * 1.25, 3.73, -2.4);
+        cargoGroup.add(topRail);
+      }
+
+      // Front Bulkhead behind Cab (Wood lower + Green upper)
+      const frontBulkheadLower = new THREE.Mesh(new THREE.BoxGeometry(2.46, 1.82, 0.1), woodMat);
+      frontBulkheadLower.position.set(0, 1.81, 1.78);
+      cargoGroup.add(frontBulkheadLower);
+
+      const frontBulkheadUpper = new THREE.Mesh(new THREE.BoxGeometry(2.46, 0.98, 0.1), greenRibbedMat);
+      frontBulkheadUpper.position.set(0, 3.19, 1.78);
+      cargoGroup.add(frontBulkheadUpper);
+
+      // Rear Tailgate with "HORN OK PLEASE" & Upper Green Panel
+      const rearGate = new THREE.Mesh(new THREE.BoxGeometry(2.48, 1.82, 0.12), rearGateMat);
+      rearGate.position.set(0, 1.81, -6.58);
+      cargoGroup.add(rearGate);
+
+      const rearGateUpper = new THREE.Mesh(new THREE.BoxGeometry(2.48, 0.98, 0.12), greenRibbedMat);
+      rearGateUpper.position.set(0, 3.19, -6.58);
+      cargoGroup.add(rearGateUpper);
+
+      // Vertical Structural Iron Stake Posts (Cleanly aligned flat along sides)
+      const stakeGeo = new THREE.BoxGeometry(0.035, 2.78, 0.045);
       for (let i = 0; i <= 9; i++) {
-        const zPos = 1.7 - i * 0.92;
-        // Left stake
-        const stakeL = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.8, 8), darkMetalMat);
-        stakeL.position.set(-1.26, 2.35, zPos);
+        const zPos = 1.72 - i * 0.92;
+        const stakeL = new THREE.Mesh(stakeGeo, darkMetalMat);
+        stakeL.position.set(-1.26, 2.29, zPos);
         cargoGroup.add(stakeL);
-        // Right stake
-        const stakeR = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.8, 8), darkMetalMat);
-        stakeR.position.set(1.26, 2.35, zPos);
+
+        const stakeR = new THREE.Mesh(stakeGeo, darkMetalMat);
+        stakeR.position.set(1.26, 2.29, zPos);
         cargoGroup.add(stakeR);
       }
-
-      // Top Horizontal Cage Iron Rails
-      for (let side of [-1, 1]) {
-        for (let h of [3.1, 3.7]) {
-          const topRail = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 8.4, 8), darkMetalMat);
-          topRail.rotation.x = Math.PI / 2;
-          topRail.position.set(side * 1.26, h, -2.4);
-          cargoGroup.add(topRail);
-        }
-      }
-
-      // Curved Canvas Tarp (Tirpal) Canopy over Top
-      const tarpGeo = new THREE.CylinderGeometry(1.26, 1.26, 8.32, 18, 1, false, 0, Math.PI);
-      tarpGeo.rotateZ(Math.PI / 2);
-      tarpGeo.rotateX(Math.PI / 2);
-      const tarp = new THREE.Mesh(tarpGeo, tarpMat);
-      tarp.position.set(0, 3.42, -2.4);
-      cargoGroup.add(tarp);
-
-      // Rear Tailgate with "HORN OK PLEASE" & Hazard Chevrons
-      const rearGate = new THREE.Mesh(new THREE.BoxGeometry(2.48, 2.2, 0.12), rearGateMat);
-      rearGate.position.set(0, 2.05, -6.58);
-      cargoGroup.add(rearGate);
 
       truckGroup.add(cargoGroup);
 

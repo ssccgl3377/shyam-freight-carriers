@@ -15,6 +15,14 @@ try {
   if (!fs.existsSync(USERS_FILE)) {
     const seedUsers = [
       {
+        name: "Sunil Gahlot (Website Owner)",
+        mobile: "7231858636",
+        email: "sunilgahlot0636@gmail.com",
+        password: "Owner@7231858636",
+        role: "owner",
+        registeredAt: new Date().toISOString()
+      },
+      {
         name: "Rajesh Kumar (Kabani Freight)",
         mobile: "9829011223",
         email: "rajesh.kabani@freight.com",
@@ -25,7 +33,7 @@ try {
       {
         name: "Ramesh Singh (Truck Owner)",
         mobile: "9876543210",
-        email: "ramesh.driver@gmail.com",
+        email: "driver.ramesh@kabani.com",
         password: "Driver@123",
         role: "driver",
         registeredAt: new Date().toISOString()
@@ -89,6 +97,14 @@ const server = http.createServer((req, res) => {
   if (reqPath === '/api/reset-users' && req.method === 'POST') {
     const seedUsers = [
       {
+        name: "Sunil Gahlot (Website Owner)",
+        mobile: "7231858636",
+        email: "sunilgahlot0636@gmail.com",
+        password: "Owner@7231858636",
+        role: "owner",
+        registeredAt: new Date().toISOString()
+      },
+      {
         name: "Rajesh Kumar (Kabani Freight)",
         mobile: "9829011223",
         email: "rajesh.kabani@freight.com",
@@ -148,12 +164,13 @@ const server = http.createServer((req, res) => {
           return;
         }
 
+        const isOwner = (mobile.trim() === '7231858636' || email.trim().toLowerCase() === 'sunilgahlot0636@gmail.com');
         const newUser = {
-          name: name.trim(),
+          name: isOwner ? (name.trim() || "Sunil Gahlot (Website Owner)") : name.trim(),
           mobile: mobile.trim(),
           email: email.trim().toLowerCase(),
           password: password, // exact case-sensitive
-          role: role || 'transporter',
+          role: isOwner ? 'owner' : (role || 'transporter'),
           registeredAt: new Date().toISOString()
         };
 
