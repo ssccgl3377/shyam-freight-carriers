@@ -233,10 +233,83 @@
     .safe-bottom {
       padding-bottom: max(0.85rem, var(--sab));
     }
+
+    /* Off-White / Beige Luxury Canvas with 3D Rotating Truck */
+    body {
+      background: radial-gradient(ellipse at 50% 15%, #FAF6F0 0%, #F5ECE1 55%, #EBE0D2 100%) !important;
+      background-attachment: fixed !important;
+    }
+
+    /* Heavy Frosted Glassmorphism for All Cards & Tiles (Background Blur Effect) */
+    .glass-tile,
+    .bg-kabani-card,
+    #card-role-transporter,
+    #card-role-driver,
+    #modal-forgot-password > div {
+      background: rgba(255, 255, 255, 0.65) !important;
+      backdrop-filter: blur(28px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+      box-shadow: 
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.95),
+        0 20px 45px -12px rgba(46, 24, 14, 0.08) !important;
+    }
+
+    .bg-kabani-cardWarm,
+    .glass-tile-well {
+      background: rgba(248, 240, 230, 0.58) !important;
+      backdrop-filter: blur(20px) saturate(170%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(170%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.75) !important;
+      box-shadow: inset 0 2px 6px rgba(46, 24, 14, 0.04) !important;
+    }
+
+    .glass-tile-input,
+    #form-login input,
+    #form-signup input,
+    #form-post-load input,
+    #form-post-load select,
+    #filter-search {
+      background: rgba(255, 255, 255, 0.85) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+      box-shadow: inset 0 1.5px 3px rgba(46, 24, 14, 0.05) !important;
+    }
+
+    .glass-tile-input:focus,
+    #form-login input:focus,
+    #form-signup input:focus,
+    #form-post-load input:focus,
+    #form-post-load select:focus,
+    #filter-search:focus {
+      background: rgba(255, 255, 255, 0.96) !important;
+      border-color: #8D5028 !important;
+      outline: 2px solid rgba(141, 80, 40, 0.25) !important;
+      box-shadow: 0 0 16px rgba(141, 80, 40, 0.15) !important;
+    }
+
+    header {
+      background: rgba(245, 236, 225, 0.75) !important;
+      backdrop-filter: blur(28px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+      border-bottom: 1.5px solid rgba(255, 255, 255, 0.8) !important;
+    }
   </style>
+
+  <!-- Three.js for 3D Background Rotating Freight Truck -->
+  <script src="assets/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+    }
+  </script>
 </head>
 
-<body class="bg-kabani-sand text-kabani-espresso font-sans antialiased min-h-screen flex flex-col selection:bg-kabani-cognac selection:text-white pb-24 md:pb-12">
+<body class="bg-kabani-sand text-kabani-espresso font-sans antialiased min-h-screen flex flex-col selection:bg-kabani-cognac selection:text-white pb-24 md:pb-12 relative overflow-x-clip">
+
+  <!-- 3D Rotating Highway Truck Background (Three.js WebGL Canvas) -->
+  <canvas id="bg-truck-canvas" class="fixed inset-0 pointer-events-none z-0 w-full h-full"></canvas>
 
   <!-- Top Scroll Progress Indicator (Scroll Craft) -->
   <div id="scroll-progress-bar"></div>
@@ -1230,8 +1303,8 @@
   <!-- ==========================================
        MODAL: FORGOT PASSWORD FLOW
        ========================================== -->
-  <div id="modal-forgot-password" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
-    <div class="bg-kabani-card border-2 border-kabani-border/40 rounded-t-[32px] sm:rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-fadeIn">
+  <div id="modal-forgot-password" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 hidden overflow-y-auto">
+    <div class="bg-kabani-card border-2 border-kabani-border/40 rounded-t-[32px] sm:rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-fadeIn max-h-[92vh] overflow-y-auto my-auto">
       
       <!-- Mobile Drawer Grab Bar -->
       <div class="w-12 h-1.5 bg-kabani-border/20 rounded-full mx-auto mb-4 sm:hidden"></div>
@@ -1289,6 +1362,7 @@
       <div class="mt-4 pt-3 border-t-2 border-kabani-border/15 text-center">
         <button 
           type="button" 
+          id="btn-close-forgot"
           onclick="app.closeForgotPasswordModal()" 
           class="text-xs font-bold text-kabani-cognac hover:underline py-2"
           data-i18n="btn_back_to_login">
@@ -3142,7 +3216,322 @@
 
     })();
 
-    document.addEventListener('DOMContentLoaded', app.init);
+    // 3D Rotating Indian Freight Truck Background Engine (Three.js)
+    function initBackgroundTruck3D() {
+      const canvas = document.getElementById('bg-truck-canvas');
+      if (!canvas || typeof THREE === 'undefined') return;
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 1000);
+      
+      let renderer;
+      try {
+        renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          alpha: true,
+          antialias: true,
+          powerPreference: 'high-performance'
+        });
+      } catch(e) {
+        console.warn('WebGL not supported for 3D background truck');
+        return;
+      }
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Warm Lighting matching Off-White & Beige Canvas
+      const ambientLight = new THREE.AmbientLight(0xfff5ea, 1.4);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffeedd, 1.8);
+      keyLight.position.set(12, 18, 14);
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0xecdcd0, 0.9);
+      fillLight.position.set(-12, 10, -10);
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(0xd98236, 1.3);
+      rimLight.position.set(0, -6, -14);
+      scene.add(rimLight);
+
+      // Root Truck Group
+      const truckGroup = new THREE.Group();
+
+      // Materials
+      const cognacCabMat = new THREE.MeshStandardMaterial({
+        color: 0x8D5028,
+        roughness: 0.28,
+        metalness: 0.45
+      });
+
+      const chromeMat = new THREE.MeshStandardMaterial({
+        color: 0xEAEAEA,
+        roughness: 0.12,
+        metalness: 0.92
+      });
+
+      const darkMetalMat = new THREE.MeshStandardMaterial({
+        color: 0x222222,
+        roughness: 0.45,
+        metalness: 0.65
+      });
+
+      const glassMat = new THREE.MeshStandardMaterial({
+        color: 0x1A1412,
+        roughness: 0.1,
+        metalness: 0.85
+      });
+
+      const containerMat = new THREE.MeshStandardMaterial({
+        color: 0xFDFBF7,
+        roughness: 0.35,
+        metalness: 0.15
+      });
+
+      const rubberMat = new THREE.MeshStandardMaterial({
+        color: 0x181818,
+        roughness: 0.85,
+        metalness: 0.05
+      });
+
+      const amberLightMat = new THREE.MeshStandardMaterial({
+        color: 0xF59E0B,
+        emissive: 0xF59E0B,
+        emissiveIntensity: 0.8,
+        roughness: 0.2
+      });
+
+      const redLightMat = new THREE.MeshStandardMaterial({
+        color: 0xDC2626,
+        emissive: 0xDC2626,
+        emissiveIntensity: 0.8,
+        roughness: 0.2
+      });
+
+      // --- 1. CABIN UNIT ---
+      const cabGroup = new THREE.Group();
+
+      // Main cab body
+      const cabGeo = new THREE.BoxGeometry(2.4, 2.2, 2.5);
+      const cabMesh = new THREE.Mesh(cabGeo, cognacCabMat);
+      cabMesh.position.set(0, 1.6, 3.2);
+      cabGroup.add(cabMesh);
+
+      // Aerodynamic roof fairing (Sleeper wind deflector)
+      const fairingGeo = new THREE.BoxGeometry(2.3, 0.9, 2.2);
+      const fairingMesh = new THREE.Mesh(fairingGeo, cognacCabMat);
+      fairingMesh.position.set(0, 3.05, 3.1);
+      fairingMesh.rotation.x = -0.15;
+      cabGroup.add(fairingMesh);
+
+      // Windshield
+      const windshieldGeo = new THREE.BoxGeometry(2.2, 0.9, 0.08);
+      const windshield = new THREE.Mesh(windshieldGeo, glassMat);
+      windshield.position.set(0, 1.9, 4.46);
+      windshield.rotation.x = 0.18;
+      cabGroup.add(windshield);
+
+      // Side windows
+      const sideWindowGeo = new THREE.BoxGeometry(0.08, 0.7, 1.1);
+      const leftWindow = new THREE.Mesh(sideWindowGeo, glassMat);
+      leftWindow.position.set(-1.21, 1.9, 3.3);
+      cabGroup.add(leftWindow);
+      const rightWindow = leftWindow.clone();
+      rightWindow.position.x = 1.21;
+      cabGroup.add(rightWindow);
+
+      // Front Grille
+      const grilleGeo = new THREE.BoxGeometry(1.8, 0.9, 0.15);
+      const grille = new THREE.Mesh(grilleGeo, darkMetalMat);
+      grille.position.set(0, 1.15, 4.48);
+      cabGroup.add(grille);
+
+      // Chrome Grille Slats
+      for (let i = 0; i < 4; i++) {
+        const slatGeo = new THREE.BoxGeometry(1.6, 0.06, 0.18);
+        const slat = new THREE.Mesh(slatGeo, chromeMat);
+        slat.position.set(0, 0.95 + i * 0.18, 4.5);
+        cabGroup.add(slat);
+      }
+
+      // Front Bumper
+      const bumperGeo = new THREE.BoxGeometry(2.5, 0.45, 0.35);
+      const bumper = new THREE.Mesh(bumperGeo, darkMetalMat);
+      bumper.position.set(0, 0.55, 4.55);
+      cabGroup.add(bumper);
+
+      // Headlights
+      const headlightGeo = new THREE.BoxGeometry(0.35, 0.2, 0.1);
+      const leftHeadlight = new THREE.Mesh(headlightGeo, amberLightMat);
+      leftHeadlight.position.set(-0.95, 0.58, 4.7);
+      cabGroup.add(leftHeadlight);
+      const rightHeadlight = leftHeadlight.clone();
+      rightHeadlight.position.x = 0.95;
+      cabGroup.add(rightHeadlight);
+
+      // Sun Visor above windshield
+      const visorGeo = new THREE.BoxGeometry(2.35, 0.18, 0.3);
+      const visor = new THREE.Mesh(visorGeo, chromeMat);
+      visor.position.set(0, 2.45, 4.42);
+      visor.rotation.x = 0.3;
+      cabGroup.add(visor);
+
+      // Dual Chrome Exhaust Stacks
+      const pipeGeo = new THREE.CylinderGeometry(0.08, 0.08, 2.6, 16);
+      const leftPipe = new THREE.Mesh(pipeGeo, chromeMat);
+      leftPipe.position.set(-1.1, 2.8, 1.85);
+      cabGroup.add(leftPipe);
+      const rightPipe = leftPipe.clone();
+      rightPipe.position.x = 1.1;
+      cabGroup.add(rightPipe);
+
+      // Side Mirrors
+      const mirrorGeo = new THREE.BoxGeometry(0.12, 0.38, 0.18);
+      const leftMirror = new THREE.Mesh(mirrorGeo, chromeMat);
+      leftMirror.position.set(-1.35, 1.9, 3.8);
+      cabGroup.add(leftMirror);
+      const rightMirror = leftMirror.clone();
+      rightMirror.position.x = 1.35;
+      cabGroup.add(rightMirror);
+
+      truckGroup.add(cabGroup);
+
+      // --- 2. CHASSIS FRAME ---
+      const chassisGeo = new THREE.BoxGeometry(1.6, 0.25, 11.2);
+      const chassis = new THREE.Mesh(chassisGeo, darkMetalMat);
+      chassis.position.set(0, 0.58, -0.6);
+      truckGroup.add(chassis);
+
+      // Fuel Tanks
+      const tankGeo = new THREE.CylinderGeometry(0.32, 0.32, 1.8, 16);
+      tankGeo.rotateZ(Math.PI / 2);
+      const leftTank = new THREE.Mesh(tankGeo, chromeMat);
+      leftTank.position.set(-1.05, 0.6, 1.4);
+      truckGroup.add(leftTank);
+      const rightTank = leftTank.clone();
+      rightTank.position.x = 1.05;
+      truckGroup.add(rightTank);
+
+      // --- 3. CARGO CONTAINER ---
+      const containerGeo = new THREE.BoxGeometry(2.46, 2.9, 7.8);
+      const container = new THREE.Mesh(containerGeo, containerMat);
+      container.position.set(0, 2.15, -2.1);
+      truckGroup.add(container);
+
+      // Container Brand Stripe (Cognac)
+      const stripeGeo = new THREE.BoxGeometry(2.48, 0.28, 7.82);
+      const stripe = new THREE.Mesh(stripeGeo, cognacCabMat);
+      stripe.position.set(0, 2.15, -2.1);
+      truckGroup.add(stripe);
+
+      // Rear Door Frame & Tail Lights
+      const rearDoorFrame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.8, 0.1), darkMetalMat);
+      rearDoorFrame.position.set(0, 2.15, -6.02);
+      truckGroup.add(rearDoorFrame);
+
+      const leftTail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.08), redLightMat);
+      leftTail.position.set(-0.9, 0.65, -6.15);
+      truckGroup.add(leftTail);
+      const rightTail = leftTail.clone();
+      rightTail.position.x = 0.9;
+      truckGroup.add(rightTail);
+
+      // --- 4. WHEELS & AXLES ---
+      const wheelGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.32, 24);
+      wheelGeo.rotateZ(Math.PI / 2);
+      const rimGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.34, 16);
+      rimGeo.rotateZ(Math.PI / 2);
+
+      function createWheel(x, y, z) {
+        const wGroup = new THREE.Group();
+        const tire = new THREE.Mesh(wheelGeo, rubberMat);
+        const rim = new THREE.Mesh(rimGeo, chromeMat);
+        wGroup.add(tire);
+        wGroup.add(rim);
+        wGroup.position.set(x, y, z);
+        return wGroup;
+      }
+
+      // Front Steer Axle
+      truckGroup.add(createWheel(-1.08, 0.48, 3.4));
+      truckGroup.add(createWheel(1.08, 0.48, 3.4));
+
+      // Tractor Drive Axles
+      truckGroup.add(createWheel(-1.08, 0.48, 0.5));
+      truckGroup.add(createWheel(1.08, 0.48, 0.5));
+      truckGroup.add(createWheel(-1.08, 0.48, -0.7));
+      truckGroup.add(createWheel(1.08, 0.48, -0.7));
+
+      // Trailer Tandem Axles
+      truckGroup.add(createWheel(-1.08, 0.48, -3.8));
+      truckGroup.add(createWheel(1.08, 0.48, -3.8));
+      truckGroup.add(createWheel(-1.08, 0.48, -5.0));
+      truckGroup.add(createWheel(1.08, 0.48, -5.0));
+
+      truckGroup.scale.set(0.68, 0.68, 0.68);
+      truckGroup.position.set(0, -0.4, 0);
+      scene.add(truckGroup);
+
+      camera.position.set(0, 3.0, 13);
+      camera.lookAt(0, 1.2, 0);
+
+      // Interactive subtle tilt
+      let targetTiltX = 0;
+      let targetTiltY = 0;
+      window.addEventListener('mousemove', (e) => {
+        const nx = (e.clientX / window.innerWidth) * 2 - 1;
+        const ny = (e.clientY / window.innerHeight) * 2 - 1;
+        targetTiltX = nx * 0.12;
+        targetTiltY = -ny * 0.06;
+      }, { passive: true });
+
+      function onResize() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        if (w < 640) {
+          truckGroup.scale.set(0.52, 0.52, 0.52);
+          camera.position.set(0, 2.6, 15);
+        } else {
+          truckGroup.scale.set(0.68, 0.68, 0.68);
+          camera.position.set(0, 3.0, 13);
+        }
+      }
+      window.addEventListener('resize', onResize);
+      onResize();
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const elapsedTime = clock.getElapsedTime();
+
+        if (!prefersReducedMotion) {
+          // 360° Majestic continuous turntable rotation
+          truckGroup.rotation.y += 0.007;
+
+          // Gentle floating bob
+          truckGroup.position.y = -0.4 + Math.sin(elapsedTime * 0.9) * 0.12;
+
+          // Subtle interactive tilt
+          truckGroup.rotation.x += (targetTiltY - truckGroup.rotation.x) * 0.04;
+          truckGroup.rotation.z += (targetTiltX * 0.3 - truckGroup.rotation.z) * 0.04;
+        }
+
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      app.init();
+      initBackgroundTruck3D();
+    });
   </script>
 </body>
 </html>

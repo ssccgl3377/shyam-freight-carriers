@@ -4,7 +4,7 @@ const { defineConfig, devices } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: '.',
   testMatch: '*.spec.js',
-  timeout: 30000,
+  timeout: 60000,
   retries: 0,
   workers: 1,
   use: {

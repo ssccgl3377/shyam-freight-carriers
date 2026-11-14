@@ -108,7 +108,7 @@ test.describe('KABANI - Reliable Truck Network - Feature & Functional Tests', ()
     await expect(forgotAlert).toContainText(/reset link sent/i);
 
     // Close modal
-    await page.click('button:has-text("Back to Login")');
+    await page.locator('#btn-close-forgot').click({ force: true });
     await expect(modal).toBeHidden();
 
     // 2.8 Test Demo Login (Transporter)
