@@ -81,6 +81,8 @@
       min-height: 100vh;
       margin: 0;
       padding: 0;
+      /* Eliminate scroll lag: prevent mobile bounce overscroll */
+      overscroll-behavior: none;
     }
 
     /* Ambient Dynamic Floating Orbs (Warm Sunlight & Meadow Mist) */
@@ -183,15 +185,18 @@
     /* Glassmorphism Tier 2: Refined Card Glass with 60fps Scroll Optimization */
     .glass-card {
       background: rgba(255, 255, 255, 0.68) !important;
-      backdrop-filter: blur(16px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+      /* Scroll perf: reduce blur on cards; blur only applied via parent isolation */
+      backdrop-filter: blur(10px) saturate(140%) !important;
+      -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
       border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
       box-shadow: 
         inset 0 1px 2px 0 rgba(255, 255, 255, 0.9),
         0 14px 36px -8px rgba(46, 24, 14, 0.07) !important;
       transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
       transform: translateZ(0);
-      contain: layout style;
+      contain: layout style paint;
+      /* GPU layer promotion for each card */
+      will-change: transform;
     }
 
     .glass-card:hover {
@@ -680,6 +685,36 @@
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
       }
+    }
+
+    /* ===== SCROLL LAG PERFORMANCE FIXES =====
+       1. Promote scroll containers to compositor layers
+       2. Use isolation so backdrop-filter doesn't repaint parent
+       3. content-visibility for off-screen card batches
+    ======================================= */
+
+    /* Scroll containers get GPU compositing layer */
+    [id$="-view"] {
+      isolation: isolate;
+    }
+
+    /* Each bilty/load card: lightweight paint containment */
+    .bilty-card, .bencho-swipe-card-wrapper {
+      contain: layout style paint;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    /* Full-page scrollable panels - no backdrop-filter thrashing */
+    .scroll-container-gpu {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      overscroll-behavior-y: contain;
+    }
+
+    /* Reduce orb blur cost during heavy renders */
+    .orb {
+      filter: blur(80px); /* was 90px */
     }
   </style>
 </head>
@@ -1664,19 +1699,22 @@
 
       // Optimized 60fps Scroll Progress Tracker (Throttled with requestAnimationFrame)
       let isScrollTicking = false;
+      const updateScrollProgress = () => {
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
+        const bar = document.getElementById('scroll-progress-bar');
+        if (bar) bar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+        isScrollTicking = false;
+      };
       const setupScrollTracker = () => {
         window.addEventListener('scroll', () => {
           if (!isScrollTicking) {
-            window.requestAnimationFrame(() => {
-              const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-              const progress = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
-              const bar = document.getElementById('scroll-progress-bar');
-              if (bar) bar.style.width = `${progress}%`;
-              isScrollTicking = false;
-            });
+            window.requestAnimationFrame(updateScrollProgress);
             isScrollTicking = true;
           }
         }, { passive: true });
+        // Expose for Playwright test harness — allows direct trigger
+        window._updateScrollProgress = updateScrollProgress;
       };
 
       // Master Owner & Load Ownership Authorizations
@@ -2710,7 +2748,10 @@
         }
 
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+        // Cap at 1.0x on mobile (was 1.25x) — large DPR screens + backdrop-filter = frame drops
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 640 ? 1.0 : 1.25));
+        // Reduce shadow/overdraw cost — truck is a background element
+        renderer.shadowMap.enabled = false;
 
         // Warm Natural Studio Lighting matching Kraft / Beige Canvas
         const ambientLight = new THREE.AmbientLight(0xfff7ee, 1.45);
@@ -2861,66 +2902,92 @@
           c.width = 1024; c.height = 512;
           const ctx = c.getContext('2d');
 
-          // Top 32% (y: 0 to 164): Teal Green Ribbed Corrugated Metal
-          ctx.fillStyle = '#164E43'; ctx.fillRect(0, 0, 1024, 164);
-          for (let x = 0; x < 1024; x += 16) {
-            ctx.fillStyle = (Math.floor(x / 16) % 2 === 0) ? '#1E5E50' : '#114238';
-            ctx.fillRect(x, 0, 14, 164);
-            ctx.fillStyle = '#0A2621'; ctx.fillRect(x + 14, 0, 2, 164);
+          // Top 30% (y: 0 to 154): Teal Green Corrugated Metal — matches reference images
+          const greenGrad = ctx.createLinearGradient(0, 0, 0, 154);
+          greenGrad.addColorStop(0, '#1E5E50');
+          greenGrad.addColorStop(1, '#0E3D33');
+          ctx.fillStyle = greenGrad; ctx.fillRect(0, 0, 1024, 154);
+          // Horizontal corrugation ribs
+          for (let y = 8; y < 148; y += 18) {
+            ctx.fillStyle = 'rgba(255,255,255,0.07)'; ctx.fillRect(0, y, 1024, 9);
+            ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(0, y + 9, 1024, 4);
           }
-          ctx.fillStyle = '#0F332C'; ctx.fillRect(0, 0, 1024, 14);
-          ctx.fillStyle = '#5EEAD4'; ctx.fillRect(0, 14, 1024, 3);
-          ctx.fillStyle = '#0F332C'; ctx.fillRect(0, 160, 1024, 8);
+          // Top dark cap rail
+          ctx.fillStyle = '#0A2621'; ctx.fillRect(0, 0, 1024, 10);
+          ctx.fillStyle = '#5EEAD4'; ctx.fillRect(0, 10, 1024, 2);
+          // Bottom cap rail
+          ctx.fillStyle = '#0F332C'; ctx.fillRect(0, 148, 1024, 10);
 
-          // Bottom 68% (y: 168 to 512): Rich Weathered Indian Teak Timber Planks
-          ctx.fillStyle = '#5E3821'; ctx.fillRect(0, 168, 1024, 344);
-          for (let x = 0; x < 1024; x += 32) {
-            ctx.fillStyle = (Math.floor(x / 32) % 2 === 0) ? '#6B4026' : '#57331D';
-            ctx.fillRect(x, 168, 30, 344);
-            ctx.strokeStyle = '#381E10'; ctx.lineWidth = 2; ctx.strokeRect(x, 168, 30, 344);
+          // Bottom 70% (y: 158 to 512): Rich Weathered Indian Teak Timber Planks
+          // Base wood colour — warm mahogany
+          ctx.fillStyle = '#6B3D1E'; ctx.fillRect(0, 158, 1024, 354);
+          // Individual teak plank bands (horizontal)
+          const plankColors = ['#7A4425', '#5E3318', '#6B3D1E', '#7A4425', '#5A3015', '#6B3D1E'];
+          for (let y = 158, pi = 0; y < 512; y += 42, pi++) {
+            ctx.fillStyle = plankColors[pi % plankColors.length];
+            ctx.fillRect(0, y, 1024, 40);
+            // Plank grain lines
+            ctx.strokeStyle = 'rgba(40,15,5,0.4)'; ctx.lineWidth = 1;
+            for (let gx = 0; gx < 1024; gx += 70) {
+              ctx.beginPath(); ctx.moveTo(gx + Math.random() * 20, y); ctx.lineTo(gx + Math.random() * 20, y + 40); ctx.stroke();
+            }
+            // Plank seam
+            ctx.fillStyle = '#3A1A08'; ctx.fillRect(0, y + 40, 1024, 2);
           }
 
-          // Traditional Indian Folk Crests & Ornaments on Wood (matching Image 4 reference)
+          // Weathering — dark stains and age marks
+          ctx.fillStyle = 'rgba(30,10,0,0.08)'; ctx.fillRect(0, 158, 1024, 354);
+
+          // Traditional Indian Folk Crests & Ornaments on Wood
           function drawFolkEagle(cx, cy, scale) {
             ctx.save();
             ctx.translate(cx, cy);
             ctx.scale(scale, scale);
-            ctx.fillStyle = 'rgba(217, 119, 6, 0.45)';
+            ctx.fillStyle = 'rgba(217, 119, 6, 0.5)';
             ctx.beginPath();
-            ctx.moveTo(0, -20);
-            ctx.bezierCurveTo(25, -40, 50, -20, 60, 10);
-            ctx.bezierCurveTo(40, 5, 20, 15, 0, 5);
-            ctx.bezierCurveTo(-20, 15, -40, 5, -60, 10);
-            ctx.bezierCurveTo(-50, -20, -25, -40, 0, -20);
+            ctx.moveTo(0, -22);
+            ctx.bezierCurveTo(28, -44, 55, -22, 65, 12);
+            ctx.bezierCurveTo(44, 6, 22, 18, 0, 6);
+            ctx.bezierCurveTo(-22, 18, -44, 6, -65, 12);
+            ctx.bezierCurveTo(-55, -22, -28, -44, 0, -22);
             ctx.fill();
-            ctx.fillStyle = 'rgba(254, 240, 138, 0.6)';
-            ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(254, 240, 138, 0.65)';
+            ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI * 2); ctx.fill();
             ctx.strokeStyle = '#92400E'; ctx.lineWidth = 2; ctx.stroke();
             ctx.restore();
           }
-          drawFolkEagle(240, 260, 0.7);
-          drawFolkEagle(784, 260, 0.7);
+          drawFolkEagle(220, 320, 0.75);
+          drawFolkEagle(804, 320, 0.75);
 
-          // Traditional Painted Transport Insignia on Wood
+          // Brand name painted on wood
           ctx.save();
           ctx.fillStyle = 'rgba(245, 158, 11, 0.95)';
-          ctx.font = '900 38px "Arial Black", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText('SHYAM FREIGHT CARRIERS', 514, 335);
-          ctx.strokeStyle = '#1E1B4B'; ctx.lineWidth = 2.5; ctx.strokeText('SHYAM FREIGHT CARRIERS', 514, 335);
-          ctx.fillStyle = '#FEF08A'; ctx.fillText('SHYAM FREIGHT CARRIERS', 512, 333);
+          ctx.font = '900 40px "Arial Black", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.shadowColor = '#1E1B4B'; ctx.shadowBlur = 4;
+          ctx.fillText('SHYAM FREIGHT CARRIERS', 514, 355);
+          ctx.strokeStyle = '#1E1B4B'; ctx.lineWidth = 2.5; ctx.strokeText('SHYAM FREIGHT CARRIERS', 514, 355);
+          ctx.fillStyle = '#FEF08A'; ctx.fillText('SHYAM FREIGHT CARRIERS', 512, 353);
 
-          ctx.font = 'bold 18px sans-serif'; ctx.fillStyle = '#FFFFFF';
-          ctx.fillText('★ ALL INDIA PERMIT • KABANI RELIABLE NETWORK ★', 512, 385);
+          ctx.font = 'bold 17px sans-serif'; ctx.fillStyle = '#FFFFFF'; ctx.shadowBlur = 0;
+          ctx.fillText('★ ALL INDIA PERMIT • KABANI RELIABLE NETWORK ★', 512, 400);
           ctx.restore();
 
-          // Vertical Steel Reinforcement Straps & Rivet Bolts
+          // Vertical Steel Reinforcement Straps (10 per side, like reference images)
           for (let i = 0; i <= 9; i++) {
-            const sx = 50 + i * 102;
-            ctx.fillStyle = '#1E293B'; ctx.fillRect(sx - 4, 168, 8, 344);
-            for (let ry = 190; ry < 512; ry += 48) {
-              ctx.fillStyle = '#94A3B8'; ctx.beginPath(); ctx.arc(sx, ry, 3, 0, Math.PI * 2); ctx.fill();
+            const sx = 50 + i * 103;
+            // Strap itself — dark grey steel
+            ctx.fillStyle = '#1C2432'; ctx.fillRect(sx - 5, 158, 10, 354);
+            ctx.fillStyle = '#374151'; ctx.fillRect(sx - 3, 158, 3, 354);
+            // Strap rivets
+            for (let ry = 178; ry < 512; ry += 50) {
+              ctx.fillStyle = '#94A3B8'; ctx.beginPath(); ctx.arc(sx, ry, 4, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.arc(sx, ry, 2, 0, Math.PI * 2); ctx.fill();
             }
           }
+
+          // Bottom rub rail area — dark metal
+          ctx.fillStyle = '#1E293B'; ctx.fillRect(0, 490, 1024, 22);
+          ctx.fillStyle = '#374151'; ctx.fillRect(0, 490, 1024, 2);
 
           return new THREE.CanvasTexture(c);
         }
@@ -2986,16 +3053,16 @@
           return new THREE.CanvasTexture(c);
         }
 
-        // 7. Slotted Rub Rail Guard
+        // 7. Slotted Rub Rail Guard — dark steel grey (not green)
         function createSlottedRailTexture() {
           const c = document.createElement('canvas');
           c.width = 512; c.height = 64;
           const ctx = c.getContext('2d');
-          ctx.fillStyle = '#164E43'; ctx.fillRect(0, 0, 512, 64);
-          ctx.strokeStyle = '#0F332C'; ctx.lineWidth = 3; ctx.strokeRect(0, 0, 512, 64);
+          ctx.fillStyle = '#374151'; ctx.fillRect(0, 0, 512, 64);
+          ctx.strokeStyle = '#1F2937'; ctx.lineWidth = 3; ctx.strokeRect(0, 0, 512, 64);
           for (let x = 16; x < 500; x += 42) {
-            ctx.fillStyle = '#0A1E1A'; ctx.fillRect(x, 14, 26, 36);
-            ctx.strokeStyle = '#5EEAD4'; ctx.lineWidth = 1; ctx.strokeRect(x, 14, 26, 36);
+            ctx.fillStyle = '#111827'; ctx.fillRect(x, 14, 26, 36);
+            ctx.strokeStyle = '#6B7280'; ctx.lineWidth = 1; ctx.strokeRect(x, 14, 26, 36);
           }
           return new THREE.CanvasTexture(c);
         }
@@ -3081,14 +3148,15 @@
         cabGroup.add(sunVisor);
 
         // Three-Sided Crown Board ("GOODS CARRIER")
+        // crownLeft/crownRight: depth 0.6m (was 1.4m) — flush with cab rear, no wing overhang
         const crownFront = new THREE.Mesh(new THREE.BoxGeometry(2.36, 0.58, 0.08), crownFrontMat);
         crownFront.position.set(0, 3.48, 4.24);
         cabGroup.add(crownFront);
-        const crownLeft = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.58, 1.4), crownSideMat);
-        crownLeft.position.set(-1.18, 3.48, 3.54);
+        const crownLeft = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.58, 0.60), crownSideMat);
+        crownLeft.position.set(-1.18, 3.48, 3.94);
         cabGroup.add(crownLeft);
-        const crownRight = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.58, 1.4), crownSideMat);
-        crownRight.position.set(1.18, 3.48, 3.54);
+        const crownRight = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.58, 0.60), crownSideMat);
+        crownRight.position.set(1.18, 3.48, 3.94);
         cabGroup.add(crownRight);
 
         // Top Board Frame Rails
@@ -3246,7 +3314,8 @@
         cargoGroup.add(sidePanelR);
 
         // Solid Flat Green Roof cleanly capping the top border (NO FINS OR HANDS!)
-        const roofCover = new THREE.Mesh(new THREE.BoxGeometry(2.54, 0.08, 8.64), cabRoofGreenMat);
+        // Width 2.48 = exact match of side panel outer face spacing — zero overhang
+        const roofCover = new THREE.Mesh(new THREE.BoxGeometry(2.48, 0.10, 8.60), cabRoofGreenMat);
         roofCover.position.set(0, 3.87, -2.48);
         cargoGroup.add(roofCover);
 
@@ -3359,8 +3428,9 @@
         onResize();
 
         const clock = new THREE.Clock();
+        let animFrameId = null;
         function animate() {
-          requestAnimationFrame(animate);
+          animFrameId = requestAnimationFrame(animate);
           const elapsedTime = clock.getElapsedTime();
 
           if (!prefersReducedMotion && !window.pauseTruckRotation) {
@@ -3373,6 +3443,15 @@
           renderer.render(scene, camera);
         }
         animate();
+
+        // Pause Three.js rendering when tab is hidden — eliminates background GPU drain
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+          } else {
+            if (!animFrameId) animate();
+          }
+        });
       }
 
       document.addEventListener('DOMContentLoaded', () => {
