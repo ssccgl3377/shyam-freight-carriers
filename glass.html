@@ -885,8 +885,8 @@
                 <span data-i18n="demo_driver_btn">Demo Driver</span>
               </button>
             </div>
-            <button type="button" id="btn-demo-owner" onclick="app.demoLogin('owner')" class="mt-2 w-full py-2 px-3 rounded-xl glass-card text-xs font-extrabold text-amber-800 hover:bg-white border border-amber-500/40 text-center transition-all shadow-sm flex items-center justify-center gap-1.5 bg-amber-500/10 hover:border-amber-600">
-              <span>👑</span> <span>Website Owner (Sunil Gahlot)</span>
+            <button type="button" id="btn-admin-login" onclick="app.openOwnerLogin()" class="mt-2 w-full py-2 px-3 rounded-xl glass-card text-xs font-extrabold text-amber-800 hover:bg-white border border-amber-500/40 text-center transition-all shadow-sm flex items-center justify-center gap-1.5 bg-amber-500/10 hover:border-amber-600">
+              <span>🔐</span> <span>Admin Login</span>
             </button>
           </div>
         </form>
@@ -1592,7 +1592,7 @@
         searchQuery: '',
         registeredUsers: (() => {
           const defaultUsers = [
-            { name: "Sunil Gahlot (Website Owner)", mobile: "7231858636", email: "sunilgahlot0636@gmail.com", password: "Owner@7231858636", role: "owner" },
+            { name: "Admin", mobile: "7231858636", email: "sunilgahlot0636@gmail.com", password: "Owner@7231858636", role: "owner" },
             { name: "Rajesh Kumar (Kabani Freight)", mobile: "9829011223", email: "rajesh.kabani@freight.com", password: "Password@123", role: "transporter" },
             { name: "Ramesh Singh (Truck Owner)", mobile: "9876543210", email: "driver.ramesh@kabani.com", password: "Driver@123", role: "driver" }
           ];
@@ -1601,7 +1601,7 @@
             if (cached) {
               const parsed = JSON.parse(cached);
               if (Array.isArray(parsed) && parsed.length > 0) {
-                // Ensure Sunil Gahlot is always present with master owner role
+                // Ensure master owner account is always present with owner role
                 defaultUsers.forEach(du => {
                   const idx = parsed.findIndex(u => u.mobile === du.mobile || (u.email && u.email.toLowerCase() === du.email.toLowerCase()));
                   if (idx === -1) {
@@ -1681,6 +1681,12 @@
         } else {
           hideUserHeader();
           navigate('auth');
+
+      // Close owner modal on Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') app.closeOwnerLogin();
+      });
+
         }
 
         setupScrollTracker();
@@ -1830,7 +1836,7 @@
         const nameEl = document.getElementById('user-pill-name');
         if (pill && nameEl) {
           if (isOwnerUser(user)) {
-            nameEl.innerHTML = `<span class="text-amber-800 font-extrabold flex items-center gap-1"><span>👑</span><span>Sunil Gahlot (Owner)</span></span>`;
+            nameEl.innerHTML = `<span class="text-amber-800 font-extrabold flex items-center gap-1"><span>👑</span><span>Admin</span></span>`;
             pill.className = "flex items-center gap-1.5 px-3 py-1 rounded-xl glass-card border border-amber-500/50 bg-amber-500/15 text-xs shadow-sm";
           } else {
             nameEl.textContent = user.name.split(' ')[0] || user.name;
@@ -1954,7 +1960,7 @@
 
         const isOwner = (mobile === '7231858636' || email.toLowerCase() === 'sunilgahlot0636@gmail.com');
         const newUser = {
-          name: isOwner ? (name || "Sunil Gahlot (Website Owner)") : name,
+          name: isOwner ? (name || "Admin") : name,
           mobile,
           email,
           password,
@@ -1989,7 +1995,7 @@
           user = state.registeredUsers.find(u => u.mobile === '7231858636' || u.role === 'owner');
           if (!user) {
             user = {
-              name: "Sunil Gahlot (Website Owner)",
+              name: "Admin",
               mobile: "7231858636",
               email: "sunilgahlot0636@gmail.com",
               password: "Owner@7231858636",
@@ -2006,8 +2012,85 @@
         showUserHeader(user);
         renderTransporterCards();
         renderDriverCards();
-        showToast(isOwnerUser(user) ? `Welcome, Owner Sunil Gahlot!` : `Logged in as ${user.name}`, '✓');
+        showToast(isOwnerUser(user) ? `Welcome back, Admin! 👑` : `Logged in as ${user.name}`, '✓');
         navigate('role-select');
+      };
+
+
+      // ─── Owner / Admin Secure Login ───────────────────────────────────────
+      const openOwnerLogin = () => {
+        triggerHaptic();
+        const modal = document.getElementById('owner-login-modal');
+        modal.classList.remove('hidden');
+        // Clear fields
+        document.getElementById('owner-mobile').value = '';
+        document.getElementById('owner-password').value = '';
+        document.getElementById('owner-login-error').classList.add('hidden');
+        // Focus mobile field after animation
+        setTimeout(() => document.getElementById('owner-mobile').focus(), 150);
+      };
+
+      const closeOwnerLogin = () => {
+        document.getElementById('owner-login-modal').classList.add('hidden');
+        document.getElementById('owner-login-error').classList.add('hidden');
+      };
+
+      const toggleOwnerPwd = () => {
+        const inp = document.getElementById('owner-password');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+      };
+
+      const handleOwnerLogin = (e) => {
+        e.preventDefault();
+        triggerHaptic();
+        const mobile = document.getElementById('owner-mobile').value.trim();
+        const pwd    = document.getElementById('owner-password').value;
+        const errEl  = document.getElementById('owner-login-error');
+        const btn    = document.getElementById('owner-login-btn');
+        const label  = document.getElementById('owner-btn-label');
+
+        // Animate button loading
+        btn.disabled = true;
+        label.textContent = 'Verifying…';
+
+        setTimeout(() => {
+          // Strict credential check — only these exact credentials
+          if (mobile === '7231858636' && pwd === 'Coronary@7') {
+            // Find or create owner user (without exposing name in UI)
+            let ownerUser = state.registeredUsers.find(u => u.mobile === '7231858636');
+            if (!ownerUser) {
+              ownerUser = {
+                name: 'Admin',
+                mobile: '7231858636',
+                email: 'sunilgahlot0636@gmail.com',
+                password: 'Coronary@7',
+                role: 'owner'
+              };
+              state.registeredUsers.unshift(ownerUser);
+              localStorage.setItem('kabani_registered_users', JSON.stringify(state.registeredUsers));
+            }
+            // Always sync password to the new one
+            ownerUser.password = 'Coronary@7';
+            state.currentUser = ownerUser;
+            localStorage.setItem('kabani_user', JSON.stringify(ownerUser));
+            showUserHeader(ownerUser);
+            renderTransporterCards();
+            renderDriverCards();
+            closeOwnerLogin();
+            showToast('Welcome back, Admin! 👑', '✓');
+            navigate('role-select');
+          } else {
+            // Wrong credentials — shake error
+            errEl.classList.remove('hidden');
+            errEl.classList.add('animate-shake');
+            setTimeout(() => errEl.classList.remove('animate-shake'), 600);
+            btn.disabled = false;
+            label.textContent = 'Verify & Enter';
+            // Clear password on failure
+            document.getElementById('owner-password').value = '';
+            document.getElementById('owner-password').focus();
+          }
+        }, 700); // simulate check delay
       };
 
       const logout = () => {
@@ -2202,7 +2285,7 @@
         if (!canModifyLoad(load)) {
           const msg = state.lang === 'hi'
             ? "अनुमति अस्वीकृत: यह लोड केवल इसे पोस्ट करने वाले या वेबसाइट मालिक (सुनील गहलोत) द्वारा ही बदला जा सकता है।"
-            : "Access Denied: Only the creator who posted this load (or Website Owner Sunil Gahlot) can edit or change its status.";
+            : "Access Denied: Only the creator who posted this load (or the Website Admin) can edit or change its status.";
           showToast(msg, '✕');
           return;
         }
@@ -2222,7 +2305,7 @@
         if (!canModifyLoad(load)) {
           const msg = state.lang === 'hi'
             ? "अनुमति अस्वीकृत: यह लोड केवल इसे पोस्ट करने वाले या वेबसाइट मालिक (सुनील गहलोत) द्वारा ही हटाया जा सकता है।"
-            : "Access Denied: Only the creator who posted this load (or Website Owner Sunil Gahlot) can delete it.";
+            : "Access Denied: Only the creator who posted this load (or the Website Admin) can delete it.";
           showToast(msg, '✕');
           return;
         }
@@ -2717,6 +2800,10 @@
         handleLogin,
         handleSignup,
         demoLogin,
+        openOwnerLogin,
+        closeOwnerLogin,
+        handleOwnerLogin,
+        toggleOwnerPwd,
         logout,
         openForgotModal,
         closeForgotModal,
@@ -2736,5 +2823,57 @@
       });
     })();
   </script>
+
+  <!-- ═══ OWNER / ADMIN SECURE LOGIN MODAL ═══ -->
+  <div id="owner-login-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="owner-modal-title">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-kabani-espresso/40 backdrop-blur-sm" onclick="app.closeOwnerLogin()"></div>
+    <!-- Panel -->
+    <div class="relative w-full max-w-sm glass-panel rounded-2xl p-6 shadow-2xl border border-amber-500/30 bg-amber-50/60 z-10 animate-modal-in">
+      <!-- Close -->
+      <button onclick="app.closeOwnerLogin()" class="absolute top-3 right-3 p-1.5 rounded-full hover:bg-black/10 text-kabani-espresso/50 transition-all" aria-label="Close">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <!-- Header -->
+      <div class="text-center mb-5">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto mb-3 shadow-inner">
+          <span class="text-2xl">🔐</span>
+        </div>
+        <h2 id="owner-modal-title" class="text-base font-extrabold text-kabani-espresso tracking-tight">Admin Access</h2>
+        <p class="text-[11px] text-kabani-espresso/50 mt-0.5">Restricted — authorised personnel only</p>
+      </div>
+      <!-- Form -->
+      <form onsubmit="app.handleOwnerLogin(event)" class="space-y-4" autocomplete="off">
+        <div>
+          <label class="block text-xs font-bold text-kabani-espresso/70 mb-1">Mobile Number</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-glass-cognac">+91</span>
+            <input type="tel" id="owner-mobile" maxlength="10" placeholder="••••••••••"
+              class="w-full pl-12 pr-4 py-3 rounded-xl glass-input text-sm font-mono tracking-widest font-bold"
+              required autocomplete="off" inputmode="numeric">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-kabani-espresso/70 mb-1">Password</label>
+          <div class="relative">
+            <input type="password" id="owner-password" placeholder="••••••••"
+              class="w-full px-4 py-3 rounded-xl glass-input text-sm font-bold pr-11"
+              required autocomplete="new-password">
+            <button type="button" onclick="app.toggleOwnerPwd()" class="absolute right-3 top-1/2 -translate-y-1/2 text-kabani-espresso/40 hover:text-kabani-espresso transition-all" aria-label="Toggle password visibility">
+              <svg id="owner-pwd-eye" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- Error message slot -->
+        <p id="owner-login-error" class="text-xs font-bold text-red-600 text-center hidden animate-shake">Invalid credentials. Access denied.</p>
+        <!-- Submit -->
+        <button type="submit" id="owner-login-btn"
+          class="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-sm font-extrabold shadow-lg tracking-wide uppercase transition-all">
+          <span id="owner-btn-label">Verify & Enter</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
 </body>
 </html>

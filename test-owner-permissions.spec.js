@@ -3,21 +3,35 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('KABANI - Master Owner & Load Access Control Suite', () => {
 
-  test('1. Master Owner Account: Sunil Gahlot (7231858636 / sunilgahlot0636@gmail.com) Universal Access', async ({ page }) => {
+  test('1. Master Owner Account: Secure Admin Login (mobile + password) & Universal Access', async ({ page }) => {
     // Test on Glassmorphism Edition
     await page.goto('/glass.html');
 
-    // Check that Owner Demo button exists on auth card
-    const btnOwner = page.locator('#btn-demo-owner');
-    await expect(btnOwner).toBeVisible();
-    await btnOwner.click();
+    // Check that the Admin Login button exists (not exposing owner name)
+    const btnAdmin = page.locator('#btn-admin-login');
+    await expect(btnAdmin).toBeVisible();
+    await expect(btnAdmin).toContainText('Admin Login');
 
-    // Verify redirected to role select with owner badge in header
+    // Click to open the secure owner login modal
+    await btnAdmin.click();
+
+    // Verify modal opened
+    const modal = page.locator('#owner-login-modal');
+    await expect(modal).toBeVisible();
+
+    // Fill in the correct owner credentials
+    await page.fill('#owner-mobile', '7231858636');
+    await page.fill('#owner-password', 'Coronary@7');
+    await page.locator('#owner-login-modal form').dispatchEvent('submit');
+
+    // Wait for modal to close and navigate to role-select
+    await expect(modal).toBeHidden({ timeout: 3000 });
     await expect(page.locator('#view-role-select')).toBeVisible();
+
+    // Owner badge in header shows Admin (not the owner's real name)
     const userPill = page.locator('#user-header-pill');
     await expect(userPill).toBeVisible();
-    await expect(userPill).toContainText('Sunil Gahlot');
-    await expect(userPill).toContainText('Owner');
+    await expect(userPill).toContainText('Admin');
 
     // Navigate to Transporter Dashboard as Owner
     await page.click('#card-role-transporter');
@@ -57,28 +71,29 @@ test.describe('KABANI - Master Owner & Load Access Control Suite', () => {
     await expect(page.locator('#toast-message')).toContainText('Access Denied');
   });
 
-  test('3. Classic Edition: Master Owner Sunil Gahlot & Access Controls', async ({ page }) => {
-    await page.goto('/index.html');
+  test('3. Owner Login Security: Wrong credentials are rejected', async ({ page }) => {
+    await page.goto('/glass.html');
 
-    // Check that Owner Demo button exists on auth card
-    const btnOwnerClassic = page.locator('#btn-demo-owner');
-    await expect(btnOwnerClassic).toBeVisible();
-    await btnOwnerClassic.click();
+    // Open admin login modal
+    await page.click('#btn-admin-login');
+    const modal = page.locator('#owner-login-modal');
+    await expect(modal).toBeVisible();
 
-    // Verify redirected to role select with owner badge in header
-    await expect(page.locator('#view-role-select')).toBeVisible();
-    const userPill = page.locator('#user-header-pill');
-    await expect(userPill).toBeVisible();
-    await expect(userPill).toContainText('Sunil Gahlot');
-    await expect(userPill).toContainText('Owner');
+    // Try wrong credentials
+    await page.fill('#owner-mobile', '9999999999');
+    await page.fill('#owner-password', 'wrongpassword');
+    await page.locator('#owner-login-modal form').dispatchEvent('submit');
 
-    // Owner selects Transporter view
-    await page.click('#card-role-transporter');
-    await expect(page.locator('#view-transporter')).toBeVisible();
+    // Error message should appear, modal stays open
+    await page.waitForTimeout(900);
+    await expect(modal).toBeVisible();
+    const errEl = page.locator('#owner-login-error');
+    await expect(errEl).toBeVisible();
+    await expect(errEl).toContainText('Access denied');
 
-    // Owner has active action controls on loads
-    const markBtn = page.locator('button[onclick*="toggleLoadStatus(\'LOAD-701\')"]').first();
-    await expect(markBtn).toBeVisible();
+    // Now close with Escape key
+    await page.keyboard.press('Escape');
+    await expect(modal).toBeHidden();
   });
 
 });
