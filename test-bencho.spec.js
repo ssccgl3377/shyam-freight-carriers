@@ -117,8 +117,8 @@ test.describe('KABANI - Bencho Micro-Interactions Suite (press, slide, swipe, ty
     await page.goto(GLASS_URL);
     await page.waitForLoadState('domcontentloaded');
 
-    // 6.1 Check 3D Canvas
-    const canvas = page.locator('#bg-truck-canvas');
+    // 6.1 Check 3D Truck iframe background
+    const canvas = page.locator('#bg-truck-iframe-wrap');
     await expect(canvas).toBeVisible();
 
     // 6.2 Check Glass panels with blur

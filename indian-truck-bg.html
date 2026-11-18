@@ -1,0 +1,2434 @@
+<!DOCTYPE html>
+<!--
+================================================================================
+ANTIGRAVITY AI CODING AGENT — BACKGROUND 3D INDIAN TRUCK INTEGRATION GUIDE
+================================================================================
+This self-contained file renders the Ultra-HD 3D Indian Highway Truck with
+continuous 360° auto-rotation (`state.turntable = true`) designed to run as an
+ambient 3D website background.
+
+HOW ANTIGRAVITY CAN ADD THIS TO AN EXISTING WEBSITE:
+Option A (Drop-in Background Iframe — Fastest & Zero CSS/JS Conflicts):
+  Place this file in your public/static folder as `indian_truck_bg.html` and add:
+  <iframe
+    src="/indian_truck_bg.html?bg=transparent"
+    style="position:fixed; inset:0; width:100vw; height:100vh; border:0; z-index:-1; pointer-events:none;"
+    allow="autoplay"
+    title="3D Indian Truck Background"
+  ></iframe>
+
+Option B (Direct DOM Container Mount in React / Next.js / Vite / Plain HTML):
+  1. Ensure Three.js (r128) is loaded on the page.
+  2. Create a background container:
+     <div id="canvas-container" style="position:fixed; inset:0; width:100vw; height:100vh; z-index:-1; pointer-events:none;"></div>
+  3. Call `window.IndianTruckBackground.mount(document.getElementById('canvas-container'), {
+       livery: 'classic',       // 'classic' | 'shyam' | 'tricolor'
+       cargoMode: 'tarpaulin',  // 'tarpaulin' | 'sacks' | 'open'
+       transparentBg: true,     // true = transparent canvas over your site's CSS background
+       showRoad: false,         // false = floating rotating 3D truck only; true = with highway road
+       rotationSpeed: 0.45,     // radians/sec continuous Y-axis rotation
+       speed: 45                // wheel spin & tassel breeze speed
+     });`
+================================================================================
+-->
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authentic Indian Highway Truck 3D Studio — Detailed 3D Model</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; user-select: none; }
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent !important; color: #fafaf9; }
+    #canvas-container { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+    .glass-panel {
+      background: rgba(20, 17, 15, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(245, 158, 11, 0.22);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+    }
+    .ctrl-btn {
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ctrl-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(245, 158, 11, 0.6);
+    }
+    .ctrl-btn.active {
+      background: linear-gradient(135deg, #ea580c 0%, #d97706 100%);
+      color: #fff;
+      border-color: #fbbf24;
+      box-shadow: 0 0 16px rgba(234, 88, 12, 0.45);
+    }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.35); border-radius: 9999px; }
+    input[type="range"] {
+      accent-color: #f59e0b;
+    }
+    @keyframes pulse-border {
+      0%, 100% { border-color: rgba(245, 158, 11, 0.35); }
+      50% { border-color: rgba(245, 158, 11, 0.85); }
+    }
+    .horn-btn {
+      animation: pulse-border 2.2s infinite;
+    }
+  </style>
+</head>
+<body class="relative w-full h-full overflow-hidden">
+
+  <!-- 3D WebGL Viewport (Auto-Rotating Background Canvas) -->
+  <div id="canvas-container"></div>
+
+  <!-- Discreet Floating Pill for Background Mode / Studio Controls / Antigravity Copy -->
+  <div id="bg-mode-pill" class="fixed top-3 left-3 z-20 flex flex-wrap items-center gap-2 pointer-events-auto">
+    <button id="btn-toggle-studio-ui" onclick="toggleStudioUI()" class="ctrl-btn glass-panel px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-200 border border-amber-500/40 flex items-center gap-2 shadow-lg">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+      <span id="studio-ui-label">🛠️ Show Studio Controls</span>
+    </button>
+    <button id="btn-toggle-transparent" onclick="toggleTransparentBackground()" class="ctrl-btn glass-panel px-3 py-1.5 rounded-xl text-xs font-semibold text-stone-200 border border-stone-700/80 shadow-lg">
+      🌌 Mode: Isolated 3D Background
+    </button>
+    <button id="btn-copy-antigravity" onclick="copyAntigravityEmbedCode()" class="ctrl-btn glass-panel px-3 py-1.5 rounded-xl text-xs font-bold text-amber-300 border border-amber-400/50 shadow-lg">
+      📋 Copy Antigravity Embed Prompt &amp; Code
+    </button>
+  </div>
+
+  <!-- Studio UI Wrapper (Hidden by default so the file acts as a pure auto-rotating background) -->
+  <div id="studio-ui-wrapper" class="hidden">
+
+  <!-- Top Header & Camera Presets Bar -->
+  <header class=" relative z-10 pointer-events-none flex flex-wrap items-center justify-between gap-2 p-3 sm:p-4">
+    <div class="glass-panel pointer-events-auto rounded-2xl px-3.5 py-2.5 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-red-700 flex items-center justify-center shadow-lg border border-amber-300/40 font-extrabold text-white text-sm tracking-wider">
+        NP
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-sm sm:text-base font-bold tracking-tight text-amber-50">Indian Highway Truck 3D</h1>
+          <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">2515 Heavy Multi-Axle</span>
+        </div>
+        <p class="text-[11px] text-stone-300 hidden sm:block">Hand-Painted Taj Crown • Corrugated Kabani Body • Nazar Battu &amp; Folk Art</p>
+      </div>
+    </div>
+
+    <!-- Camera Viewpoint Presets -->
+    <div class="glass-panel pointer-events-auto rounded-2xl p-1.5 flex items-center gap-1 overflow-x-auto max-w-full custom-scroll">
+      <button id="cam-iso" onclick="setCameraPreset('iso')" class="ctrl-btn active text-xs font-medium px-2.5 py-1.5 rounded-xl border border-transparent text-stone-200 whitespace-nowrap">
+        3/4 Highway
+      </button>
+      <button id="cam-front" onclick="setCameraPreset('front')" class="ctrl-btn text-xs font-medium px-2.5 py-1.5 rounded-xl border border-transparent text-stone-200 whitespace-nowrap">
+        Front Taj &amp; Bumper
+      </button>
+      <button id="cam-side" onclick="setCameraPreset('side')" class="ctrl-btn text-xs font-medium px-2.5 py-1.5 rounded-xl border border-transparent text-stone-200 whitespace-nowrap">
+        Side Profile
+      </button>
+      <button id="cam-rear" onclick="setCameraPreset('rear')" class="ctrl-btn text-xs font-medium px-2.5 py-1.5 rounded-xl border border-transparent text-stone-200 whitespace-nowrap">
+        Rear "Horn OK Please"
+      </button>
+      <button id="cam-cabin" onclick="setCameraPreset('cabin')" class="ctrl-btn text-xs font-medium px-2.5 py-1.5 rounded-xl border border-transparent text-stone-200 whitespace-nowrap">
+        Cabin &amp; Jaali
+      </button>
+      <button id="cam-chassis" onclick="setCameraPreset('chassis')" class="ctrl-btn text-xs font-medium px-2.5 py-1.5 rounded-xl border border-transparent text-stone-200 whitespace-nowrap">
+        Kabani Chassis
+      </button>
+    </div>
+  </header>
+
+  <!-- Right Collapsible Inspector & Customization Drawer -->
+  <aside id="inspector-panel" class="fixed right-3 top-20 bottom-20 z-10 w-72 sm:w-80 glass-panel rounded-2xl flex flex-col overflow-hidden transition-transform duration-300">
+    <!-- Panel Header -->
+    <div class="px-4 py-3 border-b border-amber-500/20 flex items-center justify-between bg-stone-950/40">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-amber-200">3D Studio &amp; Shringar Controls</h2>
+      </div>
+      <button onclick="toggleInspector()" class="text-xs text-stone-400 hover:text-white px-2 py-0.5 rounded bg-stone-800/70" title="Minimize Panel">
+        Hide
+      </button>
+    </div>
+
+    <!-- Scrollable Controls -->
+    <div class="p-3.5 space-y-4 overflow-y-auto custom-scroll flex-1 text-xs">
+
+      <!-- Livery & Style Presets -->
+      <div>
+        <label class="block text-[11px] font-semibold uppercase tracking-wider text-amber-300/90 mb-2">1. Truck Livery &amp; Body Style</label>
+        <div class="grid grid-cols-1 gap-1.5">
+          <button id="livery-classic" onclick="setLivery('classic')" class="ctrl-btn active text-left px-3 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-amber-100">Classic National Permit (Red-Orange)</div>
+              <div class="text-[10px] text-stone-400">White Cab • Ornate Taj • Corrugated Dala</div>
+            </div>
+            <span class="w-4 h-4 rounded-full bg-orange-600 border border-white"></span>
+          </button>
+          <button id="livery-shyam" onclick="setLivery('shyam')" class="ctrl-btn text-left px-3 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-amber-100">Rajasthani Shringar (Shyam Freight)</div>
+              <div class="text-[10px] text-stone-400">Cream &amp; Brown Cab • Gold/Green Folk Art</div>
+            </div>
+            <span class="w-4 h-4 rounded-full bg-amber-700 border border-amber-200"></span>
+          </button>
+          <button id="livery-tricolor" onclick="setLivery('tricolor')" class="ctrl-btn text-left px-3 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-amber-100">Bharat Highway Tiranga Edition</div>
+              <div class="text-[10px] text-stone-400">Saffron-White-Green Cargo + Ashoka Chakra</div>
+            </div>
+            <span class="w-4 h-4 rounded-full bg-gradient-to-b from-orange-500 via-white to-green-600 border border-stone-400"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cargo Load & Tirpal Mode -->
+      <div>
+        <label class="block text-[11px] font-semibold uppercase tracking-wider text-amber-300/90 mb-2">2. Cargo Bay &amp; Tirpal (Tarpaulin)</label>
+        <div class="grid grid-cols-3 gap-1.5">
+          <button id="cargo-tarpaulin" onclick="setCargoMode('tarpaulin')" class="ctrl-btn active px-2 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 text-center font-medium">
+            Roped Tirpal
+          </button>
+          <button id="cargo-sacks" onclick="setCargoMode('sacks')" class="ctrl-btn px-2 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 text-center font-medium">
+            Grain Sacks
+          </button>
+          <button id="cargo-open" onclick="setCargoMode('open')" class="ctrl-btn px-2 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 text-center font-medium">
+            Open Dala
+          </button>
+        </div>
+      </div>
+
+      <!-- Authentic Decorative Elements Toggles -->
+      <div>
+        <label class="block text-[11px] font-semibold uppercase tracking-wider text-amber-300/90 mb-2">3. Authentic Decorative Elements</label>
+        <div class="grid grid-cols-2 gap-1.5">
+          <button id="tog-taj" onclick="toggleFeature('taj')" class="ctrl-btn active px-2.5 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 flex items-center justify-between">
+            <span>Roof Taj Crown</span>
+            <span class="text-[10px] font-bold">ON</span>
+          </button>
+          <button id="tog-tassels" onclick="toggleFeature('tassels')" class="ctrl-btn active px-2.5 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 flex items-center justify-between">
+            <span>Nazar Battu Choti</span>
+            <span class="text-[10px] font-bold">ON</span>
+          </button>
+          <button id="tog-garlands" onclick="toggleFeature('garlands')" class="ctrl-btn active px-2.5 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 flex items-center justify-between">
+            <span>Marigold &amp; Pom-Poms</span>
+            <span class="text-[10px] font-bold">ON</span>
+          </button>
+          <button id="tog-poles" onclick="toggleFeature('poles')" class="ctrl-btn active px-2.5 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 flex items-center justify-between">
+            <span>Bumper Guide Poles</span>
+            <span class="text-[10px] font-bold">ON</span>
+          </button>
+          <button id="tog-doors" onclick="toggleFeature('doors')" class="ctrl-btn px-2.5 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 flex items-center justify-between">
+            <span>Open Cab Doors</span>
+            <span class="text-[10px] font-bold">OFF</span>
+          </button>
+          <button id="tog-tailgate" onclick="toggleFeature('tailgate')" class="ctrl-btn px-2.5 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 flex items-center justify-between">
+            <span>Drop Rear Dala</span>
+            <span class="text-[10px] font-bold">OFF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Lighting & Time of Day -->
+      <div>
+        <label class="block text-[11px] font-semibold uppercase tracking-wider text-amber-300/90 mb-2">4. Highway Time &amp; Lighting</label>
+        <div class="grid grid-cols-3 gap-1.5">
+          <button id="env-day" onclick="setEnvironment('day')" class="ctrl-btn active px-2 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 text-center font-medium">
+            ☀️ Noon Sun
+          </button>
+          <button id="env-sunset" onclick="setEnvironment('sunset')" class="ctrl-btn px-2 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 text-center font-medium">
+            🌇 Kesariya Dusk
+          </button>
+          <button id="env-night" onclick="setEnvironment('night')" class="ctrl-btn px-2 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 text-center font-medium">
+            🌙 Night LEDs
+          </button>
+        </div>
+      </div>
+
+      <!-- Motion, Steering & Electricals -->
+      <div class="space-y-2.5 pt-1 border-t border-stone-800">
+        <div class="flex items-center justify-between">
+          <span class="text-stone-300 font-medium">Highway Cruise Speed</span>
+          <span id="speed-readout" class="text-amber-400 font-bold">55 km/h</span>
+        </div>
+        <input id="speed-slider" type="range" min="0" max="100" value="55" oninput="updateSpeed(this.value)" class="w-full h-1.5 bg-stone-700 rounded-lg cursor-pointer" />
+
+        <div class="flex items-center justify-between">
+          <span class="text-stone-300 font-medium">Front Axle Steering</span>
+          <span id="steer-readout" class="text-amber-400 font-bold">0°</span>
+        </div>
+        <input id="steer-slider" type="range" min="-28" max="28" value="0" oninput="updateSteering(this.value)" class="w-full h-1.5 bg-stone-700 rounded-lg cursor-pointer" />
+
+        <div class="grid grid-cols-3 gap-1.5 pt-1">
+          <button id="tog-headlights" onclick="toggleFeature('headlights')" class="ctrl-btn active px-2 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 text-center font-medium">
+            💡 Headlamps
+          </button>
+          <button id="tog-hazards" onclick="toggleFeature('hazards')" class="ctrl-btn active px-2 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 text-center font-medium">
+            ⚠️ Blinkers
+          </button>
+          <button id="tog-wipers" onclick="toggleFeature('wipers')" class="ctrl-btn px-2 py-2 rounded-xl border border-stone-700/80 bg-stone-900/60 text-center font-medium">
+            🌧️ Wipers
+          </button>
+        </div>
+      </div>
+
+      <!-- Export & Reference Actions -->
+      <div class="pt-2 border-t border-stone-800 flex flex-col gap-1.5">
+        <button onclick="exportOBJModel()" class="ctrl-btn w-full py-2 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 border border-amber-500/30 text-amber-200 font-semibold flex items-center justify-center gap-2">
+          <span>⬇️ Export 3D Mesh (.OBJ)</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Floating Re-open Button when Inspector is Hidden -->
+  <button id="show-inspector-btn" onclick="toggleInspector()" class="hidden fixed right-4 top-20 z-10 glass-panel px-3.5 py-2 rounded-xl text-xs font-bold text-amber-300 border border-amber-500/40 shadow-lg">
+    ⚙️ Customize Truck
+  </button>
+
+  <!-- Bottom Interactive Action Bar -->
+  <footer class="fixed bottom-3 left-3 right-3 z-10 pointer-events-none flex flex-wrap items-center justify-between gap-2">
+    <!-- Left Status Pill -->
+    <div class="glass-panel pointer-events-auto rounded-2xl px-3.5 py-2 flex items-center gap-3 text-xs">
+      <div class="flex items-center gap-1.5">
+        <span class="text-stone-400">Drag:</span>
+        <span class="text-stone-100 font-medium">360° Orbit</span>
+      </div>
+      <span class="text-stone-600">|</span>
+      <div class="flex items-center gap-1.5">
+        <span class="text-stone-400">Scroll:</span>
+        <span class="text-stone-100 font-medium">Zoom Detail</span>
+      </div>
+      <span class="text-stone-600 hidden sm:inline">|</span>
+      <div id="mesh-stats" class="hidden sm:flex items-center gap-1.5 text-amber-300/90 font-medium">
+        10-Wheeler • 4K Shadows & Bump Maps • Ultra-HD
+      </div>
+    </div>
+
+    <!-- Right Quick Actions: Musical Air Horn & Auto-Turntable -->
+    <div class="glass-panel pointer-events-auto rounded-2xl p-1.5 flex items-center gap-2">
+      <button id="btn-horn" onclick="playMusicalTruckHorn()" class="horn-btn ctrl-btn px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-stone-950 font-extrabold text-xs tracking-wide flex items-center gap-1.5 shadow-lg">
+        <span>🎺</span>
+        <span>HORN OK PLEASE</span>
+      </button>
+      <button id="tog-turntable" onclick="toggleFeature('turntable')" class="ctrl-btn active px-3 py-2 rounded-xl border border-stone-700 bg-stone-900/80 text-xs font-semibold text-stone-200">
+        🔄 Auto-Rotate
+      </button>
+    </div>
+  </footer>
+  </div><!-- /#studio-ui-wrapper -->
+
+  <!-- Toast Notification -->
+  <div id="toast-msg" class="fixed top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none opacity-0 transition-opacity duration-300 glass-panel px-4 py-2 rounded-xl text-xs font-semibold text-amber-200 border border-amber-400/50">
+    Action applied
+  </div>
+
+  <script>
+    // =========================================================================
+    // STATE & CONFIGURATION
+    // =========================================================================
+    const state = {
+      livery: 'shyam',         // 'classic' | 'shyam' | 'tricolor' — Shyam Freight Carriers livery
+      cargoMode: 'tarpaulin',  // 'tarpaulin' | 'sacks' | 'open'
+      environment: 'day',      // 'day' | 'sunset' | 'night'
+      speed: 0,                // 0 = no road animation (pure turntable background mode)
+      steeringAngle: 0,        // -28 to +28 deg
+      taj: true,
+      tassels: true,
+      garlands: true,
+      poles: true,
+      doors: false,
+      tailgate: false,
+      headlights: true,
+      hazards: true,
+      wipers: false,
+      turntable: true,         // Auto-rotates continuously for website background
+      rotationSpeed: 0.38,     // Smooth, immersive turntable speed for background use
+      transparentBg: true,     // Isolated background mode — transparent over site's CSS background
+      studioUIVisible: false,  // Hidden by default — pure clean background
+      inspectorOpen: false
+    };
+
+    // Global Three.js references
+    let scene, camera, renderer, controls, clock;
+    let truckRoot, chassisGroup, cabinGroup, cargoGroup, tajGroup, tasselsGroup, garlandsGroup, polesGroup;
+    let tarpaulinGroup, sacksGroup, leftDoorPivot, rightDoorPivot, tailgatePivot;
+    let wiperLeftPivot, wiperRightPivot;
+    let wheelMeshes = [];
+    let frontSteerPivots = [];
+    let tasselPendulums = [];
+    let hazardLightMeshes = [];
+    let markerLightMeshes = [];
+    let headlightCones = [];
+    let headlightSpotL, headlightSpotR, ambientLight, sunLight, hemiLight, cabinInteriorLight;
+    let roadMesh, roadTex, groundMesh, kerbGroupRef, envSkyMesh;
+
+    // Materials updated on livery switch
+    let matCabMain, matCargoSide, matCrownFront, matTailgateArt, matBumperArt, matBrowArt;
+    let matHeadlineEmissive, matHazardEmissive, matTailEmissive, matMarkerEmissive;
+
+    // =========================================================================
+    // PROCEDURAL HIGH-RES CANVAS TEXTURE GENERATORS (INDIAN TRUCK FOLK ART)
+    // =========================================================================
+
+    let maxAnisotropy = 8;
+
+    function configureHDTexture(canvas, repeatX = 1, repeatY = 1, isColor = true) {
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.anisotropy = maxAnisotropy;
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      if (isColor) {
+        tex.encoding = THREE.sRGBEncoding;
+      }
+      if (repeatX !== 1 || repeatY !== 1) {
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+        tex.repeat.set(repeatX, repeatY);
+      }
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    function createCorrugatedBumpTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#808080';
+      ctx.fillRect(0, 0, 512, 1024);
+      for (let y = 130; y < 850; y += 28) {
+        const g = ctx.createLinearGradient(0, y, 0, y + 28);
+        g.addColorStop(0.0, '#303030');
+        g.addColorStop(0.35, '#d8d8d8');
+        g.addColorStop(0.7, '#ffffff');
+        g.addColorStop(1.0, '#303030');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, y, 512, 28);
+      }
+      return configureHDTexture(c, 1, 1, false);
+    }
+
+    function createTarpaulinBumpTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#808080';
+      ctx.fillRect(0, 0, 1024, 1024);
+      for (let y = 0; y < 1024; y += 6) {
+        ctx.fillStyle = (y % 12 === 0) ? '#9a9a9a' : '#686868';
+        ctx.fillRect(0, y, 1024, 3);
+      }
+      for (let x = 0; x < 1024; x += 6) {
+        ctx.fillStyle = (x % 12 === 0) ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
+        ctx.fillRect(x, 0, 3, 1024);
+      }
+      return configureHDTexture(c, 4, 3, false);
+    }
+
+    function createTireTreadBumpTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#303030';
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.fillStyle = '#e5e5e5';
+      for (let y = 0; y < 512; y += 24) {
+        ctx.fillRect(28, y + 4, 110, 14);
+        ctx.fillRect(156, y + 10, 92, 14);
+        ctx.fillRect(264, y + 4, 92, 14);
+        ctx.fillRect(374, y + 10, 110, 14);
+      }
+      return configureHDTexture(c, 1, 8, false);
+    }
+
+    function createProceduralEnvMap(renderer) {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0, 0, 0, 512);
+      g.addColorStop(0.0, '#1d4ed8');
+      g.addColorStop(0.35, '#93c5fd');
+      g.addColorStop(0.49, '#fef3c7');
+      g.addColorStop(0.51, '#92400e');
+      g.addColorStop(1.0, '#292524');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 1024, 512);
+
+      // Sun disc reflection highlight
+      const sunGrad = ctx.createRadialGradient(760, 140, 8, 760, 140, 95);
+      sunGrad.addColorStop(0, 'rgba(255,255,255,1)');
+      sunGrad.addColorStop(0.3, 'rgba(254,240,138,0.85)');
+      sunGrad.addColorStop(1, 'rgba(254,240,138,0)');
+      ctx.fillStyle = sunGrad;
+      ctx.fillRect(650, 30, 220, 220);
+
+      const equirectTex = new THREE.CanvasTexture(c);
+      equirectTex.mapping = THREE.EquirectangularReflectionMapping;
+      equirectTex.encoding = THREE.sRGBEncoding;
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      pmrem.compileEquirectangularShader();
+      const envRT = pmrem.fromEquirectangular(equirectTex);
+      equirectTex.dispose();
+      pmrem.dispose();
+      return envRT.texture;
+    }
+
+    function drawLotus(ctx, cx, cy, scale, petalColor = '#f43f5e', centerColor = '#facc15') {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(scale, scale);
+      const angles = [-0.85, -0.45, 0, 0.45, 0.85];
+      angles.forEach((a, idx) => {
+        ctx.save();
+        ctx.rotate(a);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-18, -22, -14, -52, 0, -65);
+        ctx.bezierCurveTo(14, -52, 18, -22, 0, 0);
+        ctx.fillStyle = idx === 2 ? '#fb7185' : petalColor;
+        ctx.fill();
+        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = '#fef08a';
+        ctx.stroke();
+        ctx.restore();
+      });
+      // Lotus base pad
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 26, 8, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#16a34a';
+      ctx.fill();
+      ctx.strokeStyle = '#fef08a';
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, -16, 8, 0, Math.PI * 2);
+      ctx.fillStyle = centerColor;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawPeacockMotif(ctx, cx, cy, scale, flip = 1) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(scale * flip, scale);
+      // Tail feathers fan
+      for (let i = -3; i <= 3; i++) {
+        ctx.save();
+        ctx.rotate(i * 0.22 - 0.4);
+        ctx.beginPath();
+        ctx.ellipse(0, -38, 9, 32, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#15803d';
+        ctx.fill();
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, -54, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#1d4ed8';
+        ctx.fill();
+        ctx.restore();
+      }
+      // Body & neck
+      ctx.beginPath();
+      ctx.ellipse(8, -10, 14, 20, 0.3, 0, Math.PI * 2);
+      ctx.fillStyle = '#1e40af';
+      ctx.fill();
+      ctx.strokeStyle = '#fde047';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Beak
+      ctx.beginPath();
+      ctx.moveTo(18, -28);
+      ctx.lineTo(30, -24);
+      ctx.lineTo(18, -20);
+      ctx.closePath();
+      ctx.fillStyle = '#f97316';
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function createTajCrownTexture(livery) {
+      const c = document.createElement('canvas');
+      c.width = 2048;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      ctx.scale(2, 2);
+
+      // Rich yellow/gold background with ornate red & green borders
+      const grad = ctx.createLinearGradient(0, 0, 0, 256);
+      grad.addColorStop(0, '#f59e0b');
+      grad.addColorStop(0.5, '#facc15');
+      grad.addColorStop(1, '#eab308');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1024, 256);
+
+      // Outer ornate frame
+      ctx.lineWidth = 14;
+      ctx.strokeStyle = '#dc2626';
+      ctx.strokeRect(10, 10, 1004, 236);
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = '#15803d';
+      ctx.strokeRect(24, 24, 976, 208);
+
+      // Decorative scalloped corner panels
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(32, 32, 230, 192);
+      ctx.fillRect(762, 32, 230, 192);
+
+      // Center shrine medallion
+      ctx.fillStyle = '#991b1b';
+      ctx.beginPath();
+      ctx.roundRect(412, 30, 200, 196, 24);
+      ctx.fill();
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = '#fef08a';
+      ctx.stroke();
+
+      drawLotus(ctx, 512, 145, 1.35);
+      drawPeacockMotif(ctx, 145, 155, 1.25, 1);
+      drawPeacockMotif(ctx, 879, 155, 1.25, -1);
+
+      // Bold 3D drop-shadow highway lettering
+      ctx.textAlign = 'center';
+      ctx.font = '900 54px Inter, sans-serif';
+      const leftText = livery === 'shyam' ? 'SHYAM' : 'ALL INDIA';
+      const rightText = livery === 'shyam' ? 'CARRIERS' : 'PERMIT';
+
+      // Shadow
+      ctx.fillStyle = '#0f172a';
+      ctx.fillText(leftText, 275, 148);
+      ctx.fillText(rightText, 755, 148);
+      // Main Fill
+      ctx.fillStyle = '#dc2626';
+      ctx.fillText(leftText, 271, 144);
+      ctx.fillText(rightText, 751, 144);
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#ffffff';
+      ctx.strokeText(leftText, 271, 144);
+      ctx.strokeText(rightText, 751, 144);
+
+      // Top/bottom Hindi blessing text
+      ctx.font = '800 26px Inter, sans-serif';
+      ctx.fillStyle = '#fef08a';
+      ctx.fillText(livery === 'shyam' ? 'श्री श्याम फ्रेट कैरियर' : 'जय बाबा की • K.G.N.', 512, 66);
+
+      return configureHDTexture(c, 1, 1, true);
+    }
+
+    function createWindshieldBrowTexture(livery) {
+      const c = document.createElement('canvas');
+      c.width = 2048;
+      c.height = 320;
+      const ctx = c.getContext('2d');
+      ctx.scale(2, 2);
+
+      ctx.fillStyle = '#064e3b';
+      ctx.fillRect(0, 0, 1024, 160);
+
+      // Gold & orange trim stripes
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(8, 8, 1008, 144);
+
+      ctx.textAlign = 'center';
+      ctx.font = '900 44px Inter, sans-serif';
+      ctx.fillStyle = '#f97316';
+      ctx.fillText('GOODS', 210, 98);
+      ctx.fillText('CARRIER', 814, 98);
+
+      ctx.fillStyle = '#fef08a';
+      ctx.font = '900 46px Inter, sans-serif';
+      ctx.fillText(livery === 'shyam' ? 'KABANI' : 'K.G.N.', 512, 98);
+
+      drawLotus(ctx, 365, 105, 0.85);
+      drawLotus(ctx, 659, 105, 0.85);
+
+      return configureHDTexture(c, 1, 1, true);
+    }
+
+    function createCabinFrontTexture(livery) {
+      const c = document.createElement('canvas');
+      c.width = 2048;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      ctx.scale(2, 2);
+
+      // Base cabin color
+      ctx.fillStyle = livery === 'shyam' ? '#fef3c7' : '#f8fafc';
+      ctx.fillRect(0, 0, 1024, 512);
+
+      // Upper green/red decorative waist band
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(0, 0, 1024, 52);
+      ctx.fillStyle = '#dc2626';
+      ctx.fillRect(0, 52, 1024, 16);
+
+      // Iconic blue & red chevron wings above the grille (like Reference Photo 1)
+      const drawWing = (cx, dir) => {
+        ctx.save();
+        ctx.translate(cx, 125);
+        ctx.scale(dir, 1);
+        // Red stripe
+        ctx.fillStyle = '#dc2626';
+        ctx.beginPath();
+        ctx.moveTo(0, -18);
+        ctx.lineTo(180, -18);
+        ctx.lineTo(220, 22);
+        ctx.lineTo(165, 22);
+        ctx.lineTo(135, -4);
+        ctx.lineTo(0, -4);
+        ctx.closePath();
+        ctx.fill();
+        // Blue stripe
+        ctx.fillStyle = '#1d4ed8';
+        ctx.beginPath();
+        ctx.moveTo(0, 4);
+        ctx.lineTo(125, 4);
+        ctx.lineTo(155, 28);
+        ctx.lineTo(0, 28);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      };
+      drawWing(380, -1);
+      drawWing(644, 1);
+
+      // Center calligraphy badge ("1613" / "शुभ लाभ")
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#dc2626';
+      ctx.font = '900 32px Inter, sans-serif';
+      ctx.fillText('शुभ ★ लाभ', 512, 38);
+      ctx.fillStyle = '#15803d';
+      ctx.font = '900 28px Inter, sans-serif';
+      ctx.fillText('SE 2515 TC', 512, 132);
+
+      // Lower louvered grille lines on side panels
+      ctx.fillStyle = '#cbd5e1';
+      for (let y = 210; y <= 350; y += 22) {
+        ctx.fillRect(190, y, 135, 10);
+        ctx.fillRect(699, y, 135, 10);
+      }
+
+      // Bottom decorative multi-color trim
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(0, 455, 1024, 24);
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(0, 479, 1024, 33);
+
+      return configureHDTexture(c, 1, 1, true);
+    }
+
+    function createBumperTexture() {
+      const c = document.createElement('canvas');
+      c.width = 2048;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      ctx.scale(2, 2);
+
+      // Vibrant green & yellow base
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(0, 0, 1024, 256);
+
+      // Red & white high-visibility retro-reflective checkerboard border (Reference Photo 1)
+      const sq = 24;
+      for (let x = 0; x < 1024; x += sq) {
+        ctx.fillStyle = (Math.floor(x / sq) % 2 === 0) ? '#dc2626' : '#ffffff';
+        ctx.fillRect(x, 0, sq, sq);
+        ctx.fillRect(x, 256 - sq, sq, sq);
+      }
+
+      // Center slatted yellow/orange bars
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(280, 42, 464, 32);
+      ctx.fillStyle = '#ea580c';
+      ctx.fillRect(280, 92, 464, 32);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(280, 142, 464, 32);
+
+      // Yellow Commercial Number Plate (RJ 13 GA 2515)
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(372, 178, 280, 52);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#0f172a';
+      ctx.strokeRect(372, 178, 280, 52);
+      ctx.fillStyle = '#0f172a';
+      ctx.textAlign = 'center';
+      ctx.font = '900 32px Inter, sans-serif';
+      ctx.fillText('RJ 13 GA 2515', 512, 215);
+
+      return configureHDTexture(c, 1, 1, true);
+    }
+
+    function createCargoSideTexture(livery) {
+      const c = document.createElement('canvas');
+      c.width = 4096;
+      c.height = 2048;
+      const ctx = c.getContext('2d');
+      ctx.scale(2, 2);
+
+      if (livery === 'tricolor') {
+        // Indian Flag Tricolor Livery (Reference Photo 2)
+        ctx.fillStyle = '#FF671F'; // Saffron
+        ctx.fillRect(0, 0, 2048, 340);
+        ctx.fillStyle = '#FFFFFF'; // White
+        ctx.fillRect(0, 340, 2048, 344);
+        ctx.fillStyle = '#046A38'; // India Green
+        ctx.fillRect(0, 684, 2048, 340);
+
+        // 24-Spoke Ashoka Chakra in Navy Blue
+        const cx = 1024, cy = 512, r = 142;
+        ctx.save();
+        ctx.strokeStyle = '#06038D';
+        ctx.fillStyle = '#06038D';
+        ctx.lineWidth = 14;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 24, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 5;
+        for (let i = 0; i < 24; i++) {
+          const ang = (i * Math.PI * 2) / 24;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + Math.cos(ang) * r, cy + Math.sin(ang) * r);
+          ctx.stroke();
+        }
+        ctx.restore();
+      } else {
+        // Classic Corrugated Rust-Orange / Terracotta Cargo Body (Reference Photos 1 & 3)
+        const bodyColor = livery === 'shyam' ? '#9a3412' : '#c2410c';
+        ctx.fillStyle = bodyColor;
+        ctx.fillRect(0, 130, 2048, 720);
+
+        // White painted top wooden rail (Reference Photo 1)
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(0, 0, 2048, 130);
+        ctx.fillStyle = '#15803d';
+        ctx.fillRect(0, 112, 2048, 18);
+
+        // Horizontal corrugated metal shading lines
+        for (let y = 150; y < 830; y += 28) {
+          ctx.fillStyle = 'rgba(0,0,0,0.18)';
+          ctx.fillRect(0, y, 2048, 8);
+          ctx.fillStyle = 'rgba(255,255,255,0.08)';
+          ctx.fillRect(0, y + 8, 2048, 6);
+        }
+
+        // Diagonal tricolor/festival garland stripe across the ribs (Reference Photo 1)
+        ctx.save();
+        ctx.lineWidth = 14;
+        ctx.strokeStyle = '#22c55e';
+        ctx.beginPath();
+        ctx.moveTo(180, 740);
+        ctx.lineTo(1950, 320);
+        ctx.stroke();
+        ctx.strokeStyle = '#facc15';
+        ctx.beginPath();
+        ctx.moveTo(180, 756);
+        ctx.lineTo(1950, 336);
+        ctx.stroke();
+        ctx.restore();
+
+        // Lower white skirt with "MC" reflectors & geometric triangles (Reference Photo 3)
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(0, 820, 2048, 32);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(0, 852, 2048, 172);
+
+        // Geometric red/green/yellow triangles along bottom skirt
+        for (let x = 40; x < 2000; x += 140) {
+          ctx.fillStyle = '#dc2626';
+          ctx.beginPath();
+          ctx.moveTo(x, 995);
+          ctx.lineTo(x + 45, 935);
+          ctx.lineTo(x + 90, 995);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = '#0f172a';
+          ctx.font = '800 28px Inter, sans-serif';
+          ctx.fillText('◄MC►', x + 15, 905);
+        }
+
+        // Authentic Badges between ribs (Reference Photo 3: Road Highway logo, NP National Permit, Tiranga Shield, "K")
+        // 1. Highway Logo Circle
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(360, 620, 82, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = '#0f172a';
+        ctx.stroke();
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '900 30px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('ALL INDIA', 360, 605);
+        ctx.fillText('HIGHWAY', 360, 645);
+
+        // 2. NP (National Permit) Shield
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(1020, 520, 170, 230);
+        ctx.strokeStyle = '#dc2626';
+        ctx.lineWidth = 8;
+        ctx.strokeRect(1020, 520, 170, 230);
+        ctx.fillStyle = '#15803d';
+        ctx.beginPath();
+        ctx.arc(1105, 600, 56, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 56px Inter, sans-serif';
+        ctx.fillText('NP', 1105, 620);
+        ctx.fillStyle = '#dc2626';
+        ctx.font = '900 26px Inter, sans-serif';
+        ctx.fillText('NATIONAL', 1105, 695);
+        ctx.fillText('PERMIT', 1105, 728);
+
+        // 3. Indian Flag Emblem & Company Name
+        ctx.fillStyle = '#FF671F';
+        ctx.fillRect(1420, 550, 160, 42);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(1420, 592, 160, 42);
+        ctx.fillStyle = '#046A38';
+        ctx.fillRect(1420, 634, 160, 42);
+        ctx.strokeStyle = '#fef08a';
+        ctx.lineWidth = 5;
+        ctx.strokeRect(1420, 550, 160, 126);
+
+        // Bold "K" / "SHYAM" stencil
+        ctx.fillStyle = '#fef08a';
+        ctx.font = '900 130px Inter, sans-serif';
+        ctx.fillText(livery === 'shyam' ? 'S' : 'K', 1750, 685);
+      }
+
+      return configureHDTexture(c, 1, 1, true);
+    }
+
+    function createRearTailgateTexture(livery) {
+      const c = document.createElement('canvas');
+      c.width = 2048;
+      c.height = 2048;
+      const ctx = c.getContext('2d');
+      ctx.scale(2, 2);
+
+      // Deep rich wooden/painted background
+      ctx.fillStyle = '#7c2d12';
+      ctx.fillRect(0, 0, 1024, 1024);
+
+      // Ornate yellow/green border frame
+      ctx.lineWidth = 22;
+      ctx.strokeStyle = '#facc15';
+      ctx.strokeRect(18, 18, 988, 988);
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = '#16a34a';
+      ctx.strokeRect(42, 42, 940, 940);
+
+      // Top arch banner
+      ctx.fillStyle = '#fef08a';
+      ctx.beginPath();
+      ctx.roundRect(70, 70, 884, 210, 30);
+      ctx.fill();
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = '#dc2626';
+      ctx.stroke();
+
+      drawPeacockMotif(ctx, 180, 195, 1.45, 1);
+      drawPeacockMotif(ctx, 844, 195, 1.45, -1);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#15803d';
+      ctx.font = '900 44px Inter, sans-serif';
+      ctx.fillText(livery === 'shyam' ? 'श्री श्याम फ्रेट कैरियर' : 'मेरा भारत महान', 512, 145);
+      ctx.fillStyle = '#dc2626';
+      ctx.font = '900 36px Inter, sans-serif';
+      ctx.fillText('BLOW HORN • KEEP DISTANCE', 512, 225);
+
+      // Center Iconic "HORN OK PLEASE" Panel
+      ctx.fillStyle = '#064e3b';
+      ctx.fillRect(70, 310, 884, 380);
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(70, 310, 884, 380);
+
+      // "OK" Lotus Medallion in Center
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath();
+      ctx.arc(512, 500, 115, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = '#fef08a';
+      ctx.stroke();
+
+      drawLotus(ctx, 512, 465, 1.35);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 84px Inter, sans-serif';
+      ctx.fillText('OK', 512, 565);
+
+      // "HORN" and "PLEASE" flanking the OK medallion
+      ctx.fillStyle = '#facc15';
+      ctx.font = '900 76px Inter, sans-serif';
+      ctx.fillText('HORN', 235, 525);
+      ctx.fillText('PLEASE', 790, 525);
+
+      // Bottom "Use Dipper at Night" & "Buri Nazar Wale Tera Muh Kala"
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(70, 725, 884, 115);
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '900 48px Inter, sans-serif';
+      ctx.fillText('बुरी नज़र वाले तेरा मुँह काला', 512, 800);
+
+      // Red & White reflective hazard tape at bottom
+      const sq = 42;
+      for (let x = 70; x < 954; x += sq) {
+        ctx.fillStyle = (Math.floor(x / sq) % 2 === 0) ? '#dc2626' : '#ffffff';
+        ctx.fillRect(x, 875, sq, 65);
+      }
+
+      return configureHDTexture(c, 1, 1, true);
+    }
+
+    function createTarpaulinTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      ctx.scale(2, 2);
+      ctx.fillStyle = '#4d4c38'; // Heavy olive-brown canvas tirpal (Reference Photo 3)
+      ctx.fillRect(0, 0, 512, 512);
+      // Canvas weave & folds
+      for (let i = 0; i < 1800; i++) {
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.05)';
+        ctx.fillRect(Math.random() * 512, Math.random() * 512, 18, 3);
+      }
+      return configureHDTexture(c, 3, 2, true);
+    }
+
+    function createHighwayRoadTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+      ctx.scale(2, 2);
+      ctx.fillStyle = '#262626';
+      ctx.fillRect(0, 0, 512, 512);
+      // Asphalt grain
+      for (let i = 0; i < 4000; i++) {
+        const v = 30 + Math.floor(Math.random() * 25);
+        ctx.fillStyle = `rgb(${v},${v},${v})`;
+        ctx.fillRect(Math.random() * 512, Math.random() * 512, 3, 3);
+      }
+      // White dashed lane dividers
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 48, 512, 10);
+      ctx.fillRect(0, 454, 512, 10);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(60, 250, 180, 12);
+      ctx.fillRect(320, 250, 140, 12);
+
+      return configureHDTexture(c, 12, 3, true);
+    }
+
+    // =========================================================================
+    // 3D SCENE & AUTHENTIC INDIAN TRUCK BUILDER
+    // =========================================================================
+
+    function initScene() {
+      const container = document.getElementById('canvas-container');
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x7dd3fc);
+      scene.fog = new THREE.FogExp2(0xbae6fd, 0.0085);
+
+      camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 300);
+      camera.position.set(11.5, 4.4, 9.5);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 3));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.12;
+      renderer.physicallyCorrectLights = false;
+      maxAnisotropy = Math.min(renderer.capabilities.getMaxAnisotropy() || 8, 16);
+      scene.environment = createProceduralEnvMap(renderer);
+      container.appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.target.set(0, 2.0, 0);
+      controls.maxPolarAngle = Math.PI / 2 - 0.01;
+      controls.minDistance = 4.2;
+      controls.maxDistance = 32;
+
+      clock = new THREE.Clock();
+
+      // Lighting Setup
+      ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+      scene.add(ambientLight);
+
+      hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x78350f, 0.65);
+      scene.add(hemiLight);
+
+      sunLight = new THREE.DirectionalLight(0xfffbeb, 1.55);
+      sunLight.position.set(18, 26, 16);
+      sunLight.castShadow = true;
+      sunLight.shadow.mapSize.width = 4096;
+      sunLight.shadow.mapSize.height = 4096;
+      sunLight.shadow.camera.near = 2;
+      sunLight.shadow.camera.far = 55;
+      const d = 9.5;
+      sunLight.shadow.camera.left = -d;
+      sunLight.shadow.camera.right = d;
+      sunLight.shadow.camera.top = d;
+      sunLight.shadow.camera.bottom = -d;
+      sunLight.shadow.bias = -0.0002;
+      sunLight.shadow.normalBias = 0.025;
+      scene.add(sunLight);
+
+      const rimLight = new THREE.DirectionalLight(0xbae6fd, 0.52);
+      rimLight.position.set(-16, 12, -14);
+      scene.add(rimLight);
+
+      buildHighwayEnvironment();
+      buildIndianTruckModel();
+
+      // Check URL params (?studio=1 or ?bg=highway)
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('studio') === '1') {
+          state.studioUIVisible = true;
+        }
+        if (params.get('bg') === 'highway') {
+          state.transparentBg = false;
+        }
+        if (params.get('livery')) {
+          setLivery(params.get('livery'));
+        }
+        if (params.get('ui') === '0') {
+          const pill = document.getElementById('bg-mode-pill');
+          if (pill) pill.style.display = 'none';
+        }
+      } catch (e) {}
+
+      applyBackgroundIsolationMode();
+      // Always hide the control pill in iframe/background embed mode
+      const pill = document.getElementById('bg-mode-pill');
+      if (pill) pill.style.display = 'none';
+      // Apply Shyam Freight livery on first render
+      if (state.livery !== 'classic') setLivery(state.livery);
+      window.addEventListener('resize', onWindowResize);
+      animate();
+    }
+
+    function buildHighwayEnvironment() {
+      // Highway Asphalt Strip
+      roadTex = createHighwayRoadTexture();
+      const roadGeo = new THREE.PlaneGeometry(160, 20);
+      const roadMat = new THREE.MeshStandardMaterial({
+        map: roadTex,
+        roughness: 0.85,
+        metalness: 0.05
+      });
+      roadMesh = new THREE.Mesh(roadGeo, roadMat);
+      roadMesh.rotation.x = -Math.PI / 2;
+      roadMesh.receiveShadow = true;
+      scene.add(roadMesh);
+
+      // Desert / Highway Shoulder Terrain
+      const groundGeo = new THREE.PlaneGeometry(300, 300);
+      const groundMat = new THREE.MeshStandardMaterial({
+        color: 0xd6b588,
+        roughness: 0.95
+      });
+      groundMesh = new THREE.Mesh(groundGeo, groundMat);
+      groundMesh.rotation.x = -Math.PI / 2;
+      groundMesh.position.y = -0.03;
+      groundMesh.receiveShadow = true;
+      scene.add(groundMesh);
+
+      // Highway Concrete Median Kerb (Black & White Blocks like Reference Photo 1)
+      const kerbGroup = new THREE.Group();
+      kerbGroupRef = kerbGroup;
+      const blkMat = new THREE.MeshStandardMaterial({ color: 0x171717, roughness: 0.7 });
+      const whtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 });
+      const kGeo = new THREE.BoxGeometry(1.5, 0.28, 0.45);
+      for (let i = -30; i < 30; i++) {
+        const m = new THREE.Mesh(kGeo, i % 2 === 0 ? blkMat : whtMat);
+        m.position.set(i * 1.5, 0.14, -6.2);
+        m.castShadow = true;
+        m.receiveShadow = true;
+        kerbGroup.add(m);
+      }
+      scene.add(kerbGroup);
+    }
+
+    // =========================================================================
+    // DETAILED 10-WHEELER INDIAN HIGHWAY TRUCK CONSTRUCTION
+    // =========================================================================
+    function buildIndianTruckModel() {
+      truckRoot = new THREE.Group();
+      scene.add(truckRoot);
+
+      chassisGroup = new THREE.Group();
+      cabinGroup = new THREE.Group();
+      cargoGroup = new THREE.Group();
+      tajGroup = new THREE.Group();
+      tasselsGroup = new THREE.Group();
+      garlandsGroup = new THREE.Group();
+      polesGroup = new THREE.Group();
+      tarpaulinGroup = new THREE.Group();
+      sacksGroup = new THREE.Group();
+
+      truckRoot.add(chassisGroup);
+      truckRoot.add(cabinGroup);
+      truckRoot.add(cargoGroup);
+      truckRoot.add(tajGroup);
+      truckRoot.add(tasselsGroup);
+      truckRoot.add(garlandsGroup);
+      truckRoot.add(polesGroup);
+
+      // Shared Textured & PBR Materials
+      matCabMain = new THREE.MeshStandardMaterial({
+        map: createCabinFrontTexture(state.livery),
+        roughness: 0.35,
+        metalness: 0.12
+      });
+      matCargoSide = new THREE.MeshStandardMaterial({
+        map: createCargoSideTexture(state.livery),
+        bumpMap: createCorrugatedBumpTexture(),
+        bumpScale: 0.032,
+        roughness: 0.44,
+        metalness: 0.22,
+        envMapIntensity: 0.85
+      });
+      matCrownFront = new THREE.MeshStandardMaterial({
+        map: createTajCrownTexture(state.livery),
+        roughness: 0.4,
+        metalness: 0.1
+      });
+      matBrowArt = new THREE.MeshStandardMaterial({
+        map: createWindshieldBrowTexture(state.livery),
+        roughness: 0.4,
+        metalness: 0.1
+      });
+      matBumperArt = new THREE.MeshStandardMaterial({
+        map: createBumperTexture(),
+        roughness: 0.35,
+        metalness: 0.25
+      });
+      matTailgateArt = new THREE.MeshStandardMaterial({
+        map: createRearTailgateTexture(state.livery),
+        roughness: 0.45,
+        metalness: 0.15
+      });
+
+      const matDarkSteel = new THREE.MeshStandardMaterial({ color: 0x1c1917, roughness: 0.45, metalness: 0.72, envMapIntensity: 1.0 });
+      const matChrome = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.08, metalness: 0.96, envMapIntensity: 1.45 });
+      const matGreenTrim = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.4, metalness: 0.15 });
+      const matYellowTrim = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.38, metalness: 0.15 });
+      const matRedTrim = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.38, metalness: 0.15 });
+      const matWood = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.75, metalness: 0.05 });
+      const matGlass = new THREE.MeshPhysicalMaterial({
+        color: 0xdbeafe,
+        transparent: true,
+        opacity: 0.42,
+        roughness: 0.08,
+        metalness: 0.1,
+        reflectivity: 0.9
+      });
+
+      matHeadlineEmissive = new THREE.MeshStandardMaterial({
+        color: 0xfef9c3,
+        emissive: 0xfef08a,
+        emissiveIntensity: 1.8,
+        roughness: 0.1
+      });
+      matHazardEmissive = new THREE.MeshStandardMaterial({
+        color: 0xf59e0b,
+        emissive: 0xf59e0b,
+        emissiveIntensity: 1.5
+      });
+      matTailEmissive = new THREE.MeshStandardMaterial({
+        color: 0xef4444,
+        emissive: 0xdc2626,
+        emissiveIntensity: 1.4
+      });
+      matMarkerEmissive = new THREE.MeshStandardMaterial({
+        color: 0xfbbf24,
+        emissive: 0xf59e0b,
+        emissiveIntensity: 1.6
+      });
+
+      // -----------------------------------------------------------------------
+      // 1. HEAVY LADDER FRAME CHASSIS ("KABANI"), SUSPENSION & AXLES
+      // -----------------------------------------------------------------------
+      const railGeo = new THREE.BoxGeometry(9.6, 0.24, 0.12);
+      const railL = new THREE.Mesh(railGeo, matDarkSteel);
+      railL.position.set(0, 0.88, 0.48);
+      railL.castShadow = true;
+      const railR = railL.clone();
+      railR.position.z = -0.48;
+      chassisGroup.add(railL, railR);
+
+      // Cross-members
+      for (let x = -4.4; x <= 4.4; x += 1.1) {
+        const cm = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.2, 0.96), matDarkSteel);
+        cm.position.set(x, 0.88, 0);
+        chassisGroup.add(cm);
+      }
+
+      // Axle X coordinates: Front Steer (+3.35), Mid Lift/Support (+0.15), Rear Drive 1 (-1.85), Rear Drive 2 (-3.15)
+      const axleConfigs = [
+        { x: 3.35, dual: false, steer: true, lifted: false, hubColor: 0x16a34a },
+        { x: 0.25, dual: false, steer: false, lifted: true, hubColor: 0xeab308 },
+        { x: -1.85, dual: true, steer: false, lifted: false, hubColor: 0xdc2626 },
+        { x: -3.15, dual: true, steer: false, lifted: false, hubColor: 0x16a34a }
+      ];
+
+      axleConfigs.forEach((cfg) => {
+        const yPos = cfg.lifted ? 0.63 : 0.56;
+        // Solid steel axle beam + differential housing
+        const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.25, 16), matDarkSteel);
+        beam.rotation.x = Math.PI / 2;
+        beam.position.set(cfg.x, yPos, 0);
+        chassisGroup.add(beam);
+
+        if (!cfg.steer) {
+          const diff = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), matDarkSteel);
+          diff.position.set(cfg.x, yPos, 0);
+          chassisGroup.add(diff);
+        }
+
+        // Leaf spring packs on left and right
+        [-0.55, 0.55].forEach((zSide) => {
+          const leafGroup = new THREE.Group();
+          for (let l = 0; l < 5; l++) {
+            const leaf = new THREE.Mesh(
+              new THREE.BoxGeometry(0.95 - l * 0.14, 0.025, 0.09),
+              matDarkSteel
+            );
+            leaf.position.set(cfg.x, yPos + 0.14 + l * 0.026, zSide);
+            leafGroup.add(leaf);
+          }
+          chassisGroup.add(leafGroup);
+        });
+
+        // Build left & right wheels
+        [-1, 1].forEach((sideSign) => {
+          const zBase = sideSign * 1.06;
+          if (cfg.steer) {
+            const pivot = new THREE.Group();
+            pivot.position.set(cfg.x, yPos, zBase);
+            const w = createDetailedTruckWheel(sideSign, false, cfg.hubColor);
+            pivot.add(w);
+            chassisGroup.add(pivot);
+            frontSteerPivots.push(pivot);
+            wheelMeshes.push(w);
+          } else {
+            const w = createDetailedTruckWheel(sideSign, cfg.dual, cfg.hubColor);
+            w.position.set(cfg.x, yPos, zBase);
+            chassisGroup.add(w);
+            wheelMeshes.push(w);
+          }
+        });
+      });
+
+      // Diesel Fuel Tank, Air Tanks, Under-slung Spare Tire & Side Under-Run Guards
+      const fuelTank = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 1.35, 20), matDarkSteel);
+      fuelTank.rotation.z = Math.PI / 2;
+      fuelTank.position.set(1.65, 0.72, -0.82);
+      fuelTank.castShadow = true;
+      chassisGroup.add(fuelTank);
+
+      // Under-slung Spare Wheel (like Reference Photo 3)
+      const spareWheel = createDetailedTruckWheel(1, false, 0xfacc15);
+      spareWheel.rotation.x = Math.PI / 2;
+      spareWheel.position.set(-0.65, 0.62, -0.78);
+      chassisGroup.add(spareWheel);
+
+      // Side Under-Run Safety Rails
+      [-1.12, 1.12].forEach((zPos) => {
+        for (let r = 0; r < 2; r++) {
+          const bar = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.055, 0.04), matChrome);
+          bar.position.set(1.55, 0.62 + r * 0.16, zPos);
+          chassisGroup.add(bar);
+        }
+      });
+
+      // -----------------------------------------------------------------------
+      // 2. ICONIC INDIAN CABIN (FRONT COWL, WINDSHIELD, DOORS & JAALI WINDOW)
+      // -----------------------------------------------------------------------
+      // Main Lower Cabin Block
+      const cabLower = new THREE.Mesh(new THREE.BoxGeometry(2.05, 1.25, 2.42), [
+        matCabMain, matCabMain, matCabMain, matDarkSteel, matCabMain, matCabMain
+      ]);
+      cabLower.position.set(3.65, 1.62, 0);
+      cabLower.castShadow = true;
+      cabLower.receiveShadow = true;
+      cabinGroup.add(cabLower);
+
+      // Extruded Black Slatted Front Grille + Tata-style Heritage Oval Emblem (Reference Photo 1)
+      const grilleBacking = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.62, 0.92), matDarkSteel);
+      grilleBacking.position.set(4.68, 1.56, 0);
+      cabinGroup.add(grilleBacking);
+
+      for (let sl = -0.25; sl <= 0.25; sl += 0.065) {
+        const slat = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.028, 0.88), matChrome);
+        slat.position.set(4.69, 1.56 + sl, 0);
+        cabinGroup.add(slat);
+      }
+
+      const emblemRing = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.018, 12, 24), matChrome);
+      emblemRing.rotation.y = Math.PI / 2;
+      emblemRing.position.set(4.71, 1.56, 0);
+      cabinGroup.add(emblemRing);
+
+      // Recessed Headlamps with Protective Wire Mesh Guards + Turn Signals
+      [-0.82, 0.82].forEach((zSide) => {
+        const bezel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.24, 0.34), matDarkSteel);
+        bezel.position.set(4.68, 1.32, zSide);
+        cabinGroup.add(bezel);
+
+        const lens = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.18, 0.26), matHeadlineEmissive);
+        lens.position.set(4.69, 1.32, zSide);
+        cabinGroup.add(lens);
+
+        // Protective Steel Wire Mesh Stone Guard over Headlamp
+        for (let gy = -0.06; gy <= 0.06; gy += 0.06) {
+          const hBar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.012, 0.30), matChrome);
+          hBar.position.set(4.74, 1.32 + gy, zSide);
+          cabinGroup.add(hBar);
+        }
+        for (let gz = -0.09; gz <= 0.09; gz += 0.06) {
+          const vBar = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.20, 0.012), matChrome);
+          vBar.position.set(4.74, 1.32, zSide + gz);
+          cabinGroup.add(vBar);
+        }
+
+        // Amber Corner Indicator Blinker
+        const blinker = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.11, 0.18), matHazardEmissive);
+        blinker.position.set(4.66, 1.88, zSide * 1.36);
+        cabinGroup.add(blinker);
+        hazardLightMeshes.push(blinker);
+      });
+
+      // Volumetric Headlight Cones for Night Highway Mode
+      [-0.82, 0.82].forEach((zSide) => {
+        const coneGeo = new THREE.ConeGeometry(1.4, 7.5, 24, 1, true);
+        coneGeo.translate(0, -3.75, 0);
+        coneGeo.rotateZ(-Math.PI / 2);
+        const coneMat = new THREE.MeshBasicMaterial({
+          color: 0xfef9c3,
+          transparent: true,
+          opacity: 0.0,
+          side: THREE.DoubleSide,
+          depthWrite: false
+        });
+        const cone = new THREE.Mesh(coneGeo, coneMat);
+        cone.position.set(4.72, 1.32, zSide);
+        cabinGroup.add(cone);
+        headlightCones.push(cone);
+      });
+
+      headlightSpotL = new THREE.SpotLight(0xfef08a, 0, 28, Math.PI / 5, 0.45, 1.5);
+      headlightSpotL.position.set(4.75, 1.32, 0.82);
+      headlightSpotL.target.position.set(16, 0.2, 0.82);
+      cabinGroup.add(headlightSpotL, headlightSpotL.target);
+
+      headlightSpotR = new THREE.SpotLight(0xfef08a, 0, 28, Math.PI / 5, 0.45, 1.5);
+      headlightSpotR.position.set(4.75, 1.32, -0.82);
+      headlightSpotR.target.position.set(16, 0.2, -0.82);
+      cabinGroup.add(headlightSpotR, headlightSpotR.target);
+
+      // Ornate Multi-Layered Front Bumper (Reference Photo 1)
+      const mainBumper = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.52, 2.54), [
+        matBumperArt, matDarkSteel, matGreenTrim, matDarkSteel, matGreenTrim, matGreenTrim
+      ]);
+      mainBumper.position.set(4.76, 0.86, 0);
+      mainBumper.castShadow = true;
+      cabinGroup.add(mainBumper);
+
+      // Lower Green & Red Spoiler Bar under Bumper
+      const lowerBar = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 2.46), matGreenTrim);
+      lowerBar.position.set(4.76, 0.52, 0);
+      cabinGroup.add(lowerBar);
+
+      // Wheel Arch Fenders with Green & Yellow Trim
+      [-1.22, 1.22].forEach((zSide) => {
+        const arch = new THREE.Mesh(
+          new THREE.TorusGeometry(0.62, 0.065, 12, 24, Math.PI),
+          matGreenTrim
+        );
+        arch.position.set(3.35, 0.58, zSide);
+        cabinGroup.add(arch);
+      });
+
+      // Upper Cabin Structure & Split Twin Front Windshields
+      const cabRoof = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.12, 2.44), matGreenTrim);
+      cabRoof.position.set(3.65, 3.16, 0);
+      cabinGroup.add(cabRoof);
+
+      const cabBackWall = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.92, 2.4), matCabMain);
+      cabBackWall.position.set(2.68, 2.7, 0);
+      cabinGroup.add(cabBackWall);
+
+      // Front A-Pillars & Center Divided Windshield Pillar (Painted with floral design)
+      [-1.16, 0, 1.16].forEach((zPos, i) => {
+        const pillar = new THREE.Mesh(
+          new THREE.BoxGeometry(0.12, 0.92, i === 1 ? 0.16 : 0.1),
+          i === 1 ? matRedTrim : matGreenTrim
+        );
+        pillar.position.set(4.62, 2.7, zPos);
+        cabinGroup.add(pillar);
+      });
+
+      // Left & Right Split Windshield Glass Panes
+      [-0.58, 0.58].forEach((zPane) => {
+        const glassPane = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.84, 0.98), matGlass);
+        glassPane.position.set(4.62, 2.7, zPane);
+        cabinGroup.add(glassPane);
+
+        // Decorative Scalloped Green/Gold Inner Pelmet Arch at top of glass
+        const pelmet = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.96), matGreenTrim);
+        pelmet.position.set(4.63, 3.04, zPane);
+        cabinGroup.add(pelmet);
+      });
+
+      // Animated Twin Windshield Wipers
+      [-0.58, 0.58].forEach((zPane, idx) => {
+        const pivot = new THREE.Group();
+        pivot.position.set(4.66, 2.32, zPane);
+        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.52, 0.025), matDarkSteel);
+        arm.position.set(0, 0.24, 0);
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.44, 0.035), matDarkSteel);
+        blade.position.set(0.01, 0.42, 0);
+        pivot.add(arm, blade);
+        pivot.rotation.x = 0.25;
+        cabinGroup.add(pivot);
+        if (idx === 0) wiperLeftPivot = pivot;
+        else wiperRightPivot = pivot;
+      });
+
+      // Cabin Interior (Dashboard, Steering Wheel, Driver & Co-Driver Bench, Warm Shrine Light)
+      const dash = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.35, 2.2), matDarkSteel);
+      dash.position.set(4.3, 2.18, 0);
+      cabinGroup.add(dash);
+
+      const steerWheel = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.025, 10, 24), matDarkSteel);
+      steerWheel.rotation.y = Math.PI / 2;
+      steerWheel.rotation.z = -0.5;
+      steerWheel.position.set(4.12, 2.42, -0.58);
+      cabinGroup.add(steerWheel);
+
+      const seatBench = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.45, 2.1), matRedTrim);
+      seatBench.position.set(3.45, 2.05, 0);
+      cabinGroup.add(seatBench);
+
+      cabinInteriorLight = new THREE.PointLight(0xffedd5, 0.6, 3.5);
+      cabinInteriorLight.position.set(3.8, 2.85, 0);
+      cabinGroup.add(cabinInteriorLight);
+
+      // Operable Cab Doors + Ornate Rear Quarter "Jaali" Lattice Window (Reference Photo 3)
+      [-1, 1].forEach((sideSign) => {
+        const zSide = sideSign * 1.21;
+        const doorPivot = new THREE.Group();
+        doorPivot.position.set(4.55, 2.25, zSide);
+
+        const doorLower = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.9, 0.06), matCabMain);
+        doorLower.position.set(-0.52, -0.35, 0);
+        doorPivot.add(doorLower);
+
+        const doorFrameTop = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.08, 0.06), matGreenTrim);
+        doorFrameTop.position.set(-0.52, 0.82, 0);
+        doorPivot.add(doorFrameTop);
+
+        // External Side Mirror on Tubular Arm
+        const mirrorArm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.55, 8), matDarkSteel);
+        mirrorArm.position.set(-0.12, 0.48, sideSign * 0.22);
+        mirrorArm.rotation.x = sideSign * 0.35;
+        const mirrorHead = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.36, 0.2), matChrome);
+        mirrorHead.position.set(-0.12, 0.52, sideSign * 0.32);
+        doorPivot.add(mirrorArm, mirrorHead);
+
+        cabinGroup.add(doorPivot);
+        if (sideSign === 1) leftDoorPivot = doorPivot;
+        else rightDoorPivot = doorPivot;
+
+        // Rear Quarter Cabin Panel with Diamond Lattice "Jaali" (Reference Photo 3)
+        const quarterPanel = new THREE.Group();
+        quarterPanel.position.set(3.08, 2.68, zSide);
+        const qFrame = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.88, 0.06), matYellowTrim);
+        quarterPanel.add(qFrame);
+        // Diamond lattice bars
+        for (let d = -0.22; d <= 0.22; d += 0.14) {
+          const bar1 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.03, 0.08), matDarkSteel);
+          bar1.rotation.z = Math.PI / 4;
+          bar1.position.set(d * 0.5, d * 0.5, 0);
+          const bar2 = bar1.clone();
+          bar2.rotation.z = -Math.PI / 4;
+          quarterPanel.add(bar1, bar2);
+        }
+        cabinGroup.add(quarterPanel);
+      });
+
+      // -----------------------------------------------------------------------
+      // 3. ORNATE WOODEN ROOF CROWN ("TAJ" - "ALL INDIA PERMIT" & ARCHED BROW)
+      // -----------------------------------------------------------------------
+      // Arched Green Eyebrow Visor over Windshield ("GOODS KGN CARRIER" - Reference Photo 1)
+      const browVisor = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.36, 2.54), [
+        matBrowArt, matGreenTrim, matGreenTrim, matGreenTrim, matGreenTrim, matGreenTrim
+      ]);
+      browVisor.position.set(4.68, 3.32, 0);
+      browVisor.rotation.z = -0.08;
+      tajGroup.add(browVisor);
+
+      // Main Tall Wooden Taj Box ("ALL INDIA PERMIT")
+      const tajMain = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.62, 2.48), [
+        matCrownFront, matWood, matYellowTrim, matWood, matCrownFront, matCrownFront
+      ]);
+      tajMain.position.set(3.72, 3.68, 0);
+      tajMain.castShadow = true;
+      tajGroup.add(tajMain);
+
+      // Top Red & Gold Stepped Finial Molding + Perimeter Marker LEDs
+      const tajCrest = new THREE.Mesh(new THREE.BoxGeometry(1.82, 0.12, 2.56), matRedTrim);
+      tajCrest.position.set(3.72, 4.04, 0);
+      tajGroup.add(tajCrest);
+
+      // Decorative Turned Wooden Corner Finials on Taj Crown
+      [-1.22, 1.22].forEach((zFin) => {
+        [2.85, 4.58].forEach((xFin) => {
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.22, 14), matYellowTrim);
+          post.position.set(xFin, 4.18, zFin);
+          const orb = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 14), matRedTrim);
+          orb.position.set(xFin, 4.30, zFin);
+          tajGroup.add(post, orb);
+        });
+      });
+
+      // Twin Chrome Pressure Air Horns on Cab Roof Sides
+      [-1.08, 1.08].forEach((zHorn) => {
+        const hornPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.025, 0.56, 16), matChrome);
+        hornPipe.rotation.z = -Math.PI / 2;
+        hornPipe.position.set(4.15, 3.28, zHorn);
+        cabinGroup.add(hornPipe);
+      });
+
+      // Heavy-Duty Step-Up Entry Footboards & Chrome Grab Handles on Both Cab Sides
+      [-1.24, 1.24].forEach((zStep) => {
+        const stepPlate = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.05, 0.24), matChrome);
+        stepPlate.position.set(4.02, 0.96, zStep);
+        cabinGroup.add(stepPlate);
+
+        const grabHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.72, 12), matChrome);
+        grabHandle.position.set(3.48, 2.38, zStep + (zStep > 0 ? 0.03 : -0.03));
+        cabinGroup.add(grabHandle);
+      });
+
+      // Vertical Exhaust Stack with Perforated Heat Shield & Air Filter Snorkel behind Cab
+      const exhaustPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 2.45, 16), matDarkSteel);
+      exhaustPipe.position.set(2.58, 2.15, -1.16);
+      const heatShield = new THREE.Mesh(new THREE.CylinderGeometry(0.082, 0.082, 1.35, 16), matChrome);
+      heatShield.position.set(2.58, 2.25, -1.16);
+      cabinGroup.add(exhaustPipe, heatShield);
+
+      const airSnorkel = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 1.15, 16), matDarkSteel);
+      airSnorkel.position.set(2.58, 2.65, 1.12);
+      cabinGroup.add(airSnorkel);
+
+      // Front Bumper Heavy-Duty Tow Shackles
+      [-0.58, 0.58].forEach((zHook) => {
+        const shackle = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.022, 10, 18), matRedTrim);
+        shackle.rotation.y = Math.PI / 2;
+        shackle.position.set(4.92, 0.76, zHook);
+        cabinGroup.add(shackle);
+      });
+
+      for (let zLed = -1.15; zLed <= 1.15; zLed += 0.23) {
+        const led = new THREE.Mesh(new THREE.SphereGeometry(0.042, 10, 10), matMarkerEmissive);
+        led.position.set(4.64, 4.04, zLed);
+        tajGroup.add(led);
+        markerLightMeshes.push(led);
+      }
+
+      // -----------------------------------------------------------------------
+      // 4. AUTHENTIC DECORATIVE ELEMENTS (NAZAR BATTU CHOTI, GARLANDS, POLES)
+      // -----------------------------------------------------------------------
+      // A. Black Braided Cotton Tassels ("Nazar Battu / Choti") hanging from Mirrors & Bumper (Reference Photo 1)
+      const matBlackTassel = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9 });
+      const tasselLocations = [
+        { x: 4.55, y: 2.52, z: 1.54, scale: 1.0 },
+        { x: 4.55, y: 2.52, z: -1.54, scale: 1.0 },
+        { x: 4.82, y: 0.68, z: 1.18, scale: 0.82 },
+        { x: 4.82, y: 0.68, z: -1.18, scale: 0.82 }
+      ];
+      tasselLocations.forEach((loc) => {
+        const pendulum = new THREE.Group();
+        pendulum.position.set(loc.x, loc.y, loc.z);
+        pendulum.scale.setScalar(loc.scale);
+
+        // Colorful pom-pom puffs at top
+        const pom1 = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), matRedTrim);
+        const pom2 = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 12), matYellowTrim);
+        pom2.position.y = -0.13;
+        const flare = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.68, 14), matBlackTassel);
+        flare.position.y = -0.46;
+        pendulum.add(pom1, pom2, flare);
+
+        tasselsGroup.add(pendulum);
+        tasselPendulums.push(pendulum);
+      });
+
+      // Rear Orange/Red Decorative Tassel Bundle (visible hanging behind rear bumper in Reference Photo 1)
+      const rearTassel = new THREE.Group();
+      rearTassel.position.set(-4.72, 0.95, -1.18);
+      const rCone = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.65, 14), new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.85 }));
+      rCone.position.y = -0.32;
+      rearTassel.add(rCone);
+      tasselsGroup.add(rearTassel);
+      tasselPendulums.push(rearTassel);
+
+      // B. Marigold ("Genda Phool") Garland on Front Grille & Pom-Pom Strings in Windshield
+      const flowerColors = [0xf97316, 0xfacc15, 0xdc2626, 0x22c55e];
+      for (let i = 0; i <= 24; i++) {
+        const t = (i / 24) * 2 - 1; // -1 to 1
+        const zPos = t * 0.95;
+        const ySag = 1.92 - Math.cos(t * Math.PI * 0.5) * 0.34;
+        const bead = new THREE.Mesh(
+          new THREE.SphereGeometry(0.048, 10, 10),
+          new THREE.MeshStandardMaterial({ color: flowerColors[i % flowerColors.length], roughness: 0.6 })
+        );
+        bead.position.set(4.73, ySag, zPos);
+        garlandsGroup.add(bead);
+      }
+
+      // Hanging V-shaped Red/Yellow Ribbon & Pom-Poms on Center Windshield Pillar (Reference Photo 1)
+      for (let i = 0; i <= 14; i++) {
+        const t = (i / 14) * 2 - 1;
+        const bead = new THREE.Mesh(
+          new THREE.SphereGeometry(0.042, 10, 10),
+          new THREE.MeshStandardMaterial({ color: i % 2 === 0 ? 0xdc2626 : 0xfacc15 })
+        );
+        bead.position.set(4.66, 3.08 - (1 - Math.abs(t)) * 0.36, t * 0.35);
+        garlandsGroup.add(bead);
+      }
+
+      // C. Striped Bumper Corner Guide Poles (Red/White/Green Barber-Pole Rods on Front Corners - Reference Photo 1)
+      [-1.24, 1.24].forEach((zSide) => {
+        const poleGroup = new THREE.Group();
+        poleGroup.position.set(4.82, 1.12, zSide);
+        for (let seg = 0; seg < 10; seg++) {
+          const segColors = [matRedTrim, matChrome, matGreenTrim, matYellowTrim];
+          const cyl = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.028, 0.028, 0.12, 12),
+            segColors[seg % segColors.length]
+          );
+          cyl.position.y = seg * 0.12;
+          poleGroup.add(cyl);
+        }
+        const finial = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 12), matMarkerEmissive);
+        finial.position.y = 1.22;
+        poleGroup.add(finial);
+        markerLightMeshes.push(finial);
+        polesGroup.add(poleGroup);
+      });
+
+      // -----------------------------------------------------------------------
+      // 5. CORRUGATED CARGO BODY ("DALA"), VERTICAL RIBS, LADDER & TARPAULIN
+      // -----------------------------------------------------------------------
+      // Cargo Bed Floor
+      const bedFloor = new THREE.Mesh(new THREE.BoxGeometry(7.35, 0.14, 2.48), matWood);
+      bedFloor.position.set(-1.05, 1.06, 0);
+      bedFloor.receiveShadow = true;
+      cargoGroup.add(bedFloor);
+
+      // Left, Right & Front Cargo Walls
+      const sideWallGeo = new THREE.BoxGeometry(7.32, 2.38, 0.08);
+      const wallL = new THREE.Mesh(sideWallGeo, matCargoSide);
+      wallL.position.set(-1.05, 2.32, 1.21);
+      wallL.castShadow = true;
+      wallL.receiveShadow = true;
+
+      const wallR = new THREE.Mesh(sideWallGeo, matCargoSide);
+      wallR.position.set(-1.05, 2.32, -1.21);
+      wallR.castShadow = true;
+      wallR.receiveShadow = true;
+
+      const wallFront = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.38, 2.48), matWood);
+      wallFront.position.set(2.58, 2.32, 0);
+      cargoGroup.add(wallL, wallR, wallFront);
+
+      // 3D Vertical Steel Support Ribs along both sides (Reference Photos 1 & 3)
+      const matRibOrange = new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.45, metalness: 0.35 });
+      for (let xRib = -4.55; xRib <= 2.45; xRib += 0.58) {
+        [-1.26, 1.26].forEach((zSide) => {
+          const rib = new THREE.Mesh(new THREE.BoxGeometry(0.065, 2.42, 0.07), matRibOrange);
+          rib.position.set(xRib, 2.32, zSide);
+          rib.castShadow = true;
+          cargoGroup.add(rib);
+
+          // Steel Rivet Studs along each vertical cargo rib
+          for (let ry = 1.35; ry <= 3.35; ry += 0.5) {
+            const rivet = new THREE.Mesh(new THREE.SphereGeometry(0.016, 8, 8), matChrome);
+            rivet.position.set(xRib, ry, zSide + (zSide > 0 ? 0.036 : -0.036));
+            cargoGroup.add(rivet);
+          }
+        });
+      }
+
+      // Side Access Ladder behind Cabin (Reference Photo 3)
+      [-1.29, 1.29].forEach((zSide) => {
+        const ladder = new THREE.Group();
+        ladder.position.set(2.25, 1.85, zSide);
+        const rail1 = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 2.1, 8), matDarkSteel);
+        rail1.position.x = -0.16;
+        const rail2 = rail1.clone();
+        rail2.position.x = 0.16;
+        ladder.add(rail1, rail2);
+        for (let ry = -0.85; ry <= 0.85; ry += 0.34) {
+          const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.32, 8), matDarkSteel);
+          rung.rotation.z = Math.PI / 2;
+          rung.position.y = ry;
+          ladder.add(rung);
+        }
+        cargoGroup.add(ladder);
+      });
+
+      // Rear Hinged Tailgate ("HORN OK PLEASE" Dala) + Rear Bumper & Tail Lights
+      tailgatePivot = new THREE.Group();
+      tailgatePivot.position.set(-4.71, 1.14, 0);
+      const rearGateMesh = new THREE.Mesh(new THREE.BoxGeometry(0.09, 2.34, 2.46), [
+        matWood, matTailgateArt, matWood, matWood, matWood, matWood
+      ]);
+      rearGateMesh.position.set(0, 1.17, 0);
+      rearGateMesh.castShadow = true;
+      tailgatePivot.add(rearGateMesh);
+      cargoGroup.add(tailgatePivot);
+
+      // Rear Steel Bumper, Tail Lamps & Mudflaps
+      const rearBumper = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.24, 2.48), matYellowTrim);
+      rearBumper.position.set(-4.74, 0.72, 0);
+      cargoGroup.add(rearBumper);
+
+      [-0.92, 0.92].forEach((zSide) => {
+        const tailLamp = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.36), matTailEmissive);
+        tailLamp.position.set(-4.79, 0.72, zSide);
+        cargoGroup.add(tailLamp);
+
+        const rearBlink = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.14), matHazardEmissive);
+        rearBlink.position.set(-4.79, 0.72, zSide * 1.22);
+        cargoGroup.add(rearBlink);
+        hazardLightMeshes.push(rearBlink);
+
+        const mudflap = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.48, 0.48), matDarkSteel);
+        mudflap.position.set(-4.68, 0.38, zSide);
+        cargoGroup.add(mudflap);
+      });
+
+      // -----------------------------------------------------------------------
+      // 6. SCULPTED TARPAULIN ("TIRPAL") WITH CRISS-CROSS GREEN ROPES & CARGO SACKS
+      // -----------------------------------------------------------------------
+      const tarpMat = new THREE.MeshStandardMaterial({
+        map: createTarpaulinTexture(),
+        bumpMap: createTarpaulinBumpTexture(),
+        bumpScale: 0.025,
+        roughness: 0.86,
+        metalness: 0.04
+      });
+
+      // Organic multi-mound tarpaulin cover (like Reference Photo 3)
+      const moundPositions = [
+        { x: 1.6, sx: 1.85, sy: 0.65, sz: 2.52 },
+        { x: 0.1, sx: 2.1, sy: 0.82, sz: 2.54 },
+        { x: -1.6, sx: 2.0, sy: 0.76, sz: 2.54 },
+        { x: -3.4, sx: 2.15, sy: 0.68, sz: 2.52 }
+      ];
+      moundPositions.forEach((m) => {
+        const geo = new THREE.SphereGeometry(1, 36, 26);
+        geo.scale(m.sx * 0.55, m.sy, m.sz * 0.52);
+        const mesh = new THREE.Mesh(geo, tarpMat);
+        mesh.position.set(m.x, 3.45, 0);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        tarpaulinGroup.add(mesh);
+      });
+
+      // Overhanging Tarpaulin Skirt Cap
+      const tarpSkirt = new THREE.Mesh(new THREE.BoxGeometry(7.42, 0.42, 2.56), tarpMat);
+      tarpSkirt.position.set(-1.05, 3.38, 0);
+      tarpSkirt.castShadow = true;
+      tarpaulinGroup.add(tarpSkirt);
+
+      // Green Nylon Tie-Down Ropes Criss-Crossing the Tarpaulin (Reference Photo 3)
+      const matGreenRope = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.6 });
+      for (let xRope = -4.25; xRope <= 2.15; xRope += 0.64) {
+        [-1.29, 1.29].forEach((zSide) => {
+          const ropeV = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 1.35, 8), matGreenRope);
+          ropeV.position.set(xRope, 2.95, zSide);
+          ropeV.rotation.z = 0.18;
+          const ropeDiag = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 1.42, 8), matGreenRope);
+          ropeDiag.position.set(xRope + 0.25, 2.95, zSide);
+          ropeDiag.rotation.z = -0.26;
+          tarpaulinGroup.add(ropeV, ropeDiag);
+        });
+        // Top strap across roof
+        const topStrap = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 2.58), matGreenRope);
+        topStrap.position.set(xRope, 3.92, 0);
+        tarpaulinGroup.add(topStrap);
+      }
+      cargoGroup.add(tarpaulinGroup);
+
+      // Exposed Burlap Grain Sacks & Crates (for "Grain Sacks" Cargo Mode)
+      const matBurlap = new THREE.MeshStandardMaterial({ color: 0xb48a5a, roughness: 0.92 });
+      for (let row = 0; row < 3; row++) {
+        for (let ix = -4.1; ix <= 2.0; ix += 0.92) {
+          for (let iz = -0.72; iz <= 0.72; iz += 0.72) {
+            const sack = new THREE.Mesh(new THREE.SphereGeometry(0.46, 14, 12), matBurlap);
+            sack.scale.set(1.0, 0.52, 0.75);
+            sack.position.set(ix + (row % 2) * 0.2, 1.35 + row * 0.42, iz);
+            sack.castShadow = true;
+            sacksGroup.add(sack);
+          }
+        }
+      }
+      sacksGroup.visible = false;
+      cargoGroup.add(sacksGroup);
+    }
+
+    function createDetailedTruckWheel(sideSign, isDual, hubAccentColor) {
+      const wheelGroup = new THREE.Group();
+      const matTireRubber = new THREE.MeshStandardMaterial({
+        color: 0x18181b,
+        bumpMap: createTireTreadBumpTexture(),
+        bumpScale: 0.038,
+        roughness: 0.82,
+        metalness: 0.06
+      });
+      const matSteelRim = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.24, metalness: 0.85, envMapIntensity: 1.25 });
+      const matHubColor = new THREE.MeshStandardMaterial({ color: hubAccentColor, roughness: 0.4, metalness: 0.2 });
+      const matYellowHub = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.4 });
+
+      const buildSingleTire = (zOffset) => {
+        const single = new THREE.Group();
+        single.position.z = zOffset;
+
+        // Main radial tire carcass
+        const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.54, 0.54, 0.28, 36), matTireRubber);
+        tire.rotation.x = Math.PI / 2;
+        tire.castShadow = true;
+        tire.receiveShadow = true;
+        single.add(tire);
+
+        // Sidewall ring
+        const sidewall = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.09, 16, 36), matTireRubber);
+        sidewall.position.z = sideSign * 0.08;
+        single.add(sidewall);
+
+        // Steel Rim Disc
+        const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.29, 24), matSteelRim);
+        rim.rotation.x = Math.PI / 2;
+        single.add(rim);
+
+        // Decorative Painted Indian Hub Cap & Lug Nuts
+        const hubCap = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.33, 18), matHubColor);
+        hubCap.rotation.x = Math.PI / 2;
+        single.add(hubCap);
+
+        const hubCenter = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.35, 16), matYellowHub);
+        hubCenter.rotation.x = Math.PI / 2;
+        single.add(hubCenter);
+
+        for (let n = 0; n < 8; n++) {
+          const ang = (n * Math.PI * 2) / 8;
+          const lug = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.32, 8), matYellowHub);
+          lug.rotation.x = Math.PI / 2;
+          lug.position.set(Math.cos(ang) * 0.22, Math.sin(ang) * 0.22, 0);
+          single.add(lug);
+        }
+        return single;
+      };
+
+      if (isDual) {
+        wheelGroup.add(buildSingleTire(sideSign * 0.12));
+        wheelGroup.add(buildSingleTire(-sideSign * 0.20));
+      } else {
+        wheelGroup.add(buildSingleTire(0));
+      }
+
+      return wheelGroup;
+    }
+
+    // =========================================================================
+    // INTERACTIVE CONTROLS & LIVE MUTATIONS
+    // =========================================================================
+
+    function setCameraPreset(preset) {
+      ['iso', 'front', 'side', 'rear', 'cabin', 'chassis'].forEach((id) => {
+        const el = document.getElementById('cam-' + id);
+        if (el) el.classList.toggle('active', id === preset);
+      });
+
+      const presets = {
+        iso:     { pos: [11.5, 4.4, 9.5],  target: [0.2, 2.0, 0] },
+        front:   { pos: [10.2, 2.6, 0.0],  target: [3.8, 2.3, 0] },
+        side:    { pos: [0.0, 2.6, 13.5],  target: [0.0, 2.1, 0] },
+        rear:    { pos: [-10.8, 2.7, 0.0], target: [-3.5, 2.2, 0] },
+        cabin:   { pos: [6.8, 3.0, 4.2],   target: [3.8, 2.5, 0] },
+        chassis: { pos: [4.2, 0.95, 5.2],  target: [0.5, 0.85, 0] }
+      };
+
+      const p = presets[preset] || presets.iso;
+      camera.position.set(p.pos[0], p.pos[1], p.pos[2]);
+      controls.target.set(p.target[0], p.target[1], p.target[2]);
+      controls.update();
+    }
+
+    function setLivery(liveryName) {
+      state.livery = liveryName;
+      ['classic', 'shyam', 'tricolor'].forEach((id) => {
+        const el = document.getElementById('livery-' + id);
+        if (el) el.classList.toggle('active', id === liveryName);
+      });
+
+      matCabMain.map = createCabinFrontTexture(liveryName);
+      matCabMain.needsUpdate = true;
+
+      matCargoSide.map = createCargoSideTexture(liveryName);
+      matCargoSide.needsUpdate = true;
+
+      matCrownFront.map = createTajCrownTexture(liveryName);
+      matCrownFront.needsUpdate = true;
+
+      matBrowArt.map = createWindshieldBrowTexture(liveryName);
+      matBrowArt.needsUpdate = true;
+
+      matTailgateArt.map = createRearTailgateTexture(liveryName);
+      matTailgateArt.needsUpdate = true;
+
+      showToast(`Applied ${liveryName.toUpperCase()} hand-painted livery`);
+    }
+
+    function setCargoMode(mode) {
+      state.cargoMode = mode;
+      ['tarpaulin', 'sacks', 'open'].forEach((id) => {
+        const el = document.getElementById('cargo-' + id);
+        if (el) el.classList.toggle('active', id === mode);
+      });
+
+      tarpaulinGroup.visible = (mode === 'tarpaulin');
+      sacksGroup.visible = (mode === 'sacks');
+      showToast(`Cargo configuration: ${mode.toUpperCase()}`);
+    }
+
+    function toggleFeature(feat) {
+      state[feat] = !state[feat];
+      const btn = document.getElementById('tog-' + feat);
+      if (btn) {
+        btn.classList.toggle('active', state[feat]);
+        const spans = btn.querySelectorAll('span');
+        if (spans.length === 2) {
+          spans[1].textContent = state[feat] ? 'ON' : 'OFF';
+        }
+      }
+
+      if (feat === 'taj') tajGroup.visible = state.taj;
+      if (feat === 'tassels') tasselsGroup.visible = state.tassels;
+      if (feat === 'garlands') garlandsGroup.visible = state.garlands;
+      if (feat === 'poles') polesGroup.visible = state.poles;
+      if (feat === 'headlights') updateLightingEnvironment();
+    }
+
+    function setEnvironment(envMode) {
+      state.environment = envMode;
+      ['day', 'sunset', 'night'].forEach((id) => {
+        const el = document.getElementById('env-' + id);
+        if (el) el.classList.toggle('active', id === envMode);
+      });
+      updateLightingEnvironment();
+      showToast(`Highway lighting: ${envMode.toUpperCase()}`);
+    }
+
+    function updateLightingEnvironment() {
+      const env = state.environment;
+      if (state.transparentBg) {
+        const showBeam = state.headlights && (env === 'night' || env === 'sunset');
+        headlightSpotL.intensity = state.headlights ? (env === 'night' ? 3.2 : 1.2) : 0;
+        headlightSpotR.intensity = state.headlights ? (env === 'night' ? 3.2 : 1.2) : 0;
+        matHeadlineEmissive.emissiveIntensity = state.headlights ? 2.0 : 0.05;
+        headlightCones.forEach((c) => {
+          c.material.opacity = showBeam ? (env === 'night' ? 0.16 : 0.07) : 0.0;
+        });
+        return;
+      }
+      if (env === 'day') {
+        scene.background.setHex(0x7dd3fc);
+        scene.fog.color.setHex(0xbae6fd);
+        ambientLight.intensity = 0.55;
+        hemiLight.intensity = 0.65;
+        sunLight.intensity = 1.55;
+        sunLight.color.setHex(0xfffbeb);
+        sunLight.position.set(18, 26, 16);
+      } else if (env === 'sunset') {
+        scene.background.setHex(0xf97316);
+        scene.fog.color.setHex(0xfdba74);
+        ambientLight.intensity = 0.42;
+        hemiLight.intensity = 0.55;
+        sunLight.intensity = 1.45;
+        sunLight.color.setHex(0xfb923c);
+        sunLight.position.set(-22, 9, 14);
+      } else {
+        scene.background.setHex(0x090d16);
+        scene.fog.color.setHex(0x090d16);
+        ambientLight.intensity = 0.18;
+        hemiLight.intensity = 0.22;
+        sunLight.intensity = 0.25;
+        sunLight.color.setHex(0x93c5fd);
+        sunLight.position.set(10, 20, -10);
+      }
+
+      const showBeam = state.headlights && (env === 'night' || env === 'sunset');
+      headlightSpotL.intensity = state.headlights ? (env === 'night' ? 3.2 : 1.2) : 0;
+      headlightSpotR.intensity = state.headlights ? (env === 'night' ? 3.2 : 1.2) : 0;
+      matHeadlineEmissive.emissiveIntensity = state.headlights ? 2.0 : 0.05;
+      headlightCones.forEach((c) => {
+        c.material.opacity = showBeam ? (env === 'night' ? 0.16 : 0.07) : 0.0;
+      });
+    }
+
+    function updateSpeed(val) {
+      state.speed = Number(val);
+      const el = document.getElementById('speed-readout');
+      if (el) el.textContent = `${state.speed} km/h`;
+    }
+
+    function updateSteering(val) {
+      state.steeringAngle = Number(val);
+      const el = document.getElementById('steer-readout');
+      if (el) el.textContent = `${state.steeringAngle}°`;
+      const rad = THREE.MathUtils.degToRad(state.steeringAngle);
+      frontSteerPivots.forEach((p) => {
+        p.rotation.y = rad;
+      });
+    }
+
+    function toggleInspector() {
+      state.inspectorOpen = !state.inspectorOpen;
+      const panel = document.getElementById('inspector-panel');
+      const showBtn = document.getElementById('show-inspector-btn');
+      if (state.inspectorOpen) {
+        panel.classList.remove('translate-x-[120%]');
+        showBtn.classList.add('hidden');
+      } else {
+        panel.classList.add('translate-x-[120%]');
+        showBtn.classList.remove('hidden');
+      }
+    }
+
+    // =========================================================================
+    // AUTHENTIC INDIAN MUSICAL TRUCK AIR HORN (WEB AUDIO SYNTHESIS)
+    // =========================================================================
+    let audioCtx = null;
+    function playMusicalTruckHorn() {
+      try {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContextClass();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        // Classic Indian Highway Multi-Pipe Pressure Air Horn Melody
+        const notes = [
+          { f: 523.25, t: 0.0,  d: 0.16 },
+          { f: 659.25, t: 0.18, d: 0.16 },
+          { f: 783.99, t: 0.36, d: 0.18 },
+          { f: 659.25, t: 0.56, d: 0.16 },
+          { f: 880.00, t: 0.74, d: 0.38 }
+        ];
+
+        const now = audioCtx.currentTime;
+        notes.forEach((n) => {
+          const osc1 = audioCtx.createOscillator();
+          const osc2 = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc1.type = 'sawtooth';
+          osc2.type = 'triangle';
+          osc1.frequency.setValueAtTime(n.f, now + n.t);
+          osc2.frequency.setValueAtTime(n.f * 1.006, now + n.t);
+
+          gain.gain.setValueAtTime(0.001, now + n.t);
+          gain.gain.exponentialRampToValueAtTime(0.18, now + n.t + 0.025);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc1.start(now + n.t);
+          osc2.start(now + n.t);
+          osc1.stop(now + n.t + n.d + 0.02);
+          osc2.stop(now + n.t + n.d + 0.02);
+        });
+
+        showToast('🎺 PEE-POO-PEE! "Horn OK Please" Musical Air Horn');
+      } catch (e) {
+        showToast('🎺 Horn OK Please!');
+      }
+    }
+
+    // =========================================================================
+    // 3D MODEL (.OBJ) EXPORTER
+    // =========================================================================
+    function exportOBJModel() {
+      let objLines = ['# Indian Highway Truck 3D Model Export\n# Generated by Indian Truck 3D Studio\n'];
+      let vertexOffset = 1;
+
+      truckRoot.updateMatrixWorld(true);
+      truckRoot.traverse((child) => {
+        if (child.isMesh && child.visible && child.geometry) {
+          const geom = child.geometry.clone();
+          geom.applyMatrix4(child.matrixWorld);
+          const pos = geom.attributes.position;
+          if (!pos) return;
+
+          objLines.push(`o mesh_${child.id}`);
+          for (let i = 0; i < pos.count; i++) {
+            objLines.push(`v ${pos.getX(i).toFixed(4)} ${pos.getY(i).toFixed(4)} ${pos.getZ(i).toFixed(4)}`);
+          }
+          if (geom.index) {
+            const idx = geom.index;
+            for (let i = 0; i < idx.count; i += 3) {
+              const a = idx.getX(i) + vertexOffset;
+              const b = idx.getX(i + 1) + vertexOffset;
+              const c = idx.getX(i + 2) + vertexOffset;
+              objLines.push(`f ${a} ${b} ${c}`);
+            }
+          } else {
+            for (let i = 0; i < pos.count; i += 3) {
+              const a = i + vertexOffset;
+              objLines.push(`f ${a} ${a + 1} ${a + 2}`);
+            }
+          }
+          vertexOffset += pos.count;
+        }
+      });
+
+      const blob = new Blob([objLines.join('\n')], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `indian_highway_truck_${state.livery}.obj`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Downloaded 3D Mesh (.OBJ)');
+    }
+
+    function applyBackgroundIsolationMode() {
+      if (!scene || !renderer) return;
+      if (state.transparentBg) {
+        // Clean, transparent/dark radial studio backdrop so the rotating truck stands out on any website
+        scene.background = null;
+        scene.fog = null;
+        renderer.setClearColor(0x000000, 0);
+        document.body.style.background = state.transparentBg ? 'transparent' : 'radial-gradient(circle at 50% 55%, #1c1917 0%, #090706 75%, #000000 100%)';
+        if (roadMesh) roadMesh.visible = false;
+        if (groundMesh) groundMesh.visible = false;
+        if (kerbGroupRef) kerbGroupRef.visible = false;
+      } else {
+        document.body.style.background = '#0c0a09';
+        scene.fog = new THREE.FogExp2(0xbae6fd, 0.0085);
+        if (roadMesh) roadMesh.visible = true;
+        if (groundMesh) groundMesh.visible = true;
+        if (kerbGroupRef) kerbGroupRef.visible = true;
+        updateLightingEnvironment();
+      }
+      const btn = document.getElementById('btn-toggle-transparent');
+      if (btn) {
+        btn.textContent = state.transparentBg
+          ? '🌌 Mode: Isolated 3D Background'
+          : '🛣️ Mode: Full Highway Scene';
+      }
+    }
+
+    function toggleTransparentBackground() {
+      state.transparentBg = !state.transparentBg;
+      applyBackgroundIsolationMode();
+      showToast(state.transparentBg ? 'Isolated 3D Background (Transparent Alpha Ready)' : 'Full Highway Scene Mode');
+    }
+
+    function toggleStudioUI() {
+      state.studioUIVisible = !state.studioUIVisible;
+      const wrapper = document.getElementById('studio-ui-wrapper');
+      const label = document.getElementById('studio-ui-label');
+      if (wrapper) {
+        wrapper.classList.toggle('hidden', !state.studioUIVisible);
+      }
+      if (label) {
+        label.textContent = state.studioUIVisible ? '🙈 Hide Studio UI (Pure Background)' : '🛠️ Show Studio Controls';
+      }
+    }
+
+    function copyAntigravityEmbedCode() {
+      const snippet = `/* === ANTIGRAVITY BACKGROUND INTEGRATION INSTRUCTIONS ===
+1. Save indian_truck_3d_model.html in your public/ folder as "indian-truck-bg.html".
+2. Add this background iframe to your main layout / landing page:
+*/
+<div style="position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden;">
+  <iframe
+    src="/indian-truck-bg.html?ui=0&livery=${state.livery}"
+    style="width: 100%; height: 100%; border: 0; background: transparent;"
+    allow="autoplay"
+    loading="eager"
+    title="3D Rotating Indian Truck Background"
+  ></iframe>
+</div>`;
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(snippet).then(() => {
+            showToast('✅ Copied Antigravity Background Embed Code!');
+          }).catch(() => fallbackCopy(snippet));
+        } else {
+          fallbackCopy(snippet);
+        }
+      } catch (e) {
+        fallbackCopy(snippet);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      showToast('✅ Copied Antigravity Background Embed Code!');
+    }
+
+    // Programmatic API for Antigravity AI Coding Agent
+    window.IndianTruckBackground = {
+      setLivery: (name) => setLivery(name),
+      setCargoMode: (mode) => setCargoMode(mode),
+      setRotationSpeed: (radPerSec) => { state.rotationSpeed = Number(radPerSec) || 0.42; },
+      setTurntable: (enabled) => { state.turntable = Boolean(enabled); },
+      setTransparentBackground: (enabled) => {
+        state.transparentBg = Boolean(enabled);
+        applyBackgroundIsolationMode();
+      },
+      hideAllUI: () => {
+        const pill = document.getElementById('bg-mode-pill');
+        const wrapper = document.getElementById('studio-ui-wrapper');
+        if (pill) pill.style.display = 'none';
+        if (wrapper) wrapper.classList.add('hidden');
+      }
+    };
+
+    function showToast(text) {
+      const toast = document.getElementById('toast-msg');
+      if (!toast) return;
+      toast.textContent = text;
+      toast.style.opacity = '1';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+      }, 2200);
+    }
+
+    // =========================================================================
+    // MAIN ANIMATION LOOP
+    // =========================================================================
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      // 1. Highway Motion & Wheel Rotation
+      const speedFactor = state.speed * 0.14;
+      if (state.speed > 0) {
+        roadTex.offset.x -= dt * speedFactor * 0.25;
+        wheelMeshes.forEach((w) => {
+          w.rotation.z -= dt * speedFactor * 1.4;
+        });
+
+        // Subtle realistic highway suspension harmonic bounce on cabin & cargo
+        const bounce = Math.sin(elapsed * 11) * 0.012 * (state.speed / 60);
+        const pitch = Math.cos(elapsed * 7.5) * 0.003 * (state.speed / 60);
+        cabinGroup.position.y = bounce;
+        tajGroup.position.y = bounce;
+        garlandsGroup.position.y = bounce;
+        cargoGroup.position.y = bounce * 0.8;
+        truckRoot.rotation.z = pitch;
+      } else {
+        cabinGroup.position.y = 0;
+        tajGroup.position.y = 0;
+        garlandsGroup.position.y = 0;
+        cargoGroup.position.y = 0;
+        truckRoot.rotation.z = 0;
+      }
+
+      // 2. Swing Nazar Battu Tassels in the Highway Wind
+      tasselPendulums.forEach((p, idx) => {
+        const windBack = (state.speed / 100) * 0.35;
+        p.rotation.z = -windBack + Math.sin(elapsed * 6.5 + idx) * (0.04 + windBack * 0.25);
+        p.rotation.x = Math.cos(elapsed * 5.2 + idx) * 0.05;
+      });
+
+      // 3. Smoothly Animate Cab Doors & Rear Tailgate
+      const targetDoorAngle = state.doors ? 1.05 : 0.0;
+      if (leftDoorPivot && rightDoorPivot) {
+        leftDoorPivot.rotation.y += (targetDoorAngle - leftDoorPivot.rotation.y) * 0.12;
+        rightDoorPivot.rotation.y += (-targetDoorAngle - rightDoorPivot.rotation.y) * 0.12;
+      }
+      const targetGateAngle = state.tailgate ? 1.45 : 0.0;
+      if (tailgatePivot) {
+        tailgatePivot.rotation.z += (targetGateAngle - tailgatePivot.rotation.z) * 0.12;
+      }
+
+      // 4. Windshield Wipers Sweep
+      if (state.wipers && wiperLeftPivot && wiperRightPivot) {
+        const sweep = Math.sin(elapsed * 7.0) * 0.65;
+        wiperLeftPivot.rotation.x = sweep;
+        wiperRightPivot.rotation.x = sweep;
+      }
+
+      // 5. Hazard Indicator Blinkers
+      if (state.hazards) {
+        const blinkOn = Math.sin(elapsed * 8.5) > 0;
+        matHazardEmissive.emissiveIntensity = blinkOn ? 2.2 : 0.1;
+      } else {
+        matHazardEmissive.emissiveIntensity = 0.05;
+      }
+
+      // 6. Auto-Turntable Rotation (Continuous 360° Background Showcase)
+      if (state.turntable) {
+        truckRoot.rotation.y += dt * (state.rotationSpeed || 0.42);
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('canvas-container');
+      if (!container || !camera || !renderer) return;
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    window.onload = initScene;
+  </script>
+</body>
+</html>
