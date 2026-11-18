@@ -3032,14 +3032,27 @@
         if (listHeader) listHeader.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       };
 
-      const canModifyLoad = (load) => {
+            const canModifyLoad = (load) => {
         if (!state.currentUser) return false;
+        if (state.currentUser.isDemoTransporter || state.currentUser.isDemo) return false;
         if (isOwnerUser(state.currentUser)) return true;
-        return (
-          (load.posterMobile && load.posterMobile === state.currentUser.mobile) ||
-          (load.transporterPhone && load.transporterPhone === state.currentUser.mobile) ||
-          (load.phone && load.phone === state.currentUser.mobile)
+
+        const currentMobile = state.currentUser.mobile ? state.currentUser.mobile.trim() : '';
+        const currentEmail = state.currentUser.email ? state.currentUser.email.trim().toLowerCase() : '';
+
+        const posterMobile = load.posterMobile ? load.posterMobile.trim() : '';
+        const posterEmail = load.posterEmail ? load.posterEmail.trim().toLowerCase() : '';
+
+        // Cannot modify loads posted by Admin
+        if (posterMobile === '7231858636' || posterEmail === 'sunilgahlot0636@gmail.com') {
+          return false;
+        }
+
+        const isCreator = Boolean(
+          (posterMobile && posterMobile === currentMobile) ||
+          (posterEmail && currentEmail && posterEmail === currentEmail)
         );
+        return isCreator;
       };
 
       const toggleLoadStatus = (loadId) => {

@@ -1748,14 +1748,29 @@
         );
       };
 
-      const canModifyLoad = (load) => {
+            const canModifyLoad = (load) => {
         if (!state.currentUser) return false;
         if (state.currentUser.isDemoTransporter || state.currentUser.isDemo) return false;
+        // Admin has master access to change info or mark assigned ANY load posted by anyone
         if (isOwnerUser(state.currentUser)) return true;
-        return (
-          (load.posterMobile && load.posterMobile === state.currentUser.mobile) ||
-          (load.phone && load.phone === state.currentUser.mobile)
+
+        const currentMobile = state.currentUser.mobile ? state.currentUser.mobile.trim() : '';
+        const currentEmail = state.currentUser.email ? state.currentUser.email.trim().toLowerCase() : '';
+
+        const posterMobile = load.posterMobile ? load.posterMobile.trim() : '';
+        const posterEmail = load.posterEmail ? load.posterEmail.trim().toLowerCase() : '';
+
+        // Cannot modify loads posted by Admin
+        if (posterMobile === '7231858636' || posterEmail === 'sunilgahlot0636@gmail.com') {
+          return false;
+        }
+
+        // Must match the exact creator who posted it
+        const isCreator = Boolean(
+          (posterMobile && posterMobile === currentMobile) ||
+          (posterEmail && currentEmail && posterEmail === currentEmail)
         );
+        return isCreator;
       };
 
       // Navigation Engine
@@ -2306,7 +2321,7 @@
         if (!canModifyLoad(load)) {
           const msg = state.lang === 'hi'
             ? "अनुमति अस्वीकृत: यह लोड केवल इसे पोस्ट करने वाले या वेबसाइट मालिक (सुनील गहलोत) द्वारा ही बदला जा सकता है।"
-            : "Access Denied: Only the creator who posted this load (or the Website Admin) can edit or change its status.";
+            : "Access Denied: You can only change info or mark assigned for loads you posted. Other transporters' and Admin's loads are protected.";
           showToast(msg, '✕');
           return;
         }
@@ -2326,7 +2341,7 @@
         if (!canModifyLoad(load)) {
           const msg = state.lang === 'hi'
             ? "अनुमति अस्वीकृत: यह लोड केवल इसे पोस्ट करने वाले या वेबसाइट मालिक (सुनील गहलोत) द्वारा ही हटाया जा सकता है।"
-            : "Access Denied: Only the creator who posted this load (or the Website Admin) can delete it.";
+            : "Access Denied: You can only delete loads you posted. Other transporters' and Admin's loads are protected.";
           showToast(msg, '✕');
           return;
         }
@@ -2337,6 +2352,92 @@
         renderTransporterCards();
         renderDriverCards();
         showToast("Load deleted", '✓');
+      };
+
+
+      // ─── Edit Load Information Functions ──────────────────────────────────
+      const openEditLoadModal = (id) => {
+        triggerHaptic();
+        const load = state.loads.find(l => l.id === id);
+        if (!load) return;
+
+        if (!canModifyLoad(load)) {
+          const msg = state.lang === 'hi'
+            ? "अनुमति अस्वीकृत: आप केवल अपने द्वारा पोस्ट किए गए लोड की जानकारी बदल सकते हैं।"
+            : "Access Denied: You can only change info for loads you posted. Other transporters' and Admin's loads are protected.";
+          showToast(msg, '✕');
+          return;
+        }
+
+        document.getElementById('edit-load-id').value = load.id;
+        document.getElementById('edit-load-subtitle').textContent = `${load.id} • Posted by ${load.posterName || load.transporterEn || 'You'}`;
+        document.getElementById('edit-origin').value = load.originEn || load.originHi || '';
+        document.getElementById('edit-destination').value = load.destEn || load.destHi || '';
+        document.getElementById('edit-date').value = load.date || '';
+        document.getElementById('edit-weight').value = load.weightEn || load.weightHi || '';
+        document.getElementById('edit-truck-type').value = load.truckTypeEn || load.truckTypeHi || '10 Wheeler';
+        document.getElementById('edit-phone').value = load.phone || '';
+        document.getElementById('edit-material').value = load.materialKey || 'industrial';
+
+        const modal = document.getElementById('edit-load-modal');
+        if (modal) modal.classList.remove('hidden');
+      };
+
+      const closeEditLoadModal = () => {
+        const modal = document.getElementById('edit-load-modal');
+        if (modal) modal.classList.add('hidden');
+      };
+
+      const handleSaveEditLoad = (e) => {
+        e.preventDefault();
+        triggerHaptic();
+
+        const id = document.getElementById('edit-load-id').value;
+        const load = state.loads.find(l => l.id === id);
+        if (!load) return;
+
+        if (!canModifyLoad(load)) {
+          showToast(state.lang === 'hi' ? "अनुमति अस्वीकृत" : "Access Denied", '✕');
+          closeEditLoadModal();
+          return;
+        }
+
+        const origin = document.getElementById('edit-origin').value.trim();
+        const dest = document.getElementById('edit-destination').value.trim();
+        const date = document.getElementById('edit-date').value;
+        const weight = document.getElementById('edit-weight').value.trim();
+        const truckType = document.getElementById('edit-truck-type').value.trim();
+        const phone = document.getElementById('edit-phone').value.trim();
+        const materialKey = document.getElementById('edit-material').value;
+
+        load.originEn = origin;
+        load.originHi = origin;
+        load.destEn = dest;
+        load.destHi = dest;
+        load.date = date;
+        load.weightEn = weight;
+        load.weightHi = weight;
+        load.truckTypeEn = truckType;
+        load.truckTypeHi = truckType;
+        load.phone = phone;
+        load.materialKey = materialKey;
+
+        // Persist locally
+        localStorage.setItem('kabani_loads_v1', JSON.stringify(state.loads));
+        // Persist to backend server loads.json
+        try {
+          fetch('/api/loads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(state.loads)
+          }).catch(() => {});
+        } catch(e) {}
+
+        closeEditLoadModal();
+        renderTransporterCards();
+        renderDriverCards();
+
+        showToast(state.lang === 'hi' ? "लोड की जानकारी अपडेट हो गई!" : "Load information updated successfully!", '✓');
       };
 
       // Render Transporter Postings
@@ -2410,15 +2511,19 @@
 
           const editControl = userCanEdit
             ? `<div class="flex items-center gap-1.5">
-                 ${isOwner ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-800 border border-amber-400">👑 Owner</span>` : ''}
+                 ${isOwner ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-800 border border-amber-400">👑 Admin</span>` : ''}
                  ${actionBtn}
+                 <button type="button" onclick="app.openEditLoadModal('${load.id}')" class="px-2.5 py-1.5 rounded-xl glass-card text-xs font-bold text-amber-800 hover:bg-white flex items-center gap-1 border border-amber-400/30 bencho-press" title="Change Info">
+                   <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                   <span>${isHi ? 'बदलें' : 'Edit Info'}</span>
+                 </button>
                  <button type="button" onclick="app.deleteLoad('${load.id}')" class="p-1.5 rounded-xl glass-card text-kabani-espresso/40 hover:text-red-500 hover:bg-white bencho-press" title="Delete">
                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                  </button>
                </div>`
             : `<div class="flex items-center gap-1.5">
-                 <span class="px-2.5 py-1 rounded-xl glass-card text-[11px] font-bold text-kabani-espresso/50 flex items-center gap-1 border border-kabani-border/10">
-                   <span>🔒</span> <span>${isHi ? 'अन्य ट्रांसपोर्टर' : 'Protected'}</span>
+                 <span class="px-2.5 py-1 rounded-xl glass-card text-[11px] font-bold text-kabani-espresso/50 flex items-center gap-1 border border-kabani-border/10" title="Protected: Only the creator who posted this load or Admin can modify it">
+                   <span>🔒</span> <span>${isHi ? 'सुरक्षित (अन्य ट्रांसपोर्टर)' : 'Protected'}</span>
                  </span>
                </div>`;
 
@@ -2846,6 +2951,9 @@
         updateActiveMaterialCard,
         handlePostLoad,
         toggleLoadStatus,
+        openEditLoadModal,
+        closeEditLoadModal,
+        handleSaveEditLoad,
         deleteLoad,
         filterLoads,
         setStatusFilter,
@@ -2909,5 +3017,81 @@
     </div>
   </div>
 
+
+  <!-- ═══ EDIT LOAD INFORMATION MODAL ═══ -->
+  <div id="edit-load-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="edit-load-modal-title">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-kabani-espresso/40 backdrop-blur-sm" onclick="app.closeEditLoadModal()"></div>
+    <!-- Panel -->
+    <div class="relative w-full max-w-lg glass-panel rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/40 bg-white/95 z-10 animate-modal-in max-h-[90vh] overflow-y-auto">
+      <!-- Close -->
+      <button onclick="app.closeEditLoadModal()" class="absolute top-4 right-4 p-1.5 rounded-full hover:bg-black/10 text-kabani-espresso/50 transition-all" aria-label="Close">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <!-- Header -->
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-700 font-bold text-lg shadow-inner">
+          ✏️
+        </div>
+        <div>
+          <h2 id="edit-load-modal-title" class="text-base sm:text-lg font-extrabold text-kabani-espresso tracking-tight">Edit Load Information</h2>
+          <p id="edit-load-subtitle" class="text-xs text-kabani-espresso/60 font-mono">LOAD-ID</p>
+        </div>
+      </div>
+      <!-- Form -->
+      <form onsubmit="app.handleSaveEditLoad(event)" class="space-y-4">
+        <input type="hidden" id="edit-load-id">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-kabani-espresso/80 mb-1">Origin / Loading Point</label>
+            <input type="text" id="edit-origin" class="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-bold" required>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-kabani-espresso/80 mb-1">Destination / Unloading Point</label>
+            <input type="text" id="edit-destination" class="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-bold" required>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-kabani-espresso/80 mb-1">Loading Date</label>
+            <input type="date" id="edit-date" class="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-bold" required>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-kabani-espresso/80 mb-1">Weight / Tonnage</label>
+            <input type="text" id="edit-weight" class="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-bold" required>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-kabani-espresso/80 mb-1">Truck Type</label>
+            <input type="text" id="edit-truck-type" class="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-bold" required>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-kabani-espresso/80 mb-1">Contact Phone</label>
+            <input type="tel" id="edit-phone" maxlength="10" class="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-bold font-mono" required>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-kabani-espresso/80 mb-1">Material Category</label>
+          <select id="edit-material" class="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs font-bold">
+            <option value="industrial">Industrial Goods / Machinery</option>
+            <option value="agriculture">Agricultural Produce / Mandi</option>
+            <option value="construction">Construction Materials / Cement</option>
+            <option value="fmcg">FMCG & Packaged Goods</option>
+            <option value="minerals">Chemicals, Minerals & Metals</option>
+            <option value="textiles">Textiles & Garments</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2 pt-2">
+          <button type="button" onclick="app.closeEditLoadModal()" class="w-1/2 py-2.5 rounded-xl glass-card text-xs font-bold text-kabani-espresso hover:bg-white border border-kabani-border/20">
+            Cancel
+          </button>
+          <button type="submit" id="btn-save-edit-load" class="w-1/2 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-extrabold shadow-md uppercase tracking-wider">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

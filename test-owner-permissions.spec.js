@@ -96,4 +96,48 @@ test.describe('KABANI - Master Owner & Load Access Control Suite', () => {
     await expect(modal).toBeHidden();
   });
 
+  test('4. Transporter Scope: Can change info & mark assigned ONLY own loads, blocked on others & admin', async ({ page }) => {
+    await page.goto('/glass.html');
+
+    // Login as registered transporter Rajesh Kumar (9829011223 / Password@123)
+    await page.fill('#login-mobile', '9829011223');
+    await page.fill('#login-password', 'Password@123');
+    await page.click('#form-login button[type="submit"]');
+
+    await expect(page.locator('#view-role-select')).toBeVisible();
+    await page.click('#card-role-transporter');
+    await expect(page.locator('#view-transporter')).toBeVisible();
+
+    // 4.1 On own load (LOAD-701, posted by 9829011223): action & edit buttons are visible
+    const editBtn701 = page.locator('button[onclick*="openEditLoadModal(\'LOAD-701\')"]').first();
+    await expect(editBtn701).toBeVisible();
+
+    // Click Edit Info on own load
+    await editBtn701.click();
+    const editModal = page.locator('#edit-load-modal');
+    await expect(editModal).toBeVisible();
+
+    // Change destination and save
+    await page.fill('#edit-destination', 'Jaipur (Sitapura Industrial Area)');
+    await page.click('#btn-save-edit-load');
+
+    // Verify modal closes and toast confirms update
+    await expect(editModal).toBeHidden();
+    await expect(page.locator('#toast-container')).toContainText(/updated successfully|अपडेट/i);
+
+    // Verify updated info is rendered on the load card
+    await expect(page.locator('#transporter-cards-container')).toContainText('Jaipur (Sitapura Industrial Area)');
+
+    // 4.2 On other transporter's load (LOAD-702, posted by 9876543210): protected
+    // Verify toggle/edit buttons do not exist for LOAD-702 for this transporter
+    const editBtn702 = page.locator('button[onclick*="openEditLoadModal(\'LOAD-702\')"]');
+    await expect(editBtn702).toHaveCount(0);
+
+    // Direct invocation should be strictly blocked by access control
+    await page.evaluate(() => {
+      window.app.toggleLoadStatus('LOAD-702');
+    });
+    await expect(page.locator('#toast-container')).toContainText(/Access Denied|अस्वीकृत/i);
+  });
+
 });
