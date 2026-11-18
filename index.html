@@ -2800,6 +2800,9 @@
         let targetMobile = (role === 'transporter') ? "9829011223" : "9876543210";
         if (role === 'owner') targetMobile = "7231858636";
         let user = state.registeredUsers.find(u => u.mobile === targetMobile);
+        if (role === 'transporter' && user) {
+          user = { ...user, isDemoTransporter: true, isDemo: true };
+        }
         if (!user) {
           if (role === 'owner') {
             user = {
@@ -2942,6 +2945,14 @@
       const handlePostLoad = (e) => {
         e.preventDefault();
         triggerHaptic();
+
+        // Strict View-Only Check: Demo Transporter cannot post new loads
+        if (state.currentUser && (state.currentUser.isDemoTransporter || state.currentUser.isDemo)) {
+          showToast(state.lang === 'hi' 
+            ? "डेमो ट्रांसपोर्टर केवल देख सकते हैं। नया लोड पोस्ट करने के लिए कृपया साइन अप करें।" 
+            : "View-Only Mode: Demo Transporter cannot post loads. Please sign up or login.", 'red');
+          return;
+        }
 
         const origin = document.getElementById('post-origin').value.trim();
         const destination = document.getElementById('post-destination').value.trim();

@@ -154,32 +154,53 @@ test.describe('KABANI - Reliable Truck Network - Feature & Functional Tests', ()
     expect(matGridText).toContain('केमिकल्स / लिक्विड');
   });
 
-  test('4. Transporter Dashboard: Post Load Form & "Mark as Assigned" Status Toggle', async ({ page }) => {
+  test('4. Transporter Dashboard: Demo View-Only & Authenticated Post Load', async ({ page }) => {
+    // 4.1 Demo Transporter is View-Only and blocked from posting loads
     await page.click('#btn-demo-transporter');
     await page.click('#card-role-transporter');
     
-    // 4.1 Fill out Post Load Requirement
+    // Fill out Post Load Requirement as Demo Transporter
     await page.fill('#post-origin', 'Pune (Chakan MIDC)');
     await page.fill('#post-destination', 'Delhi (Sanjay Gandhi Transport Nagar)');
     await page.fill('#post-weight', '28 Tons (28 MT)');
     await page.fill('#post-phone', '9829011999');
-
-    // Select Machinery via its container label
     await page.click('label:has(input[value="machinery"])');
 
-    // Submit form
+    // Attempt Submit
     await page.click('#btn-submit-post-load');
 
-    // Verify toast notification appears
+    // Verify blocked by View-Only toast notification
     const toast = page.locator('#toast-container');
+    await expect(toast).toContainText(/View-Only|केवल देख सकते/i);
+
+    // 4.2 Logout and login as Registered Transporter
+    await page.click('#btn-logout');
+    await expect(page.locator('#view-auth')).toBeVisible();
+
+    await page.fill('#login-mobile', '9829011223');
+    await page.fill('#login-password', 'Password@123');
+    await page.click('#form-login button[type="submit"]');
+
+    await expect(page.locator('#view-role-select')).toBeVisible();
+    await page.click('#card-role-transporter');
+
+    // Post Load as registered transporter
+    await page.fill('#post-origin', 'Pune (Chakan MIDC)');
+    await page.fill('#post-destination', 'Delhi (Sanjay Gandhi Transport Nagar)');
+    await page.fill('#post-weight', '28 Tons (28 MT)');
+    await page.fill('#post-phone', '9829011223');
+    await page.click('label:has(input[value="machinery"])');
+    await page.click('#btn-submit-post-load');
+
+    // Verify success toast notification
     await expect(toast).toContainText(/Load published successfully|सफलतापूर्वक/i);
 
-    // 4.2 Verify newly created load appears in My Postings
+    // 4.3 Verify newly created load appears in My Postings
     const postingsList = page.locator('#transporter-postings-list');
     await expect(postingsList).toContainText('Pune (Chakan MIDC)');
     await expect(postingsList).toContainText('Delhi (Sanjay Gandhi Transport Nagar)');
 
-    // 4.3 Test "Mark as Assigned" button
+    // 4.4 Test "Mark as Assigned" button
     const assignBtn = postingsList.locator('button:has-text("Mark as Assigned"), button:has-text("Assigned")').first();
     await assignBtn.click();
 

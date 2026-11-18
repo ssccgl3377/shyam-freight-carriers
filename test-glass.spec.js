@@ -75,23 +75,50 @@ test.describe('KABANI Glassmorphism Edition - Verification & UX Suite', () => {
     await expect(page.locator('#toast-container')).toBeVisible();
   });
 
-  test('4. Glass Transporter Dashboard: Post Load Form & Status Toggle', async ({ page }) => {
+  test('4. Glass Transporter Dashboard: Demo View-Only & Authenticated Post Load', async ({ page }) => {
+    // 4.1 Demo Transporter is View-Only and blocked from posting loads
     await page.click('#btn-demo-transporter');
     await page.click('#card-role-transporter');
 
     const transporterView = page.locator('#view-transporter');
     await expect(transporterView).toBeVisible();
 
-    // Fill load form
+    const viewOnlyNotice = page.locator('#demo-transporter-viewonly-notice');
+    await expect(viewOnlyNotice).toBeVisible();
+
+    // Fill load form as Demo Transporter
     await page.fill('#post-origin', 'Delhi (Transport Hub)');
     await page.fill('#post-destination', 'Mumbai (JNPT Port)');
     await page.fill('#post-weight', '30 Tons (30 MT)');
     await page.fill('#post-phone', '9829011888');
 
-    // Submit
+    // Submit attempt as Demo Transporter
     await page.click('#btn-submit-post-load');
 
-    // Verify toast
+    // Verify blocked by View-Only toast
+    await expect(page.locator('#toast-container')).toContainText(/View-Only|केवल देख सकते/i);
+
+    // 4.2 Logout and login as Registered Transporter with password
+    await page.click('#btn-logout');
+    await expect(page.locator('#view-auth')).toBeVisible();
+
+    // Real login as registered transporter
+    await page.fill('#login-mobile', '9829011223');
+    await page.fill('#login-password', 'Password@123');
+    await page.click('#form-login button[type="submit"]');
+
+    await expect(page.locator('#view-role-select')).toBeVisible();
+    await page.click('#card-role-transporter');
+    await expect(transporterView).toBeVisible();
+
+    // Fill and publish load as authenticated registered transporter
+    await page.fill('#post-origin', 'Delhi (Transport Hub)');
+    await page.fill('#post-destination', 'Mumbai (JNPT Port)');
+    await page.fill('#post-weight', '30 Tons (30 MT)');
+    await page.fill('#post-phone', '9829011223');
+    await page.click('#btn-submit-post-load');
+
+    // Verify success toast
     await expect(page.locator('#toast-container')).toContainText(/successfully|लाइव/i);
 
     // Verify load in My Posted Loads

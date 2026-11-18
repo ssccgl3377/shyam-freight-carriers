@@ -1063,6 +1063,14 @@
         </div>
 
         <form id="form-post-load" onsubmit="app.handlePostLoad(event)" class="space-y-4">
+          <!-- View-Only Notice for Demo Transporter -->
+          <div id="demo-transporter-viewonly-notice" class="hidden p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-900 text-xs font-bold flex items-center gap-2.5 shadow-sm">
+            <span class="text-lg">👁️</span>
+            <div>
+              <div class="font-extrabold uppercase tracking-wider text-[11px] text-amber-800">Demo Transporter (View-Only Mode)</div>
+              <div class="text-[11px] font-medium opacity-80 mt-0.5">Posting new loads is restricted for demo accounts. Please sign up or login with your registered account to publish live loads.</div>
+            </div>
+          </div>
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -1122,7 +1130,7 @@
           </div>
 
           <button type="submit" id="btn-submit-post-load" class="w-full py-4 rounded-xl glass-btn-cognac text-sm font-bold text-white shadow-xl uppercase tracking-wider">
-            <span data-i18n="btn_submit_post">Publish Load Now</span>
+            <span id="btn-submit-post-label" data-i18n="btn_submit_post">Publish Load Now</span>
           </button>
 
           <p class="text-[11px] text-kabani-espresso/60 text-center font-medium" data-i18n="post_disclaimer">
@@ -1742,6 +1750,7 @@
 
       const canModifyLoad = (load) => {
         if (!state.currentUser) return false;
+        if (state.currentUser.isDemoTransporter || state.currentUser.isDemo) return false;
         if (isOwnerUser(state.currentUser)) return true;
         return (
           (load.posterMobile && load.posterMobile === state.currentUser.mobile) ||
@@ -2006,6 +2015,9 @@
           }
         } else {
           user = state.registeredUsers.find(u => u.role === role) || state.registeredUsers[0];
+        if (role === 'transporter') {
+          user = { ...user, isDemoTransporter: true, isDemo: true };
+        }
         }
         state.currentUser = user;
         localStorage.setItem('kabani_user', JSON.stringify(user));
@@ -2222,6 +2234,14 @@
       const handlePostLoad = (e) => {
         e.preventDefault();
         triggerHaptic();
+
+        // Strict View-Only Check: Demo Transporter cannot post new loads
+        if (state.currentUser && (state.currentUser.isDemoTransporter || state.currentUser.isDemo)) {
+          showToast(state.lang === 'hi' 
+            ? "डेमो ट्रांसपोर्टर केवल देख सकते हैं। लोड पोस्ट करने के लिए कृपया साइन अप करें।" 
+            : "View-Only Mode: Demo Transporter cannot post loads. Please sign up or login with your account.", '✕');
+          return;
+        }
         const origin = document.getElementById('post-origin').value.trim();
         const destination = document.getElementById('post-destination').value.trim();
         const date = document.getElementById('post-date').value;
@@ -2264,6 +2284,7 @@
 
         state.loads.unshift(newLoad);
         localStorage.setItem('kabani_loads_v1', JSON.stringify(state.loads));
+        try { fetch('/api/loads', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(state.loads) }).catch(() => {}); } catch(e) {}
 
         document.getElementById('post-origin').value = '';
         document.getElementById('post-destination').value = '';
@@ -2328,6 +2349,19 @@
 
         const isHi = state.lang === 'hi';
         const isOwner = isOwnerUser(state.currentUser);
+        const isDemoTransporter = Boolean(state.currentUser && (state.currentUser.isDemoTransporter || state.currentUser.isDemo));
+
+        // Update post load form view-only banner
+        const viewOnlyBanner = document.getElementById('demo-transporter-viewonly-notice');
+        const submitBtnLabel = document.getElementById('btn-submit-post-label');
+        if (viewOnlyBanner) {
+          viewOnlyBanner.classList.toggle('hidden', !isDemoTransporter);
+        }
+        if (submitBtnLabel) {
+          submitBtnLabel.textContent = isDemoTransporter 
+            ? (state.lang === 'hi' ? 'केवल देखें (डेमो मोड में लोड पोस्ट बंद है)' : 'View-Only Mode (Posting Disabled for Demo)')
+            : (state.lang === 'hi' ? 'अभी लोड पोस्ट करें' : 'Publish Load Now');
+        }
         const active = state.loads.filter(l => l.status === 'available');
         const assigned = state.loads.filter(l => l.status === 'assigned');
 
